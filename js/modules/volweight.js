@@ -23,7 +23,15 @@ const WEIGHT_OBJECTS = {
     2500: { emoji: '🐈', label: 'katt' },
     3000: { emoji: '🐈', label: 'stor katt' },
     3450: { emoji: '🎃', label: 'pumpa' },
-    4750: { emoji: '🐕', label: 'liten hund' }
+    4750: { emoji: '🐕', label: 'liten hund' },
+    12000: { emoji: '🎒', label: 'packad ryggsäck' },
+    30000: { emoji: '🧒', label: 'ett barn' },
+    35000: { emoji: '🧒', label: 'ett barn' },
+    80000: { emoji: '🐑', label: 'ett får' },
+    90000: { emoji: '🧑', label: 'en vuxen' },
+    120000: { emoji: '🏍️', label: 'motorcykel' },
+    1000000: { emoji: '🚗', label: 'en bil' },
+    1200000: { emoji: '🚗', label: 'en bil' }
 };
 
 const WEIGHT_BENCHMARKS_HTML = `
@@ -33,7 +41,9 @@ const WEIGHT_BENCHMARKS_HTML = `
         <span>🍎 äpple ≈ 2 hg</span><span class="text-lime-400">•</span>
         <span>🧈 smör ≈ 5 hg</span><span class="text-lime-400">•</span>
         <span>🥛 mjölk ≈ 1 kg</span><span class="text-lime-400">•</span>
-        <span>🐈 katt ≈ 3 kg</span>
+        <span>🐈 katt ≈ 3 kg</span><span class="text-lime-400">•</span>
+        <span>🧒 du ≈ 30 kg</span><span class="text-lime-400">•</span>
+        <span>🚗 bil ≈ 1 000 kg = 1 ton!</span>
     </div>`;
 
 export function setVolWeightSubMode(mode) {
@@ -101,7 +111,9 @@ export function generateVolWeightQuestion() {
                 { fv: 1.5, fu: 'kg', tu: 'g', ans: 1500, rule: '1 kg = 1 000 g' },
                 { fv: 2.5, fu: 'kg', tu: 'hg', ans: 25, rule: '1 kg = 10 hg' },
                 { fv: 750, fu: 'g', tu: 'hg', ans: 7.5, rule: '100 g = 1 hg' },
-                { fv: 600, fu: 'g', tu: 'kg', ans: 0.6, rule: '1 000 g = 1 kg' }
+                { fv: 600, fu: 'g', tu: 'kg', ans: 0.6, rule: '1 000 g = 1 kg' },
+                { fv: 12, fu: 'kg', tu: 'hg', ans: 120, rule: '1 kg = 10 hg' },
+                { fv: 30, fu: 'kg', tu: 'hg', ans: 300, rule: '1 kg = 10 hg' }
               ]
             : [
                 { fv: 1.25, fu: 'kg', tu: 'g', ans: 1250, rule: '1 kg = 1 000 g' },
@@ -109,7 +121,11 @@ export function generateVolWeightQuestion() {
                 { fv: 3.45, fu: 'kg', tu: 'hg', ans: 34.5, rule: '1 kg = 10 hg' },
                 { fv: 1850, fu: 'g', tu: 'hg', ans: 18.5, rule: '100 g = 1 hg' },
                 { fv: 0.05, fu: 'kg', tu: 'g', ans: 50, rule: '1 kg = 1 000 g' },
-                { fv: 4750, fu: 'g', tu: 'kg', ans: 4.75, rule: '1 000 g = 1 kg' }
+                { fv: 4750, fu: 'g', tu: 'kg', ans: 4.75, rule: '1 000 g = 1 kg' },
+                { fv: 35, fu: 'kg', tu: 'g', ans: 35000, rule: '1 kg = 1 000 g' },
+                { fv: 80, fu: 'kg', tu: 'hg', ans: 800, rule: '1 kg = 10 hg' },
+                { fv: 120, fu: 'kg', tu: 'hg', ans: 1200, rule: '1 kg = 10 hg' },
+                { fv: 1200, fu: 'kg', tu: 'g', ans: 1200000, rule: '1 kg = 1 000 g' }
               ]);
         const t = tasks[randInt(0, tasks.length - 1)];
         fromVal = t.fv; fromUnit = t.fu; toUnit = t.tu; answer = t.ans; ruleText = t.rule;
