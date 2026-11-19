@@ -99,9 +99,16 @@ export function generateFracQuestion() {
         document.getElementById('frac-question-text').textContent = 'Hur stor del av pizzan är färgad?';
         visEl.innerHTML = renderPizzaSVG(den, Array.from({ length: num }, (_, i) => i), false, '', 165);
 
+        const miniFrac = (label, fracCls) => `<div class="my-1.5 flex items-center justify-center gap-3">
+            ${renderPizzaSVG(den, label === 'den' ? Array.from({ length: den }, (_, i) => i) : Array.from({ length: num }, (_, i) => i), false, '', 90)}
+            <div class="text-left">
+                <div class="stacked-frac"><span class="stacked-frac-num ${fracCls === 'num' ? 'text-rose-600' : 'text-slate-400'}">${num}</span><span class="stacked-frac-den ${fracCls === 'den' ? 'text-sky-700' : 'text-slate-400'}">${den}</span></div>
+                <div class="text-[10px] font-extrabold text-slate-500 mt-1">${label === 'den' ? `nämnaren = ${den} bitar totalt` : `täljaren = ${num} färgade`}</div>
+            </div>
+        </div>`;
         setHintSteps('frac', [
-            `<p>Räkna hur många bitar pizzan är delad i totalt: <strong>${den} bitar</strong> (det är <strong>nämnaren</strong> där nere).</p>`,
-            `<p>Räkna hur många bitar som är färgade: <strong>${num} bitar</strong> (det är <strong>täljaren</strong> där uppe) ➔ ${formatFractionHTML(num, den)}!</p>`
+            `<p>Räkna hur många bitar pizzan är delad i totalt: <strong>${den} bitar</strong> (det är <strong class="text-sky-700">nämnaren</strong> där nere).</p>` + miniFrac('den', 'den'),
+            `<p>Räkna hur många bitar som är färgade: <strong>${num} bitar</strong> (det är <strong class="text-rose-600">täljaren</strong> där uppe) ➔ ${formatFractionHTML(num, den)}!</p>` + miniFrac('num', 'num')
         ]);
 
         if (state.inputModes.frac === 'choice') {

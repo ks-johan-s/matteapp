@@ -52,8 +52,10 @@ export function generateClockQuestion() {
         document.getElementById('clock-svg-container').innerHTML = renderClockSVG(h, m, 195);
 
         setHintSteps('clock', [
-            `<p>Titta på den <strong class="text-rose-600">korta röda timvisaren</strong>: den pekar på <strong>${h}</strong>${isAfternoon ? ` (på eftermiddagen plussar vi på 12: <strong>${h} + 12 = ${dispH}</strong>)` : ''}.</p>`,
-            `<p>Räkna minutstrecken på den <strong class="text-sky-600">långa blå minutvisaren</strong>: <strong>${String(m).padStart(2, '0')} minuter</strong> ➔ Klockan är <strong>${ansStr}</strong>!</p>`
+            `<p>Titta på den <strong class="text-rose-600">korta röda timvisaren</strong>: den pekar på <strong>${h}</strong>${isAfternoon ? ` (på eftermiddagen plussar vi på 12: <strong>${h} + 12 = ${dispH}</strong>)` : ''}.</p>
+             <div class="flex justify-center my-1">${renderClockSVG(h, m, 110, false, 'hour')}</div>`,
+            `<p>Räkna minutstrecken på den <strong class="text-sky-600">långa blå minutvisaren</strong>: <strong>${String(m).padStart(2, '0')} minuter</strong> ➔ Klockan är <strong>${ansStr}</strong>!</p>
+             <div class="flex justify-center my-1">${renderClockSVG(h, m, 110, false, 'min')}</div>`
         ]);
 
         const set = new Set([ansStr]);

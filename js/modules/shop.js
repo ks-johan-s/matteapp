@@ -138,9 +138,20 @@ export function generateShopQuestion() {
         const sumDesc = picked.length === 1
             ? `Varan kostar <strong>${totalCost} kr</strong>.`
             : `Lägg ihop priserna: <strong>${picked.map(i => i.price).join(' + ')} = ${totalCost} kr</strong>.`;
+        let rest = totalCost;
+        const breakdown = [];
+        for (const d of [500, 200, 100, 50, 20, 10, 5, 2, 1]) {
+            const n = Math.floor(rest / d);
+            for (let i = 0; i < n; i++) breakdown.push(d);
+            rest -= n * d;
+        }
+        const moneyChip = (d) => d <= 10
+            ? `<span class="inline-flex items-center justify-center w-8 h-8 rounded-full ${d <= 2 ? 'bg-amber-500 border-amber-800' : 'bg-yellow-300 border-amber-500'} border-2 text-white font-display font-bold text-xs" style="${d >= 5 ? 'color:#78350f' : ''}">${d}</span>`
+            : `<span class="px-2.5 h-8 inline-flex items-center rounded-lg ${d === 20 ? 'bg-purple-500' : (d === 50 ? 'bg-orange-400' : (d === 100 ? 'bg-sky-500' : (d === 200 ? 'bg-emerald-600' : 'bg-rose-600')))} border-2 border-black/20 text-white font-display font-bold text-xs">${d} kr</span>`;
+        const breakdownHtml = `<div class="my-1.5 flex flex-wrap items-center justify-center gap-1">${breakdown.map(moneyChip).join('<span class="text-slate-400 font-bold text-xs">+</span>')}</div>`;
         setHintSteps('shop', [
             `<p>${sumDesc}</p>`,
-            `<p>Bygg ihop <strong>${totalCost} kr</strong> på kassadisken med sedlar och mynt nedan!</p>`
+            `<p>Bygg ihop <strong>${totalCost} kr</strong> på kassadisken – ett sätt är:</p>${breakdownHtml}`
         ]);
     } else {
         const paidBill = totalCost <= 20 ? 20 : (totalCost <= 50 ? 50 : (totalCost <= 100 ? 100 : (totalCost <= 200 ? 200 : 500)));

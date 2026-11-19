@@ -208,7 +208,7 @@ export function buildUnitLadderSVGHTML(units, stepMuls, stepDivs, fromUnit, toUn
 /* =============================================================
    13. MODUL 10: KLOCKAN & TID + ÖVNINGSKLOCKA
 ============================================================== */
-export function renderClockSVG(hours, minutes, size = 190, interactive = false) {
+export function renderClockSVG(hours, minutes, size = 190, interactive = false, focus = null) {
     const cx = size / 2, cy = size / 2, r = size * 0.43;
     let ticksHtml = '';
     for (let t = 0; t < 60; t++) {
@@ -245,15 +245,15 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false) 
             ${ticksHtml}
             ${numsHtml}
             ${interactive ? `
-            <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#e11d48" stroke-width="${size * 0.036}" stroke-linecap="round" />
+            <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#e11d48" stroke-width="${size * 0.036}" stroke-linecap="round" opacity="${focus === 'min' ? 0.25 : 1}" />
             <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="10" fill="#e11d48" fill-opacity="0.35" />
-            <line x1="${cx}" y1="${cy}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#0284c7" stroke-width="${size * 0.024}" stroke-linecap="round" />
+            <line x1="${cx}" y1="${cy}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#0284c7" stroke-width="${size * 0.024}" stroke-linecap="round" opacity="${focus === 'hour' ? 0.25 : 1}" />
             <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="10" fill="#0284c7" fill-opacity="0.35" />
             ` : `
-            <g class="clock-hand clock-hand-hour" style="--hand-rot:${hourDeg.toFixed(1)}deg; animation-delay:0.05s">
+            <g class="clock-hand clock-hand-hour" style="--hand-rot:${hourDeg.toFixed(1)}deg; animation-delay:0.05s" opacity="${focus === 'min' ? 0.22 : 1}">
                 <line x1="${cx}" y1="${cy}" x2="${cx}" y2="${(cy - r * 0.5).toFixed(1)}" stroke="#e11d48" stroke-width="${size * 0.036}" stroke-linecap="round" />
             </g>
-            <g class="clock-hand" style="--hand-rot:${minDeg.toFixed(1)}deg; animation-delay:0.18s">
+            <g class="clock-hand" style="--hand-rot:${minDeg.toFixed(1)}deg; animation-delay:0.18s" opacity="${focus === 'hour' ? 0.22 : 1}">
                 <line x1="${cx}" y1="${cy}" x2="${cx}" y2="${(cy - r * 0.74).toFixed(1)}" stroke="#0284c7" stroke-width="${size * 0.024}" stroke-linecap="round" />
             </g>
             `}
