@@ -30,16 +30,34 @@ export function generateGeoQuestion() {
 
     if (shape === 'build') {
         // CPA-läge: eleven klickar rutor för att bygga en figur med mål-arean.
-        const target = isHard ? randInt(15, 30) : (state.difficulty === 'medium' ? randInt(9, 20) : randInt(5, 12));
+        // Lätt = fri form (area = antal rutor). Medel/utmaning = måste vara
+        // en rektangel, så eleven upptäcker faktorpar och area = rader × kolumner.
         const cols = 7, rows = 5;
-        state.currentGeo = { mode: 'build', target, cols, rows, cells: new Set() };
+        const needRect = state.difficulty !== 'easy';
+        let target;
+        if (needRect) {
+            // Slumpa en rektangel som får plats – svaret kan byggas på flera sätt!
+            const rh = isHard ? randInt(2, 5) : randInt(2, 3);
+            const rw = isHard ? randInt(3, 7) : randInt(3, 6);
+            target = rh * rw;
+        } else {
+            target = randInt(5, 12);
+        }
+        state.currentGeo = { mode: 'build', target, cols, rows, cells: new Set(), needRect };
         document.getElementById('geo-mode-badge').textContent = '🧱 Bygg själv';
-        document.getElementById('geo-question-text').innerHTML = `Bygg en figur med arean <strong>${target} rutor</strong> – klicka på rutorna!`;
-        document.getElementById('geo-sub-note').textContent = '💡 Alla former räknas – area är bara antalet rutor!';
+        document.getElementById('geo-question-text').innerHTML = needRect
+            ? `Bygg en <strong>rektangel</strong> med arean <strong>${target} rutor</strong> – klicka på rutorna!`
+            : `Bygg en figur med arean <strong>${target} rutor</strong> – klicka på rutorna!`;
+        document.getElementById('geo-sub-note').textContent = needRect
+            ? '💡 Rektangel = rader × kolumner. Vilka två tal gånger varandra blir ' + target + '?'
+            : '💡 Alla former räknas – area är bara antalet rutor!';
         if (modeToggle) modeToggle.parentElement.classList.add('hidden');
         document.getElementById('geo-options').classList.add('hidden');
         document.getElementById('geo-type-wrap').classList.add('hidden');
-        setHintSteps('geo', [
+        setHintSteps('geo', needRect ? [
+            `<p>En rektangels area = <strong>rader × kolumner</strong>. Fråga dig: vilket tal gånger vilket tal blir ${target}?</p>`,
+            `<p>Till exempel ${target} = ${factorText(target)}. Fyll en hel rektangel – utan hål eller utstickande rutor!</p>`
+        ] : [
             `<p><strong>Area = antal rutor.</strong> Klicka på exakt <strong>${target} rutor</strong> – vilken form som helst duger!</p>`,
             `<p>Knep: en rektangel är lätt att räkna! Till exempel ${target} = ${factorText(target)}.</p>`
         ]);
@@ -229,9 +247,23 @@ function factorText(n) {
     return `t.ex. ${n - 1} i en lång rad + 1 bredvid`;
 }
 
+// Returnerar {w, h} om cellerna bildar en fylld rektangel, annars null.
+function buildRectDims(cells, cols) {
+    if (cells.size === 0) return null;
+    let minR = Infinity, maxR = -1, minC = Infinity, maxC = -1;
+    for (const i of cells) {
+        const r = Math.floor(i / cols), c = i % cols;
+        if (r < minR) minR = r; if (r > maxR) maxR = r;
+        if (c < minC) minC = c; if (c > maxC) maxC = c;
+    }
+    const w = maxC - minC + 1, h = maxR - minR + 1;
+    return w * h === cells.size ? { w, h } : null;
+}
+
 // Bygg själv-läget (CPA): klicka rutor tills figuren har rätt area.
 function renderGeoBuild() {
     const cur = state.currentGeo;
+    const rect = buildRectDims(cur.cells, cur.cols);
     let cellsHtml = '';
     for (let r = 0; r < cur.rows; r++) {
         for (let c = 0; c < cur.cols; c++) {
@@ -241,13 +273,18 @@ function renderGeoBuild() {
         }
     }
     document.getElementById('geo-visual-container').innerHTML = `
+        <div class="w-full flex flex-col items-center">
         <div class="inline-block bg-white/80 p-3 rounded-2xl border-2 border-fuchsia-200">
             <div class="grid gap-1.5" style="grid-template-columns: repeat(${cur.cols}, minmax(0, 1fr));">${cellsHtml}</div>
         </div>
         <div class="mt-3 font-display font-bold text-lg ${cur.cells.size === cur.target ? 'text-emerald-700' : 'text-fuchsia-900'}">
             Din figur: ${cur.cells.size} rutor • målet: ${cur.target}
         </div>
-        <button onclick="checkGeoBuild()" class="btn-3d bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-2.5 rounded-2xl mt-2">Klar! ✓</button>`;
+        <div class="mt-1 font-display font-bold text-base ${rect ? 'text-emerald-600' : (cur.needRect ? 'text-fuchsia-700' : 'text-slate-500')}">
+            ${rect ? `✨ Rektangel! ${rect.w} × ${rect.h} = ${rect.w * rect.h} rutor` : (cur.needRect && cur.cells.size ? 'Inte en rektangel ännu – fyll hål och utstick!' : '')}
+        </div>
+        <button onclick="checkGeoBuild()" class="btn-3d bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-2.5 rounded-2xl mt-2">Klar! ✓</button>
+        </div>`;
 }
 
 export function geoBuildClick(i) {
@@ -262,6 +299,11 @@ export function geoBuildClick(i) {
 export function checkGeoBuild() {
     const cur = state.currentGeo;
     if (!cur || cur.mode !== 'build' || !document.getElementById('geo-next-wrap').classList.contains('hidden')) return;
+    const rect = buildRectDims(cur.cells, cur.cols);
+    if (cur.needRect && !rect) {
+        showFeedback('geo-feedback', false, `🤔 Din figur är ingen rektangel – den får inte ha hål eller utstickande rutor!`);
+        return;
+    }
     if (cur.cells.size !== cur.target) {
         const diff = cur.target - cur.cells.size;
         showFeedback('geo-feedback', false, diff > 0
@@ -270,6 +312,8 @@ export function checkGeoBuild() {
         return;
     }
     addReward(2);
-    showFeedback('geo-feedback', true, `🎉 Perfekt bygge! Din figur har arean ${cur.target} rutor – alla former med ${cur.target} rutor har samma area!`);
+    showFeedback('geo-feedback', true, rect
+        ? `🎉 Perfekt! Din rektangel är ${rect.w} × ${rect.h} = ${cur.target} rutor – area = rader × kolumner!`
+        : `🎉 Perfekt bygge! Din figur har arean ${cur.target} rutor – alla former med ${cur.target} rutor har samma area!`);
     document.getElementById('geo-next-wrap').classList.remove('hidden');
 }
