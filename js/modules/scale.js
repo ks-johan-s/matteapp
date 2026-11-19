@@ -1,7 +1,7 @@
 // js/modules/scale.js — autogenererad av split.py från original.html
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
-import { randInt, showFeedback, shuffleArray } from '../utils.js';
+import { randInt, showFeedback, shuffleArray, styleNumbersIn } from '../utils.js';
 import { renderScaleSVG } from '../visuals.js';
 
 export function setScaleHands(on) {
@@ -135,7 +135,9 @@ export function scaleWeigh(d) {
     renderScaleHands();
     if (cur.c + cur.extra === cur.leftTotal) {
         addReward(2);
-        document.getElementById('scale-tilt-status').innerHTML = '⚖️ <strong>Vågen är i perfekt balans!</strong>';
+        const tiltEl = document.getElementById('scale-tilt-status');
+        tiltEl.innerHTML = '⚖️ <strong>Vågen är i perfekt balans!</strong>';
+        styleNumbersIn(tiltEl);
         document.getElementById('scale-svg-container').innerHTML = renderScaleSVG(cur.leftLabel, `${cur.c} + ${cur.extra}`, 0);
         showFeedback('scale-feedback', true, `🎉 Du vägde det själv! ${cur.c} + ${cur.extra} = ${cur.leftTotal} – det saknade ${cur.extra}!`);
         document.getElementById('scale-next-wrap').classList.remove('hidden');

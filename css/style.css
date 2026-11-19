@@ -257,3 +257,17 @@ body.focus-mode-active .gamification-badge {
     to { opacity: 1; transform: translateX(0) scale(1); }
 }
 .card-in { animation: cardIn 0.38s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
+
+/* Sifferchips: tal i frågetexter och feedback får en markerad "piller" */
+.qnum {
+    display: inline-block;
+    padding: 0 0.32em;
+    margin: 0 0.04em;
+    border-radius: 0.5em;
+    background: #fef3c7;
+    color: #78350f;
+    font-weight: 800;
+    border-bottom: 2px solid #fbbf24;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}

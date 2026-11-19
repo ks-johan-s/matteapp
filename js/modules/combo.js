@@ -1,7 +1,7 @@
 // js/modules/combo.js — autogenererad av split.py från original.html
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
-import { formatFractionHTML, randInt, showFeedback, shuffleArray } from '../utils.js';
+import { formatFractionHTML, randInt, showFeedback, shuffleArray, styleNumbersIn } from '../utils.js';
 
 export function setComboHands(on) {
     playSound('click');
@@ -120,6 +120,7 @@ function renderComboHands() {
         const takenItems = [...h.taken].reduce((s, i) => s + h.piles[i], 0);
         qEl.innerHTML = `Klicka på <strong>${cur.num}</strong> ${cur.num === 1 ? 'hög' : 'högar'} för att ta ${formatFractionHTML(cur.num, cur.den)} av ${cur.total}.<br><span class="text-indigo-600">Valt: ${h.taken.size} ${h.taken.size === 1 ? 'hög' : 'högar'} = ${takenItems} 🍎</span>`;
     }
+    styleNumbersIn(qEl);
 
     const trayHtml = h.phase === 'dist' ? `
         <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3 mb-3">

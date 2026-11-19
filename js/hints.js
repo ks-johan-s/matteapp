@@ -1,5 +1,6 @@
 // js/hints.js — autogenererad av split.py från original.html
 import { playSound, state } from './core.js';
+import { styleNumbersIn } from './utils.js';
 
 export const moduleHintsData = {};
 
@@ -35,6 +36,8 @@ export function setHintSteps(mod, stepsArr) {
         void card.offsetWidth;
         card.classList.add('card-in');
     }
+    [`${mod}-question-text`, `${mod}-problem-text`, `${mod}-tilt-status`]
+        .forEach(id => styleNumbersIn(document.getElementById(id)));
 }
 
 export function toggleHintBox(mod) {

@@ -38,4 +38,31 @@ export function showFeedback(elId, isSuccess, htmlMsg) {
             ? 'bg-emerald-50 border-emerald-400 text-emerald-950'
             : 'bg-rose-50 border-rose-300 text-rose-950');
     el.innerHTML = htmlMsg;
+    styleNumbersIn(el);
+}
+
+// Slår in lösa siffror i en "piller"-span så talen sticker ut visuellt.
+export function styleNumbersIn(el) {
+    if (!el) return;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+        acceptNode: (n) => /\d/.test(n.nodeValue) &&
+            !(n.parentElement && n.parentElement.closest('sup, sub, .qnum, .stacked-frac, .stacked-mixed'))
+            ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => {
+        const frag = document.createDocumentFragment();
+        n.nodeValue.split(/(\d+(?:[.,]\d+)?)/g).forEach(part => {
+            if (/^\d/.test(part)) {
+                const s = document.createElement('span');
+                s.className = 'qnum';
+                s.textContent = part;
+                frag.appendChild(s);
+            } else if (part) {
+                frag.appendChild(document.createTextNode(part));
+            }
+        });
+        n.parentNode.replaceChild(frag, n);
+    });
 }
