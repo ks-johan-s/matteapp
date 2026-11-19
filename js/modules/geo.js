@@ -46,10 +46,10 @@ export function generateGeoQuestion() {
         state.currentGeo = { mode: 'build', target, cols, rows, cells: new Set(), needRect };
         document.getElementById('geo-mode-badge').textContent = '🧱 Bygg själv';
         document.getElementById('geo-question-text').innerHTML = needRect
-            ? `Bygg en <strong>rektangel</strong> med arean <strong>${target} rutor</strong> – klicka på rutorna!`
+            ? `Bygg en <strong>rektangel</strong> med arean <strong>${target} rutor</strong> – tryck ett hörn och <strong>dra</strong> ut den!`
             : `Bygg en figur med arean <strong>${target} rutor</strong> – klicka på rutorna!`;
         document.getElementById('geo-sub-note').textContent = needRect
-            ? '💡 Rektangel = rader × kolumner. Vilka två tal gånger varandra blir ' + target + '?'
+            ? '💡 Dra från ett hörn till motsatt hörn – eller tryck hörn för hörn. Rader × kolumner = ' + target + '!'
             : '💡 Alla former räknas – area är bara antalet rutor!';
         if (modeToggle) modeToggle.parentElement.classList.add('hidden');
         document.getElementById('geo-options').classList.add('hidden');
@@ -61,6 +61,25 @@ export function generateGeoQuestion() {
             `<p><strong>Area = antal rutor.</strong> Klicka på exakt <strong>${target} rutor</strong> – vilken form som helst duger!</p>`,
             `<p>Knep: en rektangel är lätt att räkna! Till exempel ${target} = ${factorText(target)}.</p>`
         ]);
+        // Drag-lyssnare på containern: pekarrörelse uppdaterar förhandsgranskningen,
+        // släpp låser rektangeln (eller växlar till "vänta på hörn 2"-läge).
+        const container = document.getElementById('geo-visual-container');
+        container.onpointermove = (ev) => {
+            const c = state.currentGeo;
+            if (!c || c.mode !== 'build' || !c.needRect || c.anchor == null || (!c.down && !c.waiting)) return;
+            const el = document.elementFromPoint(ev.clientX, ev.clientY)?.closest?.('[data-cell]');
+            if (!el) return;
+            const i = +el.dataset.cell;
+            if (i !== c.hover) { c.hover = i; renderGeoBuild(); }
+        };
+        container.onpointerup = () => {
+            const c = state.currentGeo;
+            if (!c || c.mode !== 'build' || !c.needRect || c.anchor == null || !c.down) return;
+            c.down = false;
+            if (c.hover === c.anchor) c.waiting = true;
+            else { c.cells = new Set(rectIndices(c.anchor, c.hover, c.cols)); c.anchor = c.hover = null; }
+            renderGeoBuild();
+        };
         renderGeoBuild();
         return;
     }
@@ -260,31 +279,62 @@ function buildRectDims(cells, cols) {
     return w * h === cells.size ? { w, h } : null;
 }
 
+// Alla cellindex i rektangeln mellan hörn a och hörn b.
+function rectIndices(a, b, cols) {
+    const r1 = Math.floor(a / cols), c1 = a % cols, r2 = Math.floor(b / cols), c2 = b % cols;
+    const out = [];
+    for (let r = Math.min(r1, r2); r <= Math.max(r1, r2); r++)
+        for (let c = Math.min(c1, c2); c <= Math.max(c1, c2); c++)
+            out.push(r * cols + c);
+    return out;
+}
+
 // Bygg själv-läget (CPA): klicka rutor tills figuren har rätt area.
 function renderGeoBuild() {
     const cur = state.currentGeo;
-    const rect = buildRectDims(cur.cells, cur.cols);
+    // Förhandsgranska rektangeln som dras ut (ankare → pekarens cell).
+    const shown = new Set(cur.cells);
+    if (cur.needRect && cur.anchor != null && cur.hover != null)
+        rectIndices(cur.anchor, cur.hover, cur.cols).forEach(i => shown.add(i));
+    const shownRect = buildRectDims(shown, cur.cols);
     let cellsHtml = '';
     for (let r = 0; r < cur.rows; r++) {
         for (let c = 0; c < cur.cols; c++) {
             const i = r * cur.cols + c;
-            const on = cur.cells.has(i);
-            cellsHtml += `<button onclick="geoBuildClick(${i})" class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg border-2 transition-all ${on ? 'bg-fuchsia-500 border-fuchsia-700 scale-105' : 'bg-fuchsia-50 hover:bg-fuchsia-100 border-fuchsia-200'}"></button>`;
+            const committed = cur.cells.has(i), ghost = !committed && shown.has(i), anchor = cur.anchor === i;
+            const events = cur.needRect ? `data-cell="${i}" onpointerdown="geoBuildDown(${i})"` : `onclick="geoBuildClick(${i})"`;
+            cellsHtml += `<button ${events} class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg border-2 transition-all select-none ${committed ? 'bg-fuchsia-500 border-fuchsia-700 scale-105' : ghost ? 'bg-fuchsia-300 border-fuchsia-400 scale-105' : 'bg-fuchsia-50 hover:bg-fuchsia-100 border-fuchsia-200'} ${anchor ? 'ring-2 ring-fuchsia-600' : ''}"></button>`;
         }
     }
     document.getElementById('geo-visual-container').innerHTML = `
         <div class="w-full flex flex-col items-center">
         <div class="inline-block bg-white/80 p-3 rounded-2xl border-2 border-fuchsia-200">
-            <div class="grid gap-1.5" style="grid-template-columns: repeat(${cur.cols}, minmax(0, 1fr));">${cellsHtml}</div>
+            <div class="grid gap-1.5" style="grid-template-columns: repeat(${cur.cols}, minmax(0, 1fr)); touch-action: none;">${cellsHtml}</div>
         </div>
-        <div class="mt-3 font-display font-bold text-lg ${cur.cells.size === cur.target ? 'text-emerald-700' : 'text-fuchsia-900'}">
-            Din figur: ${cur.cells.size} rutor • målet: ${cur.target}
+        <div class="mt-3 font-display font-bold text-lg ${shown.size === cur.target ? 'text-emerald-700' : 'text-fuchsia-900'}">
+            Din figur: ${shown.size} rutor • målet: ${cur.target}
         </div>
-        <div class="mt-1 font-display font-bold text-base ${rect ? 'text-emerald-600' : (cur.needRect ? 'text-fuchsia-700' : 'text-slate-500')}">
-            ${rect ? `✨ Rektangel! ${rect.w} × ${rect.h} = ${rect.w * rect.h} rutor` : (cur.needRect && cur.cells.size ? 'Inte en rektangel ännu – fyll hål och utstick!' : '')}
+        <div class="mt-1 font-display font-bold text-base ${shownRect && shown.size ? 'text-emerald-600' : (cur.needRect ? 'text-fuchsia-700' : 'text-slate-500')}">
+            ${shownRect && shown.size ? `✨ Rektangel! ${shownRect.w} × ${shownRect.h} = ${shownRect.w * shownRect.h} rutor` : (cur.needRect && shown.size ? 'Inte en rektangel ännu – fyll hål och utstick!' : '')}
         </div>
         <button onclick="checkGeoBuild()" class="btn-3d bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-2.5 rounded-2xl mt-2">Klar! ✓</button>
         </div>`;
+}
+
+// Rektangel-läget: tryck på en cell = hörn 1 (ankare). Dra eller tryck på ett
+// till hörn för att låsa rektangeln. Ny gest börjar om från noll.
+export function geoBuildDown(i) {
+    const cur = state.currentGeo;
+    if (!cur || cur.mode !== 'build' || !cur.needRect || !document.getElementById('geo-next-wrap').classList.contains('hidden')) return;
+    playSound('click');
+    if (cur.waiting) {
+        cur.cells = new Set(rectIndices(cur.anchor, i, cur.cols));
+        cur.anchor = cur.hover = null; cur.waiting = false;
+    } else {
+        cur.cells = new Set();
+        cur.anchor = i; cur.hover = i; cur.down = true;
+    }
+    renderGeoBuild();
 }
 
 export function geoBuildClick(i) {
