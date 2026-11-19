@@ -7,6 +7,38 @@ import { randInt, showFeedback } from '../utils.js';
 /* =============================================================
    6. MODUL 3: UPPSTÄLLNING (MED SPECIFICERAD AHA-FEEDBACK)
 ============================================================== */
+// Miniatyr-uppställning i ledtråden: visar konkret vad steget gör.
+// highlight = kolumn att markera (bärnstensram), struck = överstrukna
+// siffror, carries = {kolumn: '10'/'1'}, showAns = antal ifyllda svartal från höger.
+function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0 } = {}) {
+    const digits = Math.max(String(a).length, String(b).length, String(answer).length);
+    const aStr = String(a).padStart(digits, ' ');
+    const bStr = String(b).padStart(digits, ' ');
+    const ansStr = String(answer).padStart(digits, ' ');
+    const cols = digits + 1;
+    const opSym = op === 'sub' ? '−' : (op === 'add' ? '+' : '×');
+    const place = c => Math.pow(10, cols - 1 - c);
+    const cell = (content, cls = '') => `<div class="math-grid-cell ${cls}">${content}</div>`;
+
+    let h = `<div class="math-grid-paper math-grid-mini mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, 34px);">`;
+    for (let c = 0; c < cols; c++) h += cell(carries[c] || '', 'math-grid-carry');
+    for (let c = 0; c < cols; c++) {
+        const cls = [c > 0 ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '', c === highlight ? 'cell-hl' : ''].join(' ');
+        h += cell(c > 0 ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : '', cls);
+    }
+    for (let c = 0; c < cols; c++) {
+        const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>`;
+        h += cell(content, `math-grid-row-line ${c > 0 ? `pv-col-${place(c)}` : ''}`);
+    }
+    for (let c = 0; c < cols; c++) {
+        const d = c === 0 ? '' : ansStr[c - 1];
+        const shown = d.trim() !== '' && digits - c < showAns;
+        h += cell(c === 0 ? '' : `<span class="pv-num pv-${place(c)}">${shown ? d : '<span class="text-slate-300">?</span>'}</span>`,
+            c > 0 ? `pv-col-${place(c)}` : '');
+    }
+    return h + '</div>';
+}
+
 export function setAlgoOp(op) {
     playSound('click');
     state.algoOp = op;
@@ -54,9 +86,12 @@ export function generateAlgoQuestion() {
             qText = `Räkna ut ${a} − ${b}!`;
 
             hints = [
-                `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop}</strong> är mindre än <strong>${eBot}</strong>. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong> ➔ <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`,
-                `<p><strong>Steg 2 (Tiotalen):</strong> Nu finns <strong>${tTop - 1}</strong> kvar i tiotalen, vilket är mindre än <strong>${tBot}</strong>! Tryck på hundratalet <strong>${hTop}</strong> för att låna <strong>10</strong> tiotal ➔ <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>`,
-                `<p><strong>Steg 3 (Hundratalen):</strong> Nu finns <strong>${hTop - 1}</strong> kvar längst till vänster: <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`
+                `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop}</strong> är mindre än <strong>${eBot}</strong>. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong> ➔ <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>` +
+                algoMiniGrid(a, b, op, answer, { highlight: 2, struck: [2], carries: { 3: '10' }, showAns: 1 }),
+                `<p><strong>Steg 2 (Tiotalen):</strong> Nu finns <strong>${tTop - 1}</strong> kvar i tiotalen, vilket är mindre än <strong>${tBot}</strong>! Tryck på hundratalet <strong>${hTop}</strong> för att låna <strong>10</strong> tiotal ➔ <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>` +
+                algoMiniGrid(a, b, op, answer, { highlight: 1, struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 2 }),
+                `<p><strong>Steg 3 (Hundratalen):</strong> Nu finns <strong>${hTop - 1}</strong> kvar längst till vänster: <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>` +
+                algoMiniGrid(a, b, op, answer, { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 3 })
             ];
         } else {
             badge = '− Subtraktion med växling (Låna 🔄)';
@@ -70,9 +105,12 @@ export function generateAlgoQuestion() {
             qText = `Räkna ut ${a} − ${b}!`;
 
             hints = [
-                `<p><strong>Steg 1 (Entalen längst till höger):</strong> Vi ska ta <strong>${eTop} − ${eBot}</strong>, men ${eTop} är mindre än ${eBot}. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>!</p>`,
-                `<p><strong>Steg 2:</strong> Nu har vi <strong>10 + ${eTop} = ${10 + eTop}</strong> i entalen! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`,
-                `<p><strong>Steg 3 (Tiotalen):</strong> Eftersom vi lånade 1 tiotal från ${tTop} finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`
+                `<p><strong>Steg 1 (Entalen längst till höger):</strong> Vi ska ta <strong>${eTop} − ${eBot}</strong>, men ${eTop} är mindre än ${eBot}. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>!</p>` +
+                algoMiniGrid(a, b, op, answer, { highlight: 1 }),
+                `<p><strong>Steg 2:</strong> Nu har vi <strong>10 + ${eTop} = ${10 + eTop}</strong> i entalen! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>` +
+                algoMiniGrid(a, b, op, answer, { struck: [1], carries: { 2: '10' }, showAns: 1 }),
+                `<p><strong>Steg 3 (Tiotalen):</strong> Eftersom vi lånade 1 tiotal från ${tTop} finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>` +
+                algoMiniGrid(a, b, op, answer, { struck: [1], carries: { 2: '10' }, showAns: 2 })
             ];
         }
     } else if (op === 'add') {
@@ -92,9 +130,12 @@ export function generateAlgoQuestion() {
             const eSum = eTop + eBot;
             const tSum = 1 + tTop + tBot;
             hints = [
-                `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop} + ${eBot} = ${eSum}</strong>. Skriv <strong>${eSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`,
-                `<p><strong>Steg 2 (Tiotalen):</strong> <strong>1 + ${tTop} + ${tBot} = ${tSum}</strong>. Skriv <strong>${tSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över hundratalen.</p>`,
-                `<p><strong>Steg 3 (Hundratalen):</strong> <strong>1 + ${hTop} + ${hBot} = ${1 + hTop + hBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`
+                `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop} + ${eBot} = ${eSum}</strong>. Skriv <strong>${eSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>` +
+                algoMiniGrid(a, b, op, answer, { carries: { 2: '1' }, showAns: 1 }),
+                `<p><strong>Steg 2 (Tiotalen):</strong> <strong>1 + ${tTop} + ${tBot} = ${tSum}</strong>. Skriv <strong>${tSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över hundratalen.</p>` +
+                algoMiniGrid(a, b, op, answer, { carries: { 1: '1', 2: '1' }, showAns: 2 }),
+                `<p><strong>Steg 3 (Hundratalen):</strong> <strong>1 + ${hTop} + ${hBot} = ${1 + hTop + hBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>` +
+                algoMiniGrid(a, b, op, answer, { carries: { 1: '1', 2: '1' }, showAns: 3 })
             ];
         } else {
             badge = '+ Addition med minnessiffra';
@@ -108,8 +149,10 @@ export function generateAlgoQuestion() {
             qText = `Räkna ut ${a} + ${b}!`;
 
             hints = [
-                `<p><strong>Steg 1 (Entalen längst till höger):</strong> Räkna <strong>${eTop} + ${eBot} = ${eTop + eBot}</strong>. Skriv entalet <strong>${(eTop + eBot) % 10}</strong> längst ner och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`,
-                `<p><strong>Steg 2 (Tiotalen):</strong> Räkna ihop minnessiffran och tiotalen: <strong>1 + ${tTop} + ${tBot} = ${1 + tTop + tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`
+                `<p><strong>Steg 1 (Entalen längst till höger):</strong> Räkna <strong>${eTop} + ${eBot} = ${eTop + eBot}</strong>. Skriv entalet <strong>${(eTop + eBot) % 10}</strong> längst ner och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>` +
+                algoMiniGrid(a, b, op, answer, { carries: { 1: '1' }, showAns: 1 }),
+                `<p><strong>Steg 2 (Tiotalen):</strong> Räkna ihop minnessiffran och tiotalen: <strong>1 + ${tTop} + ${tBot} = ${1 + tTop + tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>` +
+                algoMiniGrid(a, b, op, answer, { carries: { 1: '1' }, showAns: 2 })
             ];
         }
     } else if (op === 'mul') {
@@ -123,8 +166,10 @@ export function generateAlgoQuestion() {
         const rest = Math.floor(a / 10) * 10;
         const eProd = eTop * b;
         hints = [
-            `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>.</p>`,
-            `<p><strong>Steg 2:</strong> Gångra resten: <strong>${b} × ${rest} = ${b * rest}</strong>. Lägg ihop <strong>${b * rest} + ${eProd} = ${answer}</strong>!</p>`
+            `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>.</p>` +
+            algoMiniGrid(a, b, op, answer, { highlight: Math.max(String(a).length, String(b).length, String(answer).length) }),
+            `<p><strong>Steg 2:</strong> Gångra resten: <strong>${b} × ${rest} = ${b * rest}</strong>. Lägg ihop <strong>${b * rest} + ${eProd} = ${answer}</strong>!</p>` +
+            algoMiniGrid(a, b, op, answer, { showAns: 99 })
         ];
     } else {
         badge = '÷ Kort division';
