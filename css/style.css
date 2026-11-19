@@ -275,6 +275,24 @@ body.focus-mode-active .gamification-badge {
 }
 .card-wrong { animation: cardWrong 0.4s ease-out both; }
 
+/* Svarsknappar: grön pulse vid rätt, skak + urgråning vid fel */
+@keyframes optCorrectPulse {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+}
+.opt-correct {
+    animation: optCorrectPulse 0.45s cubic-bezier(0.3, 0.9, 0.4, 1) both;
+    background: #d1fae5 !important;
+    border-color: #059669 !important;
+    color: #064e3b !important;
+}
+.opt-wrong {
+    animation: cardWrong 0.4s ease-out both;
+    opacity: 0.45;
+    filter: grayscale(55%);
+}
+
 /* Sifferchips: tal i frågetexter och feedback får en markerad "piller" */
 .qnum {
     display: inline-block;

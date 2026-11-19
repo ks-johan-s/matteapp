@@ -38,6 +38,15 @@ export function formatPlaceValueHTML(n) {
     }).join('');
 }
 
+// Spårar senast klickade svarsknapp så showFeedback kan markera den.
+let lastOptionBtn = null;
+if (typeof document !== 'undefined') {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        lastOptionBtn = (btn && btn.closest('[id$="-options"]')) ? btn : null;
+    }, true);
+}
+
 export function showFeedback(elId, isSuccess, htmlMsg) {
     const el = document.getElementById(elId);
     if (!el) return;
@@ -56,6 +65,13 @@ export function showFeedback(elId, isSuccess, htmlMsg) {
         card.classList.add(cls);
         card.addEventListener('animationend', () => card.classList.remove(cls), { once: true });
     }
+    if (lastOptionBtn && document.contains(lastOptionBtn)) {
+        const cls = isSuccess ? 'opt-correct' : 'opt-wrong';
+        lastOptionBtn.classList.remove('opt-correct', 'opt-wrong');
+        void lastOptionBtn.offsetWidth;
+        lastOptionBtn.classList.add(cls);
+    }
+    lastOptionBtn = null;
 }
 
 // Slår in lösa siffror i en "piller"-span så talen sticker ut visuellt.
