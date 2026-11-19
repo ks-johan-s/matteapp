@@ -189,9 +189,10 @@ export function renderGuidedAlgoGrid() {
         return;
     }
 
-    const aStr = String(a).padStart(ansStr.length, ' ');
-    const bStr = String(b).padStart(ansStr.length, ' ');
-    const cols = ansStr.length + 1;
+    const digits = Math.max(String(a).length, String(b).length, ansStr.length);
+    const aStr = String(a).padStart(digits, ' ');
+    const bStr = String(b).padStart(digits, ' ');
+    const cols = digits + 1;
     const opSym = op === 'sub' ? '−' : (op === 'add' ? '+' : '×');
 
     let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 54px);">`;
