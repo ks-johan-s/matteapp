@@ -29,6 +29,12 @@ export function setHintSteps(mod, stepsArr) {
     state.hintSteps[mod] = 1;
     const box = document.getElementById(`${mod}-hint-box`);
     if (box) box.classList.add('hidden');
+    const card = document.getElementById(`view-${mod}`)?.querySelector('.rounded-3xl');
+    if (card) {
+        card.classList.remove('card-in');
+        void card.offsetWidth;
+        card.classList.add('card-in');
+    }
 }
 
 export function toggleHintBox(mod) {
