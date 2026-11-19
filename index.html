@@ -328,6 +328,7 @@
                     <button id="addsub-sub-tens" onclick="setAddSubMode('tens')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔟 Tiotalshopp</button>
                     <button id="addsub-sub-missing" onclick="setAddSubMode('missing')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">❓ Saknat tal</button>
                     <button id="addsub-sub-jumps" onclick="setAddSubMode('jumps')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🐸 Hoppa själv</button>
+                    <button id="addsub-sub-pv" onclick="setAddSubMode('pv')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔢 Platsvärde</button>
                 </div>
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button id="addsub-mode-choice" onclick="setInputMode('addsub', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-600 text-white">🔘 Flerval</button>
@@ -659,7 +660,7 @@
                         <button onclick="resetAlgoLoans()" class="px-3 py-1.5 rounded-full bg-rose-100 hover:bg-rose-200 border border-rose-300 text-rose-900 text-xs font-extrabold">🔄 Återställ lån</button>
                     </div>
                     <div id="algo-grid-container" class="flex flex-col items-center justify-center"></div>
-                    <p id="algo-grid-tip" class="text-xs font-extrabold text-slate-500 mt-3">Tips: Räkna från höger (entalen) till vänster!</p>
+                    <p id="algo-grid-tip" class="text-xs font-extrabold text-slate-500 mt-3">Tips: Kolumnerna är färgade efter platsvärde — <span class="pv-num pv-1">ental</span> • <span class="pv-num pv-10">tiotal</span> • <span class="pv-num pv-100">hundratal</span> – räkna från höger till vänster!</p>
                 </div>
 
                 <div id="algo-blank-area" class="hidden mt-4 bg-indigo-50/40 border-2 border-indigo-200 rounded-3xl p-4 sm:p-6">
@@ -1452,6 +1453,7 @@
                     <div class="flex flex-wrap gap-1.5 mt-1.5">
                         <button onclick="setAddSubMode('missing');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Saknat tal</button>
                         <button onclick="setAddSubMode('jumps');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Hoppa själv</button>
+                        <button onclick="setAddSubMode('pv');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Platsvärde</button>
                     </div>
                 </div>
 

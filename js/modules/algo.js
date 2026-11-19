@@ -206,17 +206,19 @@ export function renderGuidedAlgoGrid() {
     }
     for (let c = 0; c < cols; c++) {
         const digit = c === 0 ? '' : aStr[c - 1];
+        const place = c === 0 ? 0 : Math.pow(10, cols - 1 - c);
         const canLoanFromCol = op === 'sub' && c >= 1 && c <= cols - 2 && digit.trim() !== '';
         const isStruck = !!state.algoLoans[c];
         if (canLoanFromCol) {
-            html += `<div onclick="toggleAlgoLoan(${c})" title="Klicka för att låna 10" class="math-grid-cell cursor-pointer hover:bg-sky-100 ${isStruck ? 'digit-struck bg-rose-50/70' : 'text-sky-950'}">${digit}</div>`;
+            html += `<div onclick="toggleAlgoLoan(${c})" title="Klicka för att låna 10" class="math-grid-cell cursor-pointer hover:bg-sky-100 pv-col-${place} ${isStruck ? 'digit-struck' : 'text-sky-950'}"><span class="pv-num pv-${place}">${digit}</span></div>`;
         } else {
-            html += `<div class="math-grid-cell text-slate-900">${digit}</div>`;
+            html += `<div class="math-grid-cell text-slate-900 ${c > 0 ? `pv-col-${place}` : ''}">${c > 0 ? `<span class="pv-num pv-${place}">${digit}</span>` : ''}</div>`;
         }
     }
     for (let c = 0; c < cols; c++) {
-        const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : bStr[c - 1];
-        html += `<div class="math-grid-cell math-grid-row-line text-slate-900">${content}</div>`;
+        const place = c === 0 ? 0 : Math.pow(10, cols - 1 - c);
+        const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : `<span class="pv-num pv-${place}">${bStr[c - 1]}</span>`;
+        html += `<div class="math-grid-cell math-grid-row-line text-slate-900 ${c > 0 ? `pv-col-${place}` : ''}">${content}</div>`;
     }
     for (let c = 0; c < cols; c++) {
         if (c === 0) {
@@ -224,11 +226,12 @@ export function renderGuidedAlgoGrid() {
         } else {
             const idx = c - 1;
             const prevIdx = idx - 1;
+            const place = Math.pow(10, cols - 1 - c);
             html += `
-                <div class="math-grid-cell bg-sky-50/40">
+                <div class="math-grid-cell pv-col-${place}">
                     <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
                         oninput="if(this.value && document.getElementById('algo-ans-${prevIdx}')) document.getElementById('algo-ans-${prevIdx}').focus()"
-                        class="math-grid-input" placeholder="?">
+                        class="math-grid-input pv-num pv-${place}" placeholder="?">
                 </div>
             `;
         }

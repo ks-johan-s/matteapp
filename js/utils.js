@@ -29,6 +29,15 @@ export function formatMixedHTML(whole, num, den) {
     return `<span class="stacked-mixed"><span class="stacked-mixed-whole">${whole}</span>${formatFractionHTML(num, den)}</span>`;
 }
 
+// Varje siffra färgas efter sin platsvärde (ental/tiotal/hundratal/tusental).
+export function formatPlaceValueHTML(n) {
+    const s = String(n);
+    return s.split('').map((d, i) => {
+        const place = Math.pow(10, s.length - 1 - i);
+        return `<span class="pv-num pv-${place}">${d}</span>`;
+    }).join('');
+}
+
 export function showFeedback(elId, isSuccess, htmlMsg) {
     const el = document.getElementById(elId);
     if (!el) return;
@@ -46,7 +55,7 @@ export function styleNumbersIn(el) {
     if (!el) return;
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
         acceptNode: (n) => /\d/.test(n.nodeValue) &&
-            !(n.parentElement && n.parentElement.closest('sup, sub, .qnum, .stacked-frac, .stacked-mixed'))
+            !(n.parentElement && n.parentElement.closest('sup, sub, .qnum, .stacked-frac, .stacked-mixed, .pv-num'))
             ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
     });
     const nodes = [];

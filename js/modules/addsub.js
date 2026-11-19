@@ -1,7 +1,7 @@
 // js/modules/addsub.js — autogenererad av split.py från original.html
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
-import { randInt, showFeedback, shuffleArray } from '../utils.js';
+import { formatPlaceValueHTML, randInt, showFeedback, shuffleArray } from '../utils.js';
 import { buildNumberLineJumpSVG } from '../visuals.js';
 
 /* =============================================================
@@ -10,7 +10,7 @@ import { buildNumberLineJumpSVG } from '../visuals.js';
 export function setAddSubMode(mode) {
     playSound('click');
     state.addSubMode = mode;
-    ['mix', 'plus', 'minus', 'tens', 'missing', 'jumps'].forEach(m => {
+    ['mix', 'plus', 'minus', 'tens', 'missing', 'jumps', 'pv'].forEach(m => {
         const btn = document.getElementById(`addsub-sub-${m}`);
         if (!btn) return;
         btn.className = 'px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold ' +
@@ -56,6 +56,84 @@ export function generateAddSubQuestion() {
             `<p>Från ${a} till ${target}: till exempel ${isSub ? '−' : '+'}${Math.floor(b / 10) * 10} sen ${isSub ? '−' : '+'}${b % 10}.</p>`
         ]);
         renderAddSubJumps();
+        return;
+    }
+
+    if (mode === 'pv') {
+        // Platsvärde: siffrans värde, vilken siffra på plats X, eller sätt ihop talet.
+        const placeNames = { 1: 'ental', 10: 'tiotal', 100: 'hundratal', 1000: 'tusental' };
+        const legend = ['ental', 'tiotal', 'hundratal', 'tusental']
+            .map((t, i) => `<span class="pv-num pv-${Math.pow(10, i)} px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-[11px] font-extrabold">${t}</span>`).join('');
+        const digits = state.difficulty === 'easy' ? 2 : (state.difficulty === 'medium' ? 3 : 4);
+        const n = randInt(Math.pow(10, digits - 1) + 1, Math.pow(10, digits) - 1);
+        const s = String(n);
+        const variant = randInt(0, 2);
+        let qHtml, pvMsg, opts;
+        badge = '🔢 Platsvärde';
+
+        if (variant === 0) {
+            const pos = randInt(0, s.length - 1);
+            const place = Math.pow(10, s.length - 1 - pos);
+            const d = Number(s[pos]);
+            answer = d * place;
+            qHtml = `I talet ${formatPlaceValueHTML(n)} – vad är siffran <strong class="pv-num pv-${place}">${d}</strong> värd?`;
+            pvMsg = `🎉 Siffran ${d} står i ${placeNames[place]} – den är värd ${answer}!`;
+            const set = new Set([answer, d]);
+            [10, 100, 1000].forEach(p => { if (d * p !== answer) set.add(d * p); });
+            while (set.size < 4) set.add(answer + [1, -1, 10, -10][randInt(0, 3)]);
+            opts = [...set].slice(0, 4);
+        } else if (variant === 1) {
+            const pos = randInt(0, s.length - 1);
+            const place = Math.pow(10, s.length - 1 - pos);
+            answer = Number(s[pos]);
+            qHtml = `I talet ${formatPlaceValueHTML(n)} – vilken siffra står i <strong class="pv-num pv-${place}">${placeNames[place]}</strong>-positionen?`;
+            pvMsg = `🎉 Siffran ${answer} står i ${placeNames[place]}!`;
+            const set = new Set(s.split('').map(Number));
+            while (set.size < 4) set.add(randInt(0, 9));
+            opts = [...set];
+        } else {
+            const parts = s.split('').map((d, i) => ({ d: Number(d), p: Math.pow(10, s.length - 1 - i) })).filter(x => x.d > 0);
+            answer = n;
+            qHtml = `Vilket tal blir det? ${parts.map(x => `<span class="pv-num pv-${x.p} font-extrabold">${x.d} ${placeNames[x.p]}</span>`).join(' <span class="text-slate-400">+</span> ')}`;
+            pvMsg = `🎉 ${parts.map(x => x.d * x.p).join(' + ')} = ${n}!`;
+            const set = new Set([n]);
+            let guard = 0;
+            while (set.size < 4 && guard++ < 60) {
+                const cand = Number(s.split('').sort(() => Math.random() - 0.5).join(''));
+                if (String(cand).length === s.length) set.add(cand);
+            }
+            while (set.size < 4) set.add(n + randInt(1, 5) * 10);
+            opts = [...set];
+        }
+
+        state.currentAddSub = { mode: 'pv', a: 0, b: 0, isSub: false, answer, missing: null, pvMsg };
+        document.getElementById('addsub-mode-badge').textContent = badge;
+        const qEl = document.getElementById('addsub-question-text');
+        qEl.innerHTML = qHtml;
+        document.getElementById('addsub-visual').innerHTML = `
+            <div class="inline-flex flex-wrap items-center justify-center gap-1.5 bg-emerald-50/80 border border-emerald-200 px-3.5 py-2 rounded-2xl">
+                <span class="text-[11px] font-extrabold text-emerald-900 mr-1">Platsvärden:</span>${legend}
+            </div>`;
+        setHintSteps('addsub', [
+            `<p><strong>Platsvärde:</strong> Siffrans värde beror på var den står! Längst till höger står <strong>entalen</strong>, sen <strong>tiotalen</strong>, sen <strong>hundratalen</strong>, sen <strong>tusentalen</strong>.</p>`,
+            `<p>I ${formatPlaceValueHTML(n)} betyder varje färg en plats: <strong>${s.split('').map((d, i) => `${d} → ${placeNames[Math.pow(10, s.length - 1 - i)]}`).join(', ')}</strong> = ${answer}.</p>`
+        ]);
+
+        const optsEl = document.getElementById('addsub-options');
+        const typeEl = document.getElementById('addsub-type-wrap');
+        if (state.inputModes.addsub === 'choice') {
+            optsEl.classList.remove('hidden');
+            typeEl.classList.add('hidden');
+            optsEl.innerHTML = shuffleArray(opts).map(v => `
+                <button onclick="checkAddSubChoice(${v})" class="btn-3d bg-white hover:bg-emerald-50 border-3 border-emerald-300 rounded-2xl py-4 font-display font-bold text-2xl text-slate-900">${v}</button>
+            `).join('');
+        } else {
+            optsEl.classList.add('hidden');
+            typeEl.classList.remove('hidden');
+            const inp = document.getElementById('addsub-type-input');
+            inp.value = '';
+            inp.focus();
+        }
         return;
     }
 
@@ -150,16 +228,16 @@ export function generateAddSubQuestion() {
     const onesPart = b % 10;
     document.getElementById('addsub-visual').innerHTML = `
         <div class="inline-flex flex-wrap items-center justify-center gap-2 bg-emerald-50/80 border border-emerald-200 px-4 py-2 rounded-2xl text-xs sm:text-sm font-extrabold text-emerald-950">
-            <span>💡 Dela upp ${b}:</span>
-            ${tensPart > 0 ? `<span class="px-2.5 py-0.5 rounded-lg bg-white border border-emerald-300">${tensPart} (tiotal)</span>` : ''}
-            ${onesPart > 0 ? `<span class="px-2.5 py-0.5 rounded-lg bg-white border border-emerald-300">${onesPart} (ental)</span>` : ''}
+            <span>💡 Dela upp ${formatPlaceValueHTML(b)}:</span>
+            ${tensPart > 0 ? `<span class="px-2.5 py-0.5 rounded-lg bg-sky-50 border border-sky-300"><span class="pv-num pv-10">${tensPart}</span> (tiotal)</span>` : ''}
+            ${onesPart > 0 ? `<span class="px-2.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-300"><span class="pv-num pv-1">${onesPart}</span> (ental)</span>` : ''}
         </div>
     `;
 
     const midVal = isSub ? a - tensPart : a + tensPart;
     if (tensPart > 0 && onesPart > 0) {
         setHintSteps('addsub', [
-            `<p>Dela upp <strong>${b}</strong> i tiotal (<strong>${tensPart}</strong>) och ental (<strong>${onesPart}</strong>).</p>`,
+            `<p>Dela upp <strong>${formatPlaceValueHTML(b)}</strong> i tiotal (<strong class="pv-num pv-10">${tensPart}</strong>) och ental (<strong class="pv-num pv-1">${onesPart}</strong>).</p>`,
             `<p>Hoppa på tallinjen – först tiotalen, sedan entalen:</p>
              ${buildNumberLineJumpSVG(a, midVal, answer, `${isSub ? '−' : '+'}${tensPart}`, `${isSub ? '−' : '+'}${onesPart}`, isSub)}`
         ]);
@@ -201,7 +279,19 @@ export function generateAddSubQuestion() {
 
 export function checkAddSubChoice(val) {
     if (!document.getElementById('addsub-next-wrap').classList.contains('hidden')) return;
-    const { a, b, isSub, answer, missing } = state.currentAddSub;
+    const cur = state.currentAddSub;
+    if (cur.mode === 'pv') {
+        if (val === cur.answer) {
+            addReward(1);
+            showFeedback('addsub-feedback', true, cur.pvMsg);
+            document.getElementById('addsub-next-wrap').classList.remove('hidden');
+        } else {
+            resetStreak();
+            showFeedback('addsub-feedback', false, `🤔 Inte riktigt ${val} – titta på färgerna! Varje plats har sin egen färg.`);
+        }
+        return;
+    }
+    const { a, b, isSub, answer, missing } = cur;
     if (val === answer) {
         addReward(1);
         const eq = missing ? missing.fullEq : `${a} ${isSub ? '−' : '+'} ${b} = ${answer}`;
