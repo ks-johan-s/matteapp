@@ -44,19 +44,34 @@ export function generateDivQuestion() {
     const qEl = document.getElementById('div-question-text');
     const badgeEl = document.getElementById('div-mode-badge');
     const visEl = document.getElementById('div-visual-container');
-    let hints;
+    let hints, pendingReveal = false, revealHtml = null;
 
     if (mode === 'share') {
         const who = DIV_WHO[randInt(0, DIV_WHO.length - 1)];
         badgeEl.textContent = '🧺 Dela lika';
         qEl.innerHTML = `Dela <strong>${total}</strong> ${item} lika mellan <strong>${divisor} ${who}</strong>.<br>Hur många får var och en?`;
         const pileLabel = who === 'barn' ? 'Barn' : 'Hög';
-        visEl.innerHTML = `<div class="w-full text-sm font-extrabold text-teal-900 mb-1">👆 ${total} ${item} delas ut, ett i taget:</div>` +
+        // På medel/svår visas fördelningen först som belöning efter rätt svar –
+        // annars kan svaret bara räknas av direkt ur bilden.
+        const solved = state.difficulty === 'easy';
+        revealHtml = `<div class="w-full text-sm font-extrabold text-teal-900 mb-1">👆 ${total} ${item} delas ut, ett i taget:</div>` +
             Array.from({ length: divisor }, (_, p) => `
                 <div class="pile-pop px-3 py-2 rounded-2xl border-2 bg-teal-50 border-teal-300" style="animation-delay:${p * 160}ms">
                     <div class="text-base sm:text-lg">${item.repeat(quotient)}</div>
                     <div class="text-[11px] font-extrabold text-teal-900">${pileLabel} ${p + 1}</div>
                 </div>`).join('');
+        pendingReveal = !solved;
+        if (solved) {
+            visEl.innerHTML = revealHtml;
+        } else {
+            visEl.innerHTML = `<div class="w-full text-sm font-extrabold text-teal-900 mb-1">👆 ${total} ${item} väntar i korgen – fördela dem i huvudet!</div>
+                <div class="w-full px-4 py-2.5 rounded-2xl bg-teal-100 border-2 border-teal-300 mb-2 text-base sm:text-lg text-center">${item.repeat(Math.min(total, 24))}${total > 24 ? ` <span class="text-xs font-extrabold text-teal-800 align-middle">(${total} st)</span>` : ''}</div>` +
+                Array.from({ length: divisor }, (_, p) => `
+                    <div class="px-3 py-2 rounded-2xl border-2 border-dashed bg-white border-teal-300">
+                        <div class="text-teal-400 font-display font-bold text-lg">?</div>
+                        <div class="text-[11px] font-extrabold text-teal-900">${pileLabel} ${p + 1}</div>
+                    </div>`).join('');
+        }
         hints = [
             `<p>Tänk <strong>"dela ut"</strong>: ge ett ${item} i taget till varje hög, varv efter varv, tills alla ${total} är slut.</p>`,
             `<p>När alla är utdelade ligger det <strong>${quotient} i varje hög</strong>: ${total} ÷ ${divisor} = <strong>${quotient}</strong>!</p>`
@@ -64,12 +79,19 @@ export function generateDivQuestion() {
     } else if (mode === 'group') {
         badgeEl.textContent = '🛍️ Påsar';
         qEl.innerHTML = `Lägg <strong>${total}</strong> ${item} i påsar med <strong>${divisor}</strong> i varje påse.<br>Hur många påsar behövs?`;
-        visEl.innerHTML = `<div class="w-full text-sm font-extrabold text-amber-900 mb-1">👆 ${total} ${item} packas, ${divisor} åt gången:</div>` +
+        revealHtml = `<div class="w-full text-sm font-extrabold text-amber-900 mb-1">👆 ${total} ${item} packas, ${divisor} åt gången:</div>` +
             Array.from({ length: quotient }, (_, b) => `
                 <div class="pile-pop px-3 py-2 rounded-2xl border-2 bg-amber-50 border-amber-300" style="animation-delay:${b * 160}ms">
                     <div class="text-base sm:text-lg">🛍️ ${item.repeat(divisor)}</div>
                     <div class="text-[11px] font-extrabold text-amber-900">Påse ${b + 1}</div>
                 </div>`).join('');
+        pendingReveal = state.difficulty !== 'easy';
+        if (pendingReveal) {
+            visEl.innerHTML = `<div class="w-full text-sm font-extrabold text-amber-900 mb-1">👆 ${total} ${item} väntar i lådan – påsarna dyker upp när du räknat!</div>
+                <div class="w-full px-4 py-2.5 rounded-2xl bg-amber-100 border-2 border-amber-300 text-base sm:text-lg text-center">${item.repeat(Math.min(total, 24))}${total > 24 ? ` <span class="text-xs font-extrabold text-amber-800 align-middle">(${total} st)</span>` : ''}</div>`;
+        } else {
+            visEl.innerHTML = revealHtml;
+        }
         hints = [
             `<p>Räkna hur många gånger <strong>${divisor}</strong> får plats i ${total}: ${Array.from({ length: quotient }, (_, i) => `${divisor * (i + 1)}`).join(' ➔ ')}.</p>`,
             `<p>Det blev <strong>${quotient} påsar</strong>: ${total} ÷ ${divisor} = <strong>${quotient}</strong>!</p>`
@@ -137,7 +159,7 @@ export function generateDivQuestion() {
         ];
     }
 
-    state.currentDiv = { mode, total, divisor, quotient, answer: answerOverride ?? answer, fullEq };
+    state.currentDiv = { mode, total, divisor, quotient, answer: answerOverride ?? answer, fullEq, pendingReveal, revealHtml };
     setHintSteps('div', hints);
 
     const optsEl = document.getElementById('div-options');
@@ -166,8 +188,9 @@ export function generateDivQuestion() {
 
 export function checkDivChoice(val) {
     if (!document.getElementById('div-next-wrap').classList.contains('hidden')) return;
-    const { total, divisor, answer, fullEq } = state.currentDiv;
+    const { total, divisor, answer, fullEq, pendingReveal, revealHtml } = state.currentDiv;
     if (val === answer) {
+        if (pendingReveal && revealHtml) document.getElementById('div-visual-container').innerHTML = revealHtml;
         addReward(1);
         showFeedback('div-feedback', true, `🎉 Rätt! ${fullEq || `${total} ÷ ${divisor} = ${answer}`}!`);
         document.getElementById('div-next-wrap').classList.remove('hidden');
