@@ -60,7 +60,7 @@ export function showFeedback(elId, isSuccess, htmlMsg) {
     const card = document.getElementById(`view-${elId.replace(/-feedback$/, '')}`)?.querySelector('.rounded-3xl');
     if (card) {
         const cls = isSuccess ? 'card-correct' : 'card-wrong';
-        card.classList.remove('card-correct', 'card-wrong');
+        card.classList.remove('card-correct', 'card-wrong', 'card-in');
         void card.offsetWidth;
         card.classList.add(cls);
         card.addEventListener('animationend', () => card.classList.remove(cls), { once: true });
