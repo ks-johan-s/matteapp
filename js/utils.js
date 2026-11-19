@@ -1,0 +1,41 @@
+// js/utils.js — autogenererad av split.py från original.html
+
+/* =============================================================
+   2. HJÄLPFUNKTIONER & STEGVISA VISUELLA LEDTRÅDAR
+============================================================== */
+export function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function shuffleArray(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
+export function formatNumSv(num) {
+    const clean = Math.round(num * 1000) / 1000;
+    return String(clean).replace('.', ',');
+}
+
+export function formatFractionHTML(num, den) {
+    return `<span class="stacked-frac"><span class="stacked-frac-num">${num}</span><span class="stacked-frac-den">${den}</span></span>`;
+}
+
+export function formatMixedHTML(whole, num, den) {
+    return `<span class="stacked-mixed"><span class="stacked-mixed-whole">${whole}</span>${formatFractionHTML(num, den)}</span>`;
+}
+
+export function showFeedback(elId, isSuccess, htmlMsg) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.className = 'mt-5 p-3.5 rounded-2xl font-extrabold text-sm sm:text-base max-w-xl mx-auto border-2 ' +
+        (isSuccess
+            ? 'bg-emerald-50 border-emerald-400 text-emerald-950'
+            : 'bg-rose-50 border-rose-300 text-rose-950');
+    el.innerHTML = htmlMsg;
+}

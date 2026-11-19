@@ -1,0 +1,269 @@
+// js/modules/addsub.js — autogenererad av split.py från original.html
+import { addReward, playSound, resetStreak, state } from '../core.js';
+import { setHintSteps } from '../hints.js';
+import { randInt, showFeedback, shuffleArray } from '../utils.js';
+import { buildNumberLineJumpSVG } from '../visuals.js';
+
+/* =============================================================
+   4. MODUL 1: PLUS & MINUS (HUVUDRÄKNING)
+============================================================== */
+export function setAddSubMode(mode) {
+    playSound('click');
+    state.addSubMode = mode;
+    ['mix', 'plus', 'minus', 'tens', 'missing', 'jumps'].forEach(m => {
+        const btn = document.getElementById(`addsub-sub-${m}`);
+        if (!btn) return;
+        btn.className = 'px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold ' +
+            (m === mode ? 'bg-emerald-500 text-white' : 'bg-white border border-emerald-200 text-slate-700');
+    });
+    generateAddSubQuestion();
+}
+
+export function generateAddSubQuestion() {
+    document.getElementById('addsub-feedback').classList.add('hidden');
+    document.getElementById('addsub-next-wrap').classList.add('hidden');
+
+    const modeToggle = document.getElementById('addsub-mode-choice');
+    if (modeToggle) modeToggle.parentElement.classList.remove('hidden');
+
+    let mode = state.addSubMode;
+    if (mode === 'mix') mode = ['plus', 'minus', 'tens', 'missing', 'jumps'][randInt(0, 4)];
+
+    let a, b, isSub, answer, badge, missing = null;
+
+    if (mode === 'jumps') {
+        // CPA-läge: eleven gör tallinjehoppen själv med knapparna.
+        isSub = state.difficulty !== 'easy' && Math.random() < 0.4;
+        if (state.difficulty === 'easy') {
+            a = randInt(11, 60); b = randInt(5, 24);
+        } else if (state.difficulty === 'medium') {
+            a = randInt(30, 90); b = randInt(15, 55);
+        } else {
+            a = randInt(120, 850); b = randInt(45, 280);
+        }
+        if (isSub && a <= b) { const t = a; a = b + randInt(19, 65); b = t; }
+        const target = isSub ? a - b : a + b;
+        badge = '🐸 Hoppa själv';
+        answer = target;
+        state.currentAddSub = { a, b, isSub, answer, missing: null, jumps: { pos: a, target } };
+        document.getElementById('addsub-mode-badge').textContent = badge;
+        document.getElementById('addsub-question-text').innerHTML = `Hoppa dig fram till <strong>${a} ${isSub ? '−' : '+'} ${b}</strong> – du står på <strong>${a}</strong>, målet är <strong>${target}</strong>!`;
+        if (modeToggle) modeToggle.parentElement.classList.add('hidden');
+        document.getElementById('addsub-options').classList.add('hidden');
+        document.getElementById('addsub-type-wrap').classList.add('hidden');
+        setHintSteps('addsub', [
+            `<p>Tänk som på tallinjen: först stora <strong>tiotalshopp</strong> (+10/−10), sen små <strong>entalshopp</strong> (+1/−1) för att landa exakt!</p>`,
+            `<p>Från ${a} till ${target}: till exempel ${isSub ? '−' : '+'}${Math.floor(b / 10) * 10} sen ${isSub ? '−' : '+'}${b % 10}.</p>`
+        ]);
+        renderAddSubJumps();
+        return;
+    }
+
+    if (mode === 'missing') {
+        isSub = false;
+        badge = '❓ Saknat tal';
+        const c = state.difficulty === 'easy' ? randInt(12, 50) : (state.difficulty === 'medium' ? randInt(30, 120) : randInt(120, 900));
+        const variant = randInt(0, 2);
+        if (variant === 2) {
+            // ? − b = c  → hela är okänd, delarna b och c kända
+            b = randInt(4, Math.min(state.difficulty === 'hard' ? 300 : 40, c - 5));
+            a = c + b;
+            missing = { shown: `? − ${b} = ${c}`, whole: a, part1: c, part2: b, wholeKnown: false, fullEq: `${a} − ${b} = ${c}` };
+            answer = a;
+        } else {
+            const part = randInt(3, c - 3);
+            a = 0; b = 0;
+            answer = c - part;
+            missing = variant === 0
+                ? { shown: `${part} + ? = ${c}`, whole: c, part1: part, part2: answer, wholeKnown: true, fullEq: `${part} + ${answer} = ${c}` }
+                : { shown: `${c} − ? = ${part}`, whole: c, part1: part, part2: answer, wholeKnown: true, fullEq: `${c} − ${answer} = ${part}` };
+        }
+    } else if (mode === 'tens') {
+        isSub = Math.random() < 0.5;
+        badge = '🔟 Tiotalshopp';
+        if (state.difficulty === 'easy') {
+            a = randInt(12, 58);
+            b = randInt(1, 3) * 10;
+        } else if (state.difficulty === 'medium') {
+            a = randInt(35, 89);
+            b = randInt(2, 5) * 10;
+        } else {
+            a = randInt(245, 890);
+            b = randInt(6, 18) * 10;
+        }
+        if (isSub && a <= b) a += b + 24;
+        answer = isSub ? a - b : a + b;
+    } else {
+        isSub = mode === 'minus';
+        badge = isSub ? '➖ Subtraktion' : '➕ Addition';
+        if (state.difficulty === 'easy') {
+            a = randInt(11, 45);
+            b = randInt(4, 18);
+        } else if (state.difficulty === 'medium') {
+            a = randInt(28, 76);
+            b = randInt(14, 38);
+        } else {
+            if (isSub) {
+                const h1 = randInt(4, 8), t1 = randInt(1, 4), e1 = randInt(1, 5);
+                const h2 = randInt(1, h1 - 1), t2 = randInt(t1 + 1, 8), e2 = randInt(e1 + 1, 9);
+                a = h1 * 100 + t1 * 10 + e1;
+                b = h2 * 100 + t2 * 10 + e2;
+            } else {
+                a = randInt(168, 675);
+                b = randInt(57, 268);
+            }
+        }
+        if (isSub && a <= b) {
+            const tmp = a;
+            a = b + randInt(19, 65);
+            b = tmp;
+        }
+        answer = isSub ? a - b : a + b;
+    }
+
+    state.currentAddSub = { a, b, isSub, answer, missing };
+    document.getElementById('addsub-mode-badge').textContent = badge;
+    document.getElementById('addsub-question-text').textContent = missing ? missing.shown : `${a} ${isSub ? '−' : '+'} ${b} = ?`;
+
+    if (missing) {
+        const otherPart = missing.wholeKnown ? missing.part1 : Math.min(missing.part1, missing.part2);
+        const other2 = missing.wholeKnown ? '?' : Math.max(missing.part1, missing.part2);
+        document.getElementById('addsub-visual').innerHTML = `
+            <div class="w-full max-w-md mx-auto">
+                <div class="text-[11px] font-extrabold text-emerald-900 mb-1">Del–helhets-tänket: ${missing.wholeKnown ? 'hela + två delar' : 'okänd hel = del + del'}</div>
+                <div class="rounded-2xl ${missing.wholeKnown ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-dashed border-emerald-500 text-emerald-700'} font-display font-bold text-xl py-2.5 text-center">
+                    ${missing.wholeKnown ? `Hela: ${missing.whole}` : 'Hela: ?'}
+                </div>
+                <div class="flex gap-1.5 mt-1.5">
+                    <div class="flex-1 rounded-2xl bg-emerald-100 border-2 border-emerald-300 text-emerald-950 font-display font-bold text-lg py-2 text-center">${otherPart}</div>
+                    <div class="flex-1 rounded-2xl ${missing.wholeKnown ? 'bg-white border-2 border-dashed border-emerald-500 text-emerald-700' : 'bg-emerald-100 border-2 border-emerald-300 text-emerald-950'} font-display font-bold text-lg py-2 text-center">${missing.wholeKnown ? '?' : other2}</div>
+                </div>
+            </div>`;
+
+        setHintSteps('addsub', missing.wholeKnown
+            ? [`<p>Helheten är <strong>${missing.whole}</strong> och en del är <strong>${missing.part1}</strong>. Del + del = hela!</p>`,
+               `<p>Hitta den andra delen: ${missing.whole} − ${missing.part1} = <strong>${answer}</strong>!</p>`]
+            : [`<p>Den okända hela delades i <strong>${missing.part1}</strong> och <strong>${missing.part2}</strong>.</p>`,
+               `<p>Lägg ihop delarna: ${missing.part1} + ${missing.part2} = <strong>${answer}</strong>!</p>`]);
+    } else {
+    const tensPart = Math.floor(b / 10) * 10;
+    const onesPart = b % 10;
+    document.getElementById('addsub-visual').innerHTML = `
+        <div class="inline-flex flex-wrap items-center justify-center gap-2 bg-emerald-50/80 border border-emerald-200 px-4 py-2 rounded-2xl text-xs sm:text-sm font-extrabold text-emerald-950">
+            <span>💡 Dela upp ${b}:</span>
+            ${tensPart > 0 ? `<span class="px-2.5 py-0.5 rounded-lg bg-white border border-emerald-300">${tensPart} (tiotal)</span>` : ''}
+            ${onesPart > 0 ? `<span class="px-2.5 py-0.5 rounded-lg bg-white border border-emerald-300">${onesPart} (ental)</span>` : ''}
+        </div>
+    `;
+
+    const midVal = isSub ? a - tensPart : a + tensPart;
+    if (tensPart > 0 && onesPart > 0) {
+        setHintSteps('addsub', [
+            `<p>Dela upp <strong>${b}</strong> i tiotal (<strong>${tensPart}</strong>) och ental (<strong>${onesPart}</strong>).</p>`,
+            `<p>Hoppa på tallinjen – först tiotalen, sedan entalen:</p>
+             ${buildNumberLineJumpSVG(a, midVal, answer, `${isSub ? '−' : '+'}${tensPart}`, `${isSub ? '−' : '+'}${onesPart}`, isSub)}`
+        ]);
+    } else {
+        setHintSteps('addsub', [
+            `<p>Starta på <strong>${a}</strong> och ta ett stort hopp på <strong>${isSub ? '−' : '+'}${b}</strong>:</p>
+             <div class="my-2 flex items-center justify-center gap-2 font-display font-bold text-base">
+                <span>${a} ${isSub ? '−' : '+'} ${b}</span>
+                <span class="hint-arrow-nudge text-emerald-700">➔</span>
+                <span class="px-4 py-1 rounded-2xl bg-emerald-100 border-2 border-emerald-400 text-emerald-950">${answer}</span>
+             </div>`
+        ]);
+    }
+    }
+
+    const optsEl = document.getElementById('addsub-options');
+    const typeEl = document.getElementById('addsub-type-wrap');
+    if (state.inputModes.addsub === 'choice') {
+        optsEl.classList.remove('hidden');
+        typeEl.classList.add('hidden');
+        const set = new Set([answer]);
+        while (set.size < 4) {
+            const cand = answer + [-10, -2, -1, 1, 2, 10][randInt(0, 5)];
+            if (cand > 0) set.add(cand);
+        }
+        optsEl.innerHTML = shuffleArray([...set]).map(v => `
+            <button onclick="checkAddSubChoice(${v})" class="btn-3d bg-white hover:bg-emerald-50 border-3 border-emerald-300 rounded-2xl py-4 font-display font-bold text-2xl text-slate-900">
+                ${v}
+            </button>
+        `).join('');
+    } else {
+        optsEl.classList.add('hidden');
+        typeEl.classList.remove('hidden');
+        const inp = document.getElementById('addsub-type-input');
+        inp.value = '';
+        inp.focus();
+    }
+}
+
+export function checkAddSubChoice(val) {
+    if (!document.getElementById('addsub-next-wrap').classList.contains('hidden')) return;
+    const { a, b, isSub, answer, missing } = state.currentAddSub;
+    if (val === answer) {
+        addReward(1);
+        const eq = missing ? missing.fullEq : `${a} ${isSub ? '−' : '+'} ${b} = ${answer}`;
+        showFeedback('addsub-feedback', true, `🎉 Snyggt! ${eq}!`);
+        document.getElementById('addsub-next-wrap').classList.remove('hidden');
+    } else {
+        resetStreak();
+        showFeedback('addsub-feedback', false, missing
+            ? '🤔 Tänk del–helhet: hela = del + del. Kika på "💡 Visa hur man tänker"!'
+            : `🤔 Inte riktigt ${val} – kika på tallinjehoppen under "💡 Visa hur man tänker"!`);
+    }
+}
+
+export function checkAddSubTyped() {
+    const val = parseInt(document.getElementById('addsub-type-input').value, 10);
+    if (isNaN(val)) return;
+    checkAddSubChoice(val);
+}
+
+// Hoppa själv-läget (CPA): eleven hoppar på tallinjen med knapparna.
+function renderAddSubJumps() {
+    const cur = state.currentAddSub;
+    const j = cur.jumps;
+    const lo = Math.min(cur.a, j.target) - 8;
+    const hi = Math.max(cur.a, j.target) + 8;
+    const pct = (v) => ((v - lo) / (hi - lo)) * 100;
+    document.getElementById('addsub-visual').innerHTML = `
+        <div class="w-full max-w-lg mx-auto">
+            <div class="font-display font-bold text-lg text-emerald-950 mb-1">
+                🐸 Du är på <span class="text-emerald-700">${j.pos}</span> • målet är ${j.target} • kvar: ${j.target - j.pos}
+            </div>
+            <div class="relative h-20 mt-2">
+                <div class="absolute left-0 right-0 top-9 h-1.5 bg-emerald-200 rounded-full"></div>
+                <div class="absolute -top-0.5 -translate-x-1/2 text-center" style="left:${pct(j.target)}%">
+                    <div class="text-xl">🚩</div>
+                    <div class="text-[10px] font-extrabold text-emerald-800">${j.target}</div>
+                </div>
+                <div class="absolute top-6 -translate-x-1/2 text-center transition-all duration-300" style="left:${pct(j.pos)}%">
+                    <div class="text-2xl">${j.pos === j.target ? '🎉' : '🐸'}</div>
+                    <div class="text-xs font-extrabold text-emerald-900 bg-white/90 rounded-lg px-1.5 border border-emerald-300">${j.pos}</div>
+                </div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 mt-2">
+                <button onclick="addSubJump(10)" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold px-4 py-2 rounded-xl">+10</button>
+                <button onclick="addSubJump(5)" class="btn-3d bg-emerald-400 hover:bg-emerald-500 text-white font-display font-bold px-4 py-2 rounded-xl">+5</button>
+                <button onclick="addSubJump(1)" class="btn-3d bg-emerald-300 hover:bg-emerald-400 text-emerald-950 font-display font-bold px-4 py-2 rounded-xl">+1</button>
+                <button onclick="addSubJump(-1)" class="btn-3d bg-slate-300 hover:bg-slate-400 text-slate-800 font-display font-bold px-4 py-2 rounded-xl">−1</button>
+                <button onclick="addSubJump(-5)" class="btn-3d bg-slate-400 hover:bg-slate-500 text-white font-display font-bold px-4 py-2 rounded-xl">−5</button>
+                <button onclick="addSubJump(-10)" class="btn-3d bg-slate-500 hover:bg-slate-600 text-white font-display font-bold px-4 py-2 rounded-xl">−10</button>
+            </div>
+        </div>`;
+}
+
+export function addSubJump(d) {
+    const cur = state.currentAddSub;
+    if (!cur || !cur.jumps || !document.getElementById('addsub-next-wrap').classList.contains('hidden')) return;
+    playSound('click');
+    cur.jumps.pos += d;
+    renderAddSubJumps();
+    if (cur.jumps.pos === cur.jumps.target) {
+        addReward(2);
+        showFeedback('addsub-feedback', true, `🎉 Du hoppade dig hela vägen! ${cur.a} ${cur.isSub ? '−' : '+'} ${cur.b} = ${cur.answer}!`);
+        document.getElementById('addsub-next-wrap').classList.remove('hidden');
+    }
+}

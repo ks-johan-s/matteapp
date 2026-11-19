@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatteÄventyret – Lekfull Matte & Strategier</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#f59e0b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MatteÄventyret">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Edu+SA+Hand:wght@500;600;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="pb-14">
+
+    <!-- TOPPMENY -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b-2 border-sky-200 shadow-sm">
+        <div class="max-w-5xl mx-auto px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2">
+            <!-- Logotyp / Hemknapp -->
+            <button onclick="navigateTo('home')" class="flex items-center gap-2.5 text-left group focus:outline-none">
+                <span class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-2xl shadow-sm group-hover:scale-105 transition">🦉</span>
+                <div>
+                    <span class="font-display font-bold text-lg sm:text-xl text-slate-900 tracking-tight block leading-none">MatteÄventyret</span>
+                    <span class="text-[11px] font-extrabold text-sky-600 uppercase tracking-wider">Åk 3–5 • Lekfull Matte</span>
+                </div>
+            </button>
+
+            <!-- Svårighetsgrad -->
+            <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
+                <button id="diff-easy" onclick="setDifficulty('easy')" class="px-2.5 py-1 rounded-xl text-xs sm:text-sm font-extrabold transition bg-emerald-500 text-white shadow-xs">🌱 Lätt</button>
+                <button id="diff-medium" onclick="setDifficulty('medium')" class="px-2.5 py-1 rounded-xl text-xs sm:text-sm font-extrabold transition text-slate-600 hover:text-slate-900">⭐ Medel</button>
+                <button id="diff-hard" onclick="setDifficulty('hard')" class="px-2.5 py-1 rounded-xl text-xs sm:text-sm font-extrabold transition text-slate-600 hover:text-slate-900">🚀 Utmaning</button>
+            </div>
+
+            <!-- Poäng & Verktyg -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <div class="gamification-badge flex items-center gap-2 bg-amber-50 border border-amber-300 px-2.5 py-1 rounded-2xl">
+                    <span class="font-display font-bold text-sm text-amber-800">⭐ <span id="star-count">0</span></span>
+                    <span class="text-amber-300">|</span>
+                    <span class="font-display font-bold text-sm text-orange-600">🔥 <span id="streak-count">0</span></span>
+                </div>
+
+                <button id="focus-mode-btn" onclick="toggleFocusMode()" title="Växla lugn vy utan stjärnor och bakgrundsfärger" class="btn-3d bg-teal-50 hover:bg-teal-100 border-2 border-teal-300 text-teal-900 px-2.5 py-1.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-1">
+                    <span>🧘</span><span class="hidden lg:inline">Lugn vy</span>
+                </button>
+
+                <button id="scratchpad-toggle-btn" onclick="toggleScratchpad()" class="btn-3d bg-sky-100 hover:bg-sky-200 border-2 border-sky-300 text-sky-900 px-2.5 py-1.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-1">
+                    <span>✍️</span><span class="hidden sm:inline">Kladdblock</span>
+                </button>
+
+                <button onclick="toggleTableDrawer()" class="btn-3d bg-amber-100 hover:bg-amber-200 border-2 border-amber-300 text-amber-900 px-2.5 py-1.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-1">
+                    <span>📊</span><span class="hidden sm:inline">Tabellen</span>
+                </button>
+
+                <button onclick="navigateTo('school')" class="btn-3d bg-violet-100 hover:bg-violet-200 border-2 border-violet-300 text-violet-900 px-2.5 py-1.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-1">
+                    <span>🦉</span><span class="hidden md:inline">Matteskola</span>
+                </button>
+
+                <button id="sound-btn" onclick="toggleSound()" title="Ljud på/av" class="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300 flex items-center justify-center text-base">
+                    🔊
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HUVUDINNEHÅLL -->
+    <main class="max-w-4xl mx-auto px-3 sm:px-5 pt-5">
+
+        <!-- =========================================================
+             VY 0: STARTSIDA (HUB – PEDAGOGISK ORDNING 1–17)
+        ========================================================== -->
+        <section id="view-home" class="space-y-6">
+            <div class="bg-white/95 rounded-3xl p-5 sm:p-7 border-3 border-sky-300 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-extrabold uppercase tracking-wider mb-2">Välkommen till MatteÄventyret!</span>
+                    <h1 class="font-display font-bold text-2xl sm:text-4xl text-slate-900 leading-tight">Vad vill du träna på idag?</h1>
+                    <p class="text-slate-600 font-semibold text-sm sm:text-base mt-1">Övningarna är ordnade i pedagogisk inlärningsordning (1–17) – använd <strong>Kladdblocket</strong> eller <strong>Visa hur man tänker</strong> när du vill!</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2.5 shrink-0">
+                    <button onclick="navigateTo('school')" class="btn-3d bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-display font-bold px-5 py-3.5 rounded-2xl text-base flex items-center justify-center gap-2">
+                        <span>🦉</span><span>Ugglan Olles Matteskola</span>
+                    </button>
+                    <button onclick="startQuiz()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold px-5 py-3.5 rounded-2xl text-base flex items-center justify-center gap-2">
+                        <span>🎯</span><span>Testa mig: 10 frågor</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULKORT (17 MODULER I PEDAGOGISK INLÄRNINGSORDNING) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- 1. Plus & Minus (Grundläggande taluppfattning & huvudräkning) -->
+                <button onclick="navigateTo('addsub')" class="btn-3d text-left bg-white hover:bg-emerald-50/70 rounded-3xl p-5 border-3 border-emerald-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">➕</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">1 • Huvudräkning</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">1. Plus & Minus</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Tiotalshopp, tiokompisar och smarta tallinjeskutt.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-emerald-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 2. Gångertabellen (Upprepad addition & grupper) -->
+                <button onclick="navigateTo('mult')" class="btn-3d text-left bg-white hover:bg-orange-50/70 rounded-3xl p-5 border-3 border-orange-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">✖️</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-orange-100 text-orange-800">2 • Tabell 1–10</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">2. Gångertabellen</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Välj tabell eller blandat med fruktgrupper och skutträkning.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-orange-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 3. Division (Delning & innehåll – multiplikation baklänges) -->
+                <button onclick="navigateTo('div')" class="btn-3d text-left bg-white hover:bg-teal-50/70 rounded-3xl p-5 border-3 border-teal-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">➗</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">3 • Dela lika</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">3. Division</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Dela ut ett i taget, packa påsar och tänk multiplikation baklänges.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-teal-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 4. Mönster & Talföljder (Hitta regeln – tidig algebra) -->
+                <button onclick="navigateTo('seq')" class="btn-3d text-left bg-white hover:bg-purple-50/70 rounded-3xl p-5 border-3 border-purple-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🔢</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">4 • Mönster</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">4. Mönster & Talföljder</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Hitta regeln i talföljder, formmönster och växande figurer.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-purple-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 5. Uppställning (De fyra räknesätten på rutpapper) -->
+                <button onclick="navigateTo('algo')" class="btn-3d text-left bg-white hover:bg-sky-50/70 rounded-3xl p-5 border-3 border-sky-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📝</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">5 • Rutpapper</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">5. Uppställning</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">− med lån (+10), + med minnessiffra, ×, ÷ och ställ upp själv!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-sky-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 6. Balansvågen (Likhetstecknets betydelse & tidig algebra) -->
+                <button onclick="navigateTo('scale')" class="btn-3d text-left bg-white hover:bg-cyan-50/70 rounded-3xl p-5 border-3 border-cyan-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">⚖️</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-800">6 • Likhetstecknet</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">6. Balansvågen</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Gör båda sidor av likhetstecknet lika tunga!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-cyan-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 7. Bråk, Tvillingar & % (Del av helhet) -->
+                <button onclick="navigateTo('frac')" class="btn-3d text-left bg-white hover:bg-pink-50/70 rounded-3xl p-5 border-3 border-pink-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-pink-100 text-pink-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🍕</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-pink-100 text-pink-800">7 • Bråk & %</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">7. Bråk, Tvillingar & %</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Bråkform, blandad form, likvärdiga bråktvillingar och procent.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-pink-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 8. Bråk av antal (Del av en mängd) -->
+                <button onclick="navigateTo('combo')" class="btn-3d text-left bg-white hover:bg-indigo-50/70 rounded-3xl p-5 border-3 border-indigo-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🍎</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">8 • Del av antal</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">8. Bråk av antal</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Hur mycket är t.ex. 2/3 av 18 äpplen? Dela i högar!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-indigo-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 9. Decimaltal (Tiondelar & hundradelar på tallinjen) -->
+                <button onclick="navigateTo('decimal')" class="btn-3d text-left bg-white hover:bg-blue-50/70 rounded-3xl p-5 border-3 border-blue-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🔢</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">9 • Tallinjen</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">9. Decimaltal</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Placera tal på tallinjen och se kopplingen till bråk och procent.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-blue-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 10. Längd & Enheter (Konkret mätning & tiotalssteg) -->
+                <button onclick="navigateTo('length')" class="btn-3d text-left bg-white hover:bg-teal-50/70 rounded-3xl p-5 border-3 border-teal-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📏</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">10 • mm • cm • m • km</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">10. Längd & Enheter</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Omvandla mellan millimeter, centimeter, decimeter, meter och kilometer.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-teal-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 11. Vikt & Volym (Bygger vidare på enhetstrappan) -->
+                <button onclick="navigateTo('volweight')" class="btn-3d text-left bg-white hover:bg-lime-50/70 rounded-3xl p-5 border-3 border-lime-400 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-lime-100 text-lime-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🧪</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-lime-100 text-lime-800">11 • g • kg & ml • l</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">11. Vikt & Volym</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Måttbägare och köksvåg – omvandla mellan liter, dl, cl, g och kg.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-lime-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 12. Klockan & Tid (Analog, digital & tidshopp) -->
+                <button onclick="navigateTo('clock')" class="btn-3d text-left bg-white hover:bg-violet-50/70 rounded-3xl p-5 border-3 border-violet-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🕒</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-violet-100 text-violet-800">12 • Tid & Visare</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">12. Klockan & Tid</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Läs av klockan, räkna tidshopp och dra visarna i Övningsklockan!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-violet-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 13. Mattekiosken (Pengar, sedlar & växel) -->
+                <button onclick="navigateTo('shop')" class="btn-3d text-left bg-white hover:bg-yellow-50/70 rounded-3xl p-5 border-3 border-yellow-400 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">💰</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800">13 • Pengar & Växel</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">13. Mattekiosken</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Handla varor, betala med sedlar och mynt eller räkna ut växel!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-yellow-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 14. Geometri (Omkrets & Area) -->
+                <button onclick="navigateTo('geo')" class="btn-3d text-left bg-white hover:bg-fuchsia-50/70 rounded-3xl p-5 border-3 border-fuchsia-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📐</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-fuchsia-100 text-fuchsia-800">14 • Area & Omkrets</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">14. Geometri</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Rektangel, kvadrat, triangel och cirkel – mät kanten och ytan!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-fuchsia-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 15. Diagram (Avläsa och jämföra data) -->
+                <button onclick="navigateTo('chart')" class="btn-3d text-left bg-white hover:bg-purple-50/70 rounded-3xl p-5 border-3 border-purple-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📊</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">15 • Stapeldiagram</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">15. Diagram</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Läs av stapeldiagram, jämför skillnader och räkna ut totalen.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-purple-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 16. Medelvärde & Median (Statistik & lägesmått) -->
+                <button onclick="navigateTo('avg')" class="btn-3d text-left bg-white hover:bg-rose-50/70 rounded-3xl p-5 border-3 border-rose-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📈</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">16 • Statistik</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">16. Medelvärde & Median</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Jämna ut staplar för genomsnitt, sortera för median och hitta typvärde!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-rose-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 17. Textuppgifter (Sammanfattande problemlösning i flera steg) -->
+                <button onclick="navigateTo('word')" class="btn-3d text-left bg-white hover:bg-amber-50/70 rounded-3xl p-5 border-3 border-amber-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📖</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">17 • Problemlösning</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">17. Textuppgifter</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Vardagsproblem i flera steg med eget rutpapper för uträkningen.</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-amber-700">Starta övning ➔</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 1: PLUS & MINUS (HUVUDRÄKNING)
+        ========================================================== -->
+        <section id="view-addsub" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-emerald-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="addsub-sub-mix" onclick="setAddSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-500 text-white">🎲 Mix</button>
+                    <button id="addsub-sub-plus" onclick="setAddSubMode('plus')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">➕ Bara Plus</button>
+                    <button id="addsub-sub-minus" onclick="setAddSubMode('minus')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">➖ Bara Minus</button>
+                    <button id="addsub-sub-tens" onclick="setAddSubMode('tens')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔟 Tiotalshopp</button>
+                    <button id="addsub-sub-missing" onclick="setAddSubMode('missing')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">❓ Saknat tal</button>
+                    <button id="addsub-sub-jumps" onclick="setAddSubMode('jumps')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🐸 Hoppa själv</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="addsub-mode-choice" onclick="setInputMode('addsub', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-600 text-white">🔘 Flerval</button>
+                    <button id="addsub-mode-type" onclick="setInputMode('addsub', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-emerald-300 shadow-md text-center">
+                <span id="addsub-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-extrabold mb-3">➕ Addition</span>
+                <h2 id="addsub-question-text" class="font-display font-bold text-3xl sm:text-5xl text-slate-900 my-3">24 + 13 = ?</h2>
+
+                <div id="addsub-visual" class="my-4"></div>
+
+                <div id="addsub-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-5"></div>
+
+                <div id="addsub-type-wrap" class="hidden max-w-md mx-auto mt-5 flex items-center justify-center gap-3">
+                    <input id="addsub-type-input" type="number" inputmode="numeric" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-emerald-500">
+                    <button onclick="checkAddSubTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="addsub-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="addsub-next-wrap" class="hidden mt-4">
+                    <button onclick="generateAddSubQuestion()" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa uppgift ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('addsub')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="addsub-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles tankesätt</span>
+                        <span id="addsub-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="addsub-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="addsub-hint-next-btn" onclick="nextHintStep('addsub')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 2: GÅNGERTABELLEN
+        ========================================================== -->
+        <section id="view-mult" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-orange-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex items-center gap-2">
+                    <label for="mult-table-select" class="text-xs font-extrabold text-slate-600">Tabell:</label>
+                    <select id="mult-table-select" onchange="setSelectedTable(this.value)" class="bg-orange-50 border-2 border-orange-300 rounded-xl px-3 py-1 font-extrabold text-sm text-orange-950 focus:outline-none">
+                        <option value="all">🎲 Blandat (1–10)</option>
+                        <option value="1">1:ans tabell</option>
+                        <option value="2">2:ans tabell</option>
+                        <option value="3">3:ans tabell</option>
+                        <option value="4">4:ans tabell</option>
+                        <option value="5">5:ans tabell</option>
+                        <option value="6">6:ans tabell</option>
+                        <option value="7">7:ans tabell</option>
+                        <option value="8">8:ans tabell</option>
+                        <option value="9">9:ans tabell</option>
+                        <option value="10">10:ans tabell</option>
+                    </select>
+                    <button id="mult-missing-btn" onclick="setMultMissing(!state.multMissing)" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-orange-200 text-slate-700">❓ Saknat faktor</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="mult-mode-choice" onclick="setInputMode('mult', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-orange-500 text-white">🔘 Flerval</button>
+                    <button id="mult-mode-type" onclick="setInputMode('mult', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-orange-300 shadow-md text-center">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-orange-100 text-orange-900 text-xs font-extrabold mb-2">✖️ Gångertabellen</span>
+                <h2 id="mult-question-text" class="font-display font-bold text-3xl sm:text-5xl text-slate-900 my-2">3 × 4 = ?</h2>
+
+                <div id="mult-visual-groups" class="flex flex-wrap items-center justify-center gap-2.5 my-4 max-w-2xl mx-auto"></div>
+
+                <div id="mult-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="mult-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="mult-type-input" type="number" inputmode="numeric" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-orange-500">
+                    <button onclick="checkMultTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="mult-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="mult-next-wrap" class="hidden mt-4">
+                    <button onclick="generateMultQuestion()" class="btn-3d bg-gradient-to-r from-orange-500 to-amber-500 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa tal ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('mult')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="mult-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles gångerknep</span>
+                        <span id="mult-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="mult-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="mult-hint-next-btn" onclick="nextHintStep('mult')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY: DIVISION (DELA LIKA, PÅSAR & SNABB DIVISION)
+        ========================================================== -->
+        <section id="view-div" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-teal-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="div-sub-mix" onclick="setDivSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-teal-600 text-white">🎲 Mix</button>
+                    <button id="div-sub-share" onclick="setDivSubMode('share')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🧺 Dela lika</button>
+                    <button id="div-sub-group" onclick="setDivSubMode('group')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🛍️ Påsar</button>
+                    <button id="div-sub-quick" onclick="setDivSubMode('quick')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">⚡ Snabb division</button>
+                    <button id="div-sub-missing" onclick="setDivSubMode('missing')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">❓ Saknat tal</button>
+                    <button id="div-sub-hands" onclick="setDivSubMode('hands')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🤲 Dela själv</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="div-mode-choice" onclick="setInputMode('div', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-teal-600 text-white">🔘 Flerval</button>
+                    <button id="div-mode-type" onclick="setInputMode('div', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-teal-300 shadow-md text-center">
+                <span id="div-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-teal-100 text-teal-900 text-xs font-extrabold mb-2">🧺 Dela lika</span>
+                <h2 id="div-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">12 ÷ 3 = ?</h2>
+
+                <div id="div-visual-container" class="my-5 flex flex-wrap items-center justify-center gap-3 max-w-2xl mx-auto"></div>
+
+                <div id="div-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="div-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="div-type-input" type="number" inputmode="numeric" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-teal-500">
+                    <button onclick="checkDivTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="div-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="div-next-wrap" class="hidden mt-4">
+                    <button onclick="generateDivQuestion()" class="btn-3d bg-gradient-to-r from-teal-500 to-blue-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa uppgift ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('div')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="div-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles delningsknep</span>
+                        <span id="div-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="div-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="div-hint-next-btn" onclick="nextHintStep('div')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY: MÖNSTER & TALFÖLJDER
+        ========================================================== -->
+        <section id="view-seq" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-purple-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="seq-sub-mix" onclick="setSeqSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-purple-600 text-white">🎲 Mix</button>
+                    <button id="seq-sub-numbers" onclick="setSeqSubMode('numbers')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">🔢 Talföljd</button>
+                    <button id="seq-sub-shapes" onclick="setSeqSubMode('shapes')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">🎨 Formmönster</button>
+                    <button id="seq-sub-grow" onclick="setSeqSubMode('grow')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">📈 Växande figur</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="seq-mode-choice" onclick="setInputMode('seq', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-purple-600 text-white">🔘 Flerval</button>
+                    <button id="seq-mode-type" onclick="setInputMode('seq', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-purple-300 shadow-md text-center">
+                <span id="seq-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-purple-100 text-purple-900 text-xs font-extrabold mb-2">🔢 Talföljd</span>
+                <h2 id="seq-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Vilket tal kommer härnäst?</h2>
+
+                <div id="seq-visual-container" class="my-5 flex flex-wrap items-stretch justify-center gap-3 max-w-2xl mx-auto"></div>
+
+                <div id="seq-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="seq-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="seq-type-input" type="number" inputmode="numeric" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-purple-500">
+                    <button onclick="checkSeqTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="seq-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="seq-next-wrap" class="hidden mt-4">
+                    <button onclick="generateSeqQuestion()" class="btn-3d bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa uppgift ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('seq')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="seq-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles mönsterknep</span>
+                        <span id="seq-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="seq-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="seq-hint-next-btn" onclick="nextHintStep('seq')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 3: BRÅK, BRÅKTVILLINGAR & PROCENT
+        ========================================================== -->
+        <section id="view-frac" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-pink-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="frac-sub-mix" onclick="setFracSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-pink-600 text-white">🎲 Mix</button>
+                    <button id="frac-sub-frac" onclick="setFracSubMode('frac')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-pink-200 text-slate-700">🍕 Bråkform</button>
+                    <button id="frac-sub-mixed" onclick="setFracSubMode('mixed')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-pink-200 text-slate-700">🍕🍕 Blandad form</button>
+                    <button id="frac-sub-twins" onclick="setFracSubMode('twins')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-pink-200 text-slate-700">👯 Bråktvillingar</button>
+                    <button id="frac-sub-percent" onclick="setFracSubMode('percent')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-pink-200 text-slate-700">💯 Procent (%)</button>
+                    <button id="frac-sub-percentof" onclick="setFracSubMode('percentof')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-pink-200 text-slate-700">💰 Procent av</button>
+                    <button id="frac-sub-arith" onclick="setFracSubMode('arith')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-pink-200 text-slate-700">➕ Bråkräkning</button>
+                </div>
+                <div id="frac-input-mode-toggle" class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="frac-mode-choice" onclick="setInputMode('frac', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-pink-600 text-white">🔘 Flerval</button>
+                    <button id="frac-mode-type" onclick="setInputMode('frac', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-pink-300 shadow-md text-center">
+                <span id="frac-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-pink-100 text-pink-900 text-xs font-extrabold mb-2">🍕 Bråkform</span>
+                <h2 id="frac-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Hur stor del är färgad?</h2>
+
+                <div id="frac-visual-container" class="my-5 flex flex-wrap items-center justify-center gap-6"></div>
+
+                <div id="frac-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="frac-type-wrap" class="hidden max-w-md mx-auto mt-5 flex items-center justify-center gap-4">
+                    <div class="inline-flex items-center gap-3 bg-amber-50/70 border-3 border-amber-400 rounded-3xl px-5 py-3 shadow-xs">
+                        <div id="frac-type-whole-wrap" class="hidden flex-col items-center">
+                            <input id="frac-input-whole" type="number" inputmode="numeric" placeholder="?" class="w-16 h-20 text-center font-hand font-bold text-4xl bg-white border-2 border-amber-400 rounded-2xl focus:outline-none focus:border-pink-500">
+                            <span class="text-[10px] font-extrabold text-amber-800 uppercase mt-1">Hela</span>
+                        </div>
+                        <div id="frac-type-stack-wrap" class="flex flex-col items-center">
+                            <input id="frac-input-num" type="number" inputmode="numeric" placeholder="?" class="w-16 h-12 text-center font-hand font-bold text-2xl bg-white border-2 border-pink-300 rounded-xl focus:outline-none focus:border-pink-500">
+                            <div class="w-20 h-1 bg-slate-900 rounded-full my-1.5"></div>
+                            <input id="frac-input-den" type="number" inputmode="numeric" placeholder="?" class="w-16 h-12 text-center font-hand font-bold text-2xl bg-white border-2 border-pink-300 rounded-xl focus:outline-none focus:border-pink-500">
+                        </div>
+                        <div id="frac-type-pct-wrap" class="hidden items-center gap-1.5">
+                            <input id="frac-input-pct" type="number" inputmode="numeric" placeholder="?" class="w-24 h-16 text-center font-hand font-bold text-3xl bg-white border-2 border-pink-300 rounded-2xl focus:outline-none focus:border-pink-500">
+                            <span id="frac-type-pct-unit" class="font-display font-bold text-3xl text-pink-700">%</span>
+                        </div>
+                    </div>
+                    <button onclick="checkFracTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="frac-twins-btn-wrap" class="hidden mt-4">
+                    <button onclick="checkFracTwins()" class="btn-3d bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Kontrollera pizzan ✨</button>
+                </div>
+
+                <div id="frac-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="frac-next-wrap" class="hidden mt-4">
+                    <button onclick="generateFracQuestion()" class="btn-3d bg-gradient-to-r from-pink-500 to-rose-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa bråkuppgift ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('frac')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="frac-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles bråktips</span>
+                        <span id="frac-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="frac-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="frac-hint-next-btn" onclick="nextHintStep('frac')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 4: UPPSTÄLLNING (RUTPAPPER + STÄLL UPP SJÄLV + AHA-FEEDBACK)
+        ========================================================== -->
+        <section id="view-algo" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-sky-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="algo-op-sub" onclick="setAlgoOp('sub')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-600 text-white">− Låna</button>
+                    <button id="algo-op-add" onclick="setAlgoOp('add')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-sky-200 text-slate-700">+ Minne</button>
+                    <button id="algo-op-mul" onclick="setAlgoOp('mul')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-sky-200 text-slate-700">× Gånger</button>
+                    <button id="algo-op-div" onclick="setAlgoOp('div')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-sky-200 text-slate-700">÷ Division</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="algo-sheet-guided" onclick="setAlgoSheetMode('guided')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-sky-600 text-white">🧩 Färdig mall</button>
+                    <button id="algo-sheet-blank" onclick="setAlgoSheetMode('blank')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">📝 Ställ upp själv!</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-sky-300 shadow-md text-center">
+                <span id="algo-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-sky-100 text-sky-900 text-xs font-extrabold mb-2">− Subtraktion med växling</span>
+                <h2 id="algo-question-text" class="font-display font-bold text-2xl sm:text-4xl text-slate-900 my-2">Räkna ut 74 − 17!</h2>
+
+                <div id="algo-guided-area" class="mt-4 bg-sky-50/50 border-2 border-sky-200 rounded-3xl p-4 sm:p-6">
+                    <div id="algo-loan-bar" class="hidden flex flex-wrap items-center justify-center gap-2 mb-4">
+                        <span class="px-3.5 py-1.5 rounded-full bg-sky-100 border border-sky-300 text-sky-950 text-xs sm:text-sm font-extrabold">👆 Tryck på tiotalet där uppe för att växla (låna 10 till entalen)!</span>
+                        <button onclick="resetAlgoLoans()" class="px-3 py-1.5 rounded-full bg-rose-100 hover:bg-rose-200 border border-rose-300 text-rose-900 text-xs font-extrabold">🔄 Återställ lån</button>
+                    </div>
+                    <div id="algo-grid-container" class="flex flex-col items-center justify-center"></div>
+                    <p id="algo-grid-tip" class="text-xs font-extrabold text-slate-500 mt-3">Tips: Räkna från höger (entalen) till vänster!</p>
+                </div>
+
+                <div id="algo-blank-area" class="hidden mt-4 bg-indigo-50/40 border-2 border-indigo-200 rounded-3xl p-4 sm:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-2 max-w-xl mx-auto mb-3 bg-white p-2.5 rounded-2xl border border-indigo-200">
+                        <div class="text-left">
+                            <span class="text-[11px] font-extrabold text-indigo-600 uppercase">Uppgift:</span>
+                            <span id="algo-blank-problem-label" class="font-display font-bold text-xl text-slate-900 ml-1.5">94 − 37</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button id="blank-strike-btn" onclick="toggleBlankStrikeMode()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-300 text-rose-900 text-xs font-extrabold">
+                                ✂️ Stryk siffra <span class="opacity-70">[Space]</span>
+                            </button>
+                            <button onclick="clearBlankSheet()" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold">
+                                🧹 Rensa
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="algo-blank-grid-container" class="flex justify-center overflow-x-auto py-1"></div>
+
+                    <p class="text-xs font-extrabold text-slate-600 mt-3">
+                        💡 Skriv en siffra per ruta. Tryck <kbd class="px-1.5 py-0.5 bg-slate-200 rounded">x</kbd> för gångertecken (<span class="font-bold">×</span>) och <kbd class="px-1.5 py-0.5 bg-slate-200 rounded">Space</kbd> för att stryka över en siffra när du lånar!
+                    </p>
+                </div>
+
+                <div class="mt-5">
+                    <button id="algo-check-btn" onclick="checkAlgoAnswer()" class="btn-3d bg-gradient-to-r from-sky-500 to-blue-600 text-white font-display font-bold text-lg sm:text-xl px-8 py-3.5 rounded-2xl">
+                        Kontrollera uppställningen ✨
+                    </button>
+                </div>
+
+                <div id="algo-feedback" class="hidden mt-4 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="algo-next-wrap" class="hidden mt-4">
+                    <button onclick="generateAlgoQuestion()" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa uppställning ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('algo')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="algo-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles uppställningshjälp</span>
+                        <span id="algo-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="algo-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="algo-hint-next-btn" onclick="nextHintStep('algo')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 5: BRÅK AV ANTAL
+        ========================================================== -->
+        <section id="view-combo" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-indigo-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <span class="font-display font-bold text-indigo-900 text-base">🍎 Bråk av ett antal</span>
+                <button id="combo-hands-btn" onclick="setComboHands(!state.comboHands)" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-indigo-200 text-slate-700">🤲 Dela själv</button>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="combo-mode-choice" onclick="setInputMode('combo', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-indigo-600 text-white">🔘 Flerval</button>
+                    <button id="combo-mode-type" onclick="setInputMode('combo', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-indigo-300 shadow-md text-center">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-indigo-100 text-indigo-900 text-xs font-extrabold mb-2">🍎 Dela upp i lika högar</span>
+                <h2 id="combo-question-text" class="font-display font-bold text-2xl sm:text-4xl text-slate-900 my-3">Hur mycket är 1/3 av 12 äpplen?</h2>
+
+                <div id="combo-visual-container" class="flex flex-wrap items-center justify-center gap-3 my-4 max-w-2xl mx-auto"></div>
+
+                <div id="combo-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="combo-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="combo-type-input" type="number" inputmode="numeric" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-indigo-500">
+                    <button onclick="checkComboTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="combo-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="combo-next-wrap" class="hidden mt-4">
+                    <button onclick="generateComboQuestion()" class="btn-3d bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa uppgift ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('combo')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="combo-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles uppdelningsknep</span>
+                        <span id="combo-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="combo-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="combo-hint-next-btn" onclick="nextHintStep('combo')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 6: KLOCKAN & TID (INKL. INTERAKTIV ÖVNINGSKLOCKA)
+        ========================================================== -->
+        <section id="view-clock" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-violet-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="clock-sub-mix" onclick="setClockSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-violet-600 text-white">🎲 Mix</button>
+                    <button id="clock-sub-read" onclick="setClockSubMode('read')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-violet-200 text-slate-700">🕒 Klockslag</button>
+                    <button id="clock-sub-jump" onclick="setClockSubMode('jump')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-violet-200 text-slate-700">⏩ Tidshopp</button>
+                    <button id="clock-sub-sandbox" onclick="setClockSubMode('sandbox')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-violet-200 text-slate-700">🖐️ Övningsklocka</button>
+                </div>
+            </div>
+
+            <div id="clock-quiz-card" class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-violet-300 shadow-md text-center">
+                <span id="clock-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-violet-100 text-violet-900 text-xs font-extrabold mb-2">🕒 Klockslag</span>
+                <h2 id="clock-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Hur mycket är klockan?</h2>
+
+                <div id="clock-svg-container" class="my-4 flex justify-center"></div>
+                <p class="text-xs font-extrabold text-slate-500 mb-3">🔴 Kort visare = Timme &nbsp;•&nbsp; 🔵 Lång visare = Minuter</p>
+
+                <div id="clock-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-3"></div>
+
+                <div id="clock-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="clock-next-wrap" class="hidden mt-4">
+                    <button onclick="generateClockQuestion()" class="btn-3d bg-gradient-to-r from-violet-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa klockfråga ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('clock')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man läser av klockan</span>
+                    </button>
+                </div>
+
+                <div id="clock-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Klock-hjälpen</span>
+                        <span id="clock-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="clock-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="clock-hint-next-btn" onclick="nextHintStep('clock')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="clock-sandbox-card" class="hidden bg-white rounded-3xl p-5 sm:p-8 border-3 border-violet-300 shadow-md text-center">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-violet-100 text-violet-900 text-xs font-extrabold mb-2">🖐️ Interaktiv Övningsklocka</span>
+                <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-900">Dra i visarna och se digital tid!</h2>
+                <p class="text-slate-600 text-sm font-semibold mt-1">Ta tag i den <strong class="text-rose-600">röda timvisaren</strong> eller <strong class="text-sky-600">blå minutvisaren</strong> på urtavlan!</p>
+
+                <div id="sandbox-target-banner" class="hidden mt-3 max-w-md mx-auto bg-amber-50 border-2 border-amber-400 rounded-2xl p-3 flex items-center justify-between gap-2">
+                    <span id="sandbox-target-text" class="font-display font-bold text-base text-amber-950">Ställ klockan på: 14:30</span>
+                    <button onclick="checkSandboxTarget()" class="btn-3d bg-emerald-500 text-white text-xs font-extrabold px-3.5 py-1.5 rounded-xl">Kolla! ✨</button>
+                </div>
+                <div id="sandbox-feedback" class="hidden mt-2 max-w-md mx-auto p-2.5 rounded-xl font-extrabold text-sm"></div>
+
+                <div class="my-5 flex flex-col md:flex-row items-center justify-center gap-6">
+                    <div id="sandbox-clock-wrap" class="relative select-none touch-none"></div>
+
+                    <div class="bg-slate-900 text-white rounded-3xl p-5 border-4 border-violet-400 shadow-lg min-w-[240px]">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <button id="sandbox-ampm-am" onclick="setSandboxPM(false)" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-violet-600 text-white">☀️ FM (00–12)</button>
+                            <button id="sandbox-ampm-pm" onclick="setSandboxPM(true)" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-slate-700 text-slate-300">🌙 EM (12–24)</button>
+                        </div>
+                        <div id="sandbox-digital-display" class="font-display font-bold text-5xl tracking-wider text-emerald-400 my-2">03:00</div>
+                        <div id="sandbox-words-display" class="text-sm font-bold text-violet-200">Klockan tre</div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-700 flex flex-wrap justify-center gap-1.5">
+                            <button onclick="adjustSandboxMinutes(-5)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-extrabold">−5 min</button>
+                            <button onclick="adjustSandboxMinutes(5)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-extrabold">+5 min</button>
+                            <button onclick="adjustSandboxMinutes(15)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-extrabold">+15 min</button>
+                            <button onclick="adjustSandboxMinutes(60)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-extrabold">+1 tim</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <button onclick="startSandboxChallenge()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-base px-5 py-2.5 rounded-2xl">
+                        🎯 Ge mig en tid att ställa in!
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 7: BALANSVÅGEN
+        ========================================================== -->
+        <section id="view-scale" class="hidden space-y-4">
+            <div class="flex items-center justify-between bg-white/90 p-3 rounded-2xl border-2 border-cyan-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <span class="font-display font-bold text-cyan-900 text-base">⚖️ Balansvågen & Likhetstecknet</span>
+                <button id="scale-hands-btn" onclick="setScaleHands(!state.scaleHands)" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-cyan-200 text-slate-700">⚖️ Väg själv</button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-cyan-300 shadow-md text-center">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-cyan-100 text-cyan-900 text-xs font-extrabold mb-2">⚖️ Lika mycket på båda sidor</span>
+                <h2 id="scale-tilt-status" class="font-display font-bold text-xl sm:text-3xl text-slate-900 my-2">Vågen lutar just nu! Vilken tyngd gör båda sidor lika tunga?</h2>
+
+                <div id="scale-svg-container" class="my-4 flex justify-center"></div>
+
+                <div id="scale-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="scale-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="scale-next-wrap" class="hidden mt-4">
+                    <button onclick="generateScaleQuestion()" class="btn-3d bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa balansvåg ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('scale')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man balanserar vågen</span>
+                    </button>
+                </div>
+
+                <div id="scale-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Balans-knepet</span>
+                        <span id="scale-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="scale-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="scale-hint-next-btn" onclick="nextHintStep('scale')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 8: LÄNGD & ENHETSOMVANDLING
+        ========================================================== -->
+        <section id="view-length" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-teal-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="len-sub-mix" onclick="setLengthSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-teal-600 text-white">🎲 Mix</button>
+                    <button id="len-sub-mmcm" onclick="setLengthSubMode('mmcm')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">📏 mm ↔ cm</button>
+                    <button id="len-sub-cmdmm" onclick="setLengthSubMode('cmdmm')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">📐 cm ↔ dm ↔ m</button>
+                    <button id="len-sub-mkm" onclick="setLengthSubMode('mkm')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🗺️ m ↔ km</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="length-mode-choice" onclick="setInputMode('length', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-teal-600 text-white">🔘 Flerval</button>
+                    <button id="length-mode-type" onclick="setInputMode('length', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-teal-300 shadow-md text-center">
+                <span id="length-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-teal-100 text-teal-900 text-xs font-extrabold mb-2">📏 Längd & Enheter</span>
+                <h2 id="length-question-text" class="font-display font-bold text-2xl sm:text-4xl text-slate-900 my-2">Hur många cm är 3 dm?</h2>
+
+                <div id="length-visual-container" class="my-4"></div>
+
+                <div id="length-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="length-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="length-type-input" type="text" inputmode="decimal" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-teal-500">
+                    <span id="length-type-unit" class="font-display font-bold text-2xl text-teal-800">cm</span>
+                    <button onclick="checkLengthTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="length-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="length-next-wrap" class="hidden mt-4">
+                    <button onclick="generateLengthQuestion()" class="btn-3d bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa längdfråga ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('length')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man omvandlar</span>
+                    </button>
+                </div>
+
+                <div id="length-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Linjal-hjälpen</span>
+                        <span id="length-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="length-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="length-hint-next-btn" onclick="nextHintStep('length')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 9: TEXTUPPGIFTER (FLERSTEG & ÖPPET RUTPAPPER)
+        ========================================================== -->
+        <section id="view-word" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-amber-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="word-cat-all" onclick="setWordCategory('all')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-amber-500 text-white">🎲 Blandat</button>
+                    <button id="word-cat-units" onclick="setWordCategory('units')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-amber-200 text-slate-700">🧪 Enheter & Volym</button>
+                    <button id="word-cat-frac" onclick="setWordCategory('frac')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-amber-200 text-slate-700">🍕 Bråk & %</button>
+                    <button id="word-cat-money" onclick="setWordCategory('money')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-amber-200 text-slate-700">💰 Vardag & Flersteg</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-amber-300 shadow-md">
+                <div class="text-center">
+                    <span id="word-badge" class="inline-block px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold mb-2">🧪 Volym & Enhetsbyte</span>
+                    <div class="bg-amber-50/70 border-2 border-amber-200 rounded-2xl p-4 sm:p-5 max-w-2xl mx-auto">
+                        <p id="word-problem-text" class="font-display font-semibold text-xl sm:text-2xl text-slate-900 leading-snug">
+                            Kalle har 0,45 liter kaffe i sin termos. Under dagen dricker han 25 cl. Hur mycket är kvar? Svara i liter.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-5 bg-sky-50/50 border-2 border-sky-200 rounded-3xl p-4 text-center">
+                    <div class="flex flex-wrap items-center justify-between gap-2 max-w-xl mx-auto mb-3">
+                        <span class="text-xs font-extrabold text-sky-900">📐 Eget räknepapper (valfritt – ställ upp och räkna i flera steg):</span>
+                        <div class="flex flex-wrap items-center gap-1">
+                            <button onclick="insertWordGridSymbol('+')" class="w-8 h-8 rounded-lg bg-white border border-sky-300 font-display font-bold text-sky-800 hover:bg-sky-100">+</button>
+                            <button onclick="insertWordGridSymbol('−')" class="w-8 h-8 rounded-lg bg-white border border-sky-300 font-display font-bold text-sky-800 hover:bg-sky-100">−</button>
+                            <button onclick="insertWordGridSymbol('×')" class="w-8 h-8 rounded-lg bg-white border border-sky-300 font-display font-bold text-sky-800 hover:bg-sky-100">×</button>
+                            <button onclick="insertWordGridSymbol('÷')" class="w-8 h-8 rounded-lg bg-white border border-sky-300 font-display font-bold text-sky-800 hover:bg-sky-100">÷</button>
+                            <button onclick="insertWordGridSymbol('=')" class="w-8 h-8 rounded-lg bg-white border border-sky-300 font-display font-bold text-sky-800 hover:bg-sky-100">=</button>
+                            <button onclick="insertWordGridSymbol(',')" class="w-8 h-8 rounded-lg bg-white border border-sky-300 font-display font-bold text-sky-800 hover:bg-sky-100">,</button>
+                            <button onclick="toggleWordGridLine()" title="Lägg till/ta bort räknestreck på raden" class="px-2.5 h-8 rounded-lg bg-white border border-slate-300 text-xs font-extrabold text-slate-700 hover:bg-slate-100">➖ Streck</button>
+                            <button onclick="clearWordGrid()" class="px-2.5 h-8 rounded-lg bg-amber-100 border border-amber-300 text-xs font-extrabold text-amber-900 hover:bg-amber-200">🧹 Rensa</button>
+                        </div>
+                    </div>
+
+                    <div id="word-grid-container" class="flex justify-center overflow-x-auto py-1"></div>
+                    <p class="text-[11px] font-extrabold text-slate-500 mt-2">Tips: Tryck <kbd class="px-1 py-0.5 bg-slate-200 rounded">x</kbd> för × och <kbd class="px-1 py-0.5 bg-slate-200 rounded">Space</kbd> för att stryka över en siffra.</p>
+                </div>
+
+                <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
+                    <label for="word-final-input" class="font-display font-bold text-lg text-slate-800">Slutsvar:</label>
+                    <input id="word-final-input" type="text" inputmode="decimal" placeholder="?" class="w-36 h-14 text-center font-hand font-bold text-2xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-emerald-500">
+                    <span id="word-unit-label" class="font-display font-bold text-xl text-amber-900 bg-amber-100 px-3.5 py-2.5 rounded-2xl border border-amber-300">liter</span>
+                    <button onclick="checkWordAnswer()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-lg px-6 h-14 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="word-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto text-center"></div>
+
+                <div id="word-next-wrap" class="hidden mt-4 text-center">
+                    <button onclick="generateWordQuestion()" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa textuppgift ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('word')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man löser uppgiften steg för steg</span>
+                    </button>
+                </div>
+
+                <div id="word-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Lösningsguiden</span>
+                        <span id="word-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="word-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="word-hint-next-btn" onclick="nextHintStep('word')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 10: GEOMETRI (AREA & OMKRETS)
+        ========================================================== -->
+        <section id="view-geo" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-fuchsia-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="geo-sub-mix" onclick="setGeoSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-fuchsia-600 text-white">🎲 Mix</button>
+                    <button id="geo-sub-rect" onclick="setGeoSubMode('rect')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-fuchsia-200 text-slate-700">📐 Rektangel & Kvadrat</button>
+                    <button id="geo-sub-tri" onclick="setGeoSubMode('tri')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-fuchsia-200 text-slate-700">🔺 Triangel</button>
+                    <button id="geo-sub-circle" onclick="setGeoSubMode('circle')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-fuchsia-200 text-slate-700">⭕ Cirkel</button>
+                    <button id="geo-sub-build" onclick="setGeoSubMode('build')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-fuchsia-200 text-slate-700">🧱 Bygg själv</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="geo-mode-choice" onclick="setInputMode('geo', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-fuchsia-600 text-white">🔘 Flerval</button>
+                    <button id="geo-mode-type" onclick="setInputMode('geo', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-fuchsia-300 shadow-md text-center">
+                <span id="geo-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-fuchsia-100 text-fuchsia-900 text-xs font-extrabold mb-2">📐 Rektangel • Area</span>
+                <h2 id="geo-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Hur stor är rektangelns area?</h2>
+                <p id="geo-sub-note" class="text-xs sm:text-sm font-extrabold text-fuchsia-700 mb-2"></p>
+
+                <div id="geo-visual-container" class="my-4 flex justify-center"></div>
+
+                <div id="geo-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="geo-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="geo-type-input" type="text" inputmode="decimal" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-fuchsia-500">
+                    <span id="geo-type-unit" class="font-display font-bold text-2xl text-fuchsia-900 bg-fuchsia-50 px-3.5 py-2.5 rounded-2xl border border-fuchsia-200">cm²</span>
+                    <button onclick="checkGeoTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="geo-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="geo-next-wrap" class="hidden mt-4">
+                    <button onclick="generateGeoQuestion()" class="btn-3d bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa geometrifråga ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('geo')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="geo-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles geometriknep</span>
+                        <span id="geo-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="geo-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="geo-hint-next-btn" onclick="nextHintStep('geo')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 11: VIKT & VOLYM (MÅTTBÄGARE & KÖKSVÅG)
+        ========================================================== -->
+        <section id="view-volweight" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-lime-300">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="vw-sub-mix" onclick="setVolWeightSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-lime-600 text-white">🎲 Mix</button>
+                    <button id="vw-sub-vol" onclick="setVolWeightSubMode('vol')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-lime-300 text-slate-700">🧪 Volym (ml–l)</button>
+                    <button id="vw-sub-weight" onclick="setVolWeightSubMode('weight')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-lime-300 text-slate-700">⚖️ Vikt (g–kg)</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="volweight-mode-choice" onclick="setInputMode('volweight', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-lime-600 text-white">🔘 Flerval</button>
+                    <button id="volweight-mode-type" onclick="setInputMode('volweight', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-lime-400 shadow-md text-center">
+                <span id="volweight-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-lime-100 text-lime-950 text-xs font-extrabold mb-2">🧪 Volym & Måttbägare</span>
+                <h2 id="volweight-question-text" class="font-display font-bold text-2xl sm:text-4xl text-slate-900 my-2">Hur många dl är 2 liter?</h2>
+
+                <div id="volweight-visual-container" class="my-4 flex justify-center"></div>
+
+                <div id="volweight-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="volweight-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="volweight-type-input" type="text" inputmode="decimal" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-lime-600">
+                    <span id="volweight-type-unit" class="font-display font-bold text-2xl text-lime-900 bg-lime-50 px-3.5 py-2.5 rounded-2xl border border-lime-300">dl</span>
+                    <button onclick="checkVolWeightTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="volweight-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="volweight-next-wrap" class="hidden mt-4">
+                    <button onclick="generateVolWeightQuestion()" class="btn-3d bg-gradient-to-r from-lime-600 to-emerald-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa uppgift ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('volweight')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man omvandlar</span>
+                    </button>
+                </div>
+
+                <div id="volweight-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles mått-trappa</span>
+                        <span id="volweight-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="volweight-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="volweight-hint-next-btn" onclick="nextHintStep('volweight')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 12: DECIMALTAL PÅ TALLINJEN
+        ========================================================== -->
+        <section id="view-decimal" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-blue-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="dec-sub-mix" onclick="setDecimalSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-blue-600 text-white">🎲 Mix</button>
+                    <button id="dec-sub-place" onclick="setDecimalSubMode('place')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-blue-200 text-slate-700">🎯 Placera på tallinjen</button>
+                    <button id="dec-sub-read" onclick="setDecimalSubMode('read')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-blue-200 text-slate-700">🔍 Läs av tallinjen</button>
+                    <button id="dec-sub-link" onclick="setDecimalSubMode('link')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-blue-200 text-slate-700">🔗 Bråk & %</button>
+                </div>
+                <div id="decimal-input-mode-toggle" class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="decimal-mode-choice" onclick="setInputMode('decimal', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-blue-600 text-white">🔘 Flerval</button>
+                    <button id="decimal-mode-type" onclick="setInputMode('decimal', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-blue-300 shadow-md text-center">
+                <span id="decimal-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-blue-100 text-blue-900 text-xs font-extrabold mb-2">🔢 Decimaltal på tallinjen</span>
+                <h2 id="decimal-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Placera 0,6 på tallinjen!</h2>
+
+                <div id="decimal-visual-container" class="my-5 flex flex-col items-center"></div>
+
+                <div id="decimal-place-controls" class="hidden space-y-3 max-w-md mx-auto">
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="nudgeDecimalSlider(-1)" class="btn-3d bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3.5 py-2 rounded-xl font-display font-bold text-sm text-slate-800">⬅ −1 steg</button>
+                        <div class="px-4 py-2 rounded-2xl bg-blue-50 border-2 border-blue-300 font-display font-bold text-lg text-blue-950">
+                            Markör: <span id="decimal-slider-readout" class="text-blue-600">0,0</span>
+                        </div>
+                        <button onclick="nudgeDecimalSlider(1)" class="btn-3d bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3.5 py-2 rounded-xl font-display font-bold text-sm text-slate-800">+1 steg ➔</button>
+                    </div>
+                    <button onclick="checkDecimalPlaced()" class="btn-3d bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Kontrollera placering ✨</button>
+                </div>
+
+                <div id="decimal-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="decimal-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="decimal-type-input" type="text" inputmode="decimal" placeholder="0,?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-blue-500">
+                    <button onclick="checkDecimalTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="decimal-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="decimal-next-wrap" class="hidden mt-4">
+                    <button onclick="generateDecimalQuestion()" class="btn-3d bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa decimaltal ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('decimal')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="decimal-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles decimaltips</span>
+                        <span id="decimal-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="decimal-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="decimal-hint-next-btn" onclick="nextHintStep('decimal')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 13: MATTEKIOSKEN (PENGAR & VÄXEL)
+        ========================================================== -->
+        <section id="view-shop" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-yellow-300">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="shop-sub-mix" onclick="setShopSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-amber-500 text-white">🎲 Mix</button>
+                    <button id="shop-sub-pay" onclick="setShopSubMode('pay')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-amber-300 text-slate-700">🛒 Betala varor</button>
+                    <button id="shop-sub-change" onclick="setShopSubMode('change')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-amber-300 text-slate-700">💵 Ge tillbaka växel</button>
+                </div>
+                <span class="text-xs font-extrabold text-amber-900 bg-amber-100 px-3 py-1 rounded-full">🇸🇪 Svenska kronor</span>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-yellow-400 shadow-md text-center">
+                <span id="shop-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-yellow-100 text-yellow-950 text-xs font-extrabold mb-2">🛒 Mattekiosken</span>
+                <h2 id="shop-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Lägg rätt summa på kassadisken!</h2>
+
+                <div id="shop-items-container" class="my-4 flex flex-wrap items-center justify-center gap-3"></div>
+
+                <div class="max-w-2xl mx-auto my-4 bg-emerald-50/70 border-2 border-dashed border-emerald-400 rounded-3xl p-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <span class="text-xs font-extrabold text-emerald-900 uppercase">🧾 Kassadisken (tryck på ett mynt/sedel för att ta bort):</span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-display font-bold text-base text-emerald-950 bg-white px-3 py-1 rounded-xl border border-emerald-300">
+                                På disken: <span id="shop-tray-total" class="text-emerald-600">0</span> kr
+                            </span>
+                            <button onclick="clearShopTray()" class="px-2.5 py-1 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 text-xs font-extrabold">🧹 Rensa</button>
+                        </div>
+                    </div>
+                    <div id="shop-tray-visual" class="min-h-[58px] flex flex-wrap items-center justify-center gap-2 py-1">
+                        <span class="text-xs font-bold text-slate-400">Klicka på sedlar eller mynt nedan för att lägga dem här!</span>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl mx-auto mt-3">
+                    <p class="text-xs font-extrabold text-slate-600 mb-2">👛 Välj sedlar och mynt:</p>
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        <button onclick="addMoneyToTray(1)" class="btn-3d w-12 h-12 rounded-full bg-amber-600 border-3 border-amber-800 text-white font-display font-bold text-sm flex items-center justify-center">1 kr</button>
+                        <button onclick="addMoneyToTray(2)" class="btn-3d w-12 h-12 rounded-full bg-amber-500 border-3 border-amber-700 text-white font-display font-bold text-sm flex items-center justify-center">2 kr</button>
+                        <button onclick="addMoneyToTray(5)" class="btn-3d w-13 h-13 rounded-full bg-yellow-400 border-3 border-yellow-600 text-yellow-950 font-display font-bold text-sm flex items-center justify-center">5 kr</button>
+                        <button onclick="addMoneyToTray(10)" class="btn-3d w-14 h-14 rounded-full bg-yellow-300 border-3 border-amber-500 text-amber-950 font-display font-bold text-sm flex items-center justify-center">10 kr</button>
+                        <button onclick="addMoneyToTray(20)" class="btn-3d px-4 h-12 rounded-xl bg-purple-500 border-3 border-purple-700 text-white font-display font-bold text-base">20 kr</button>
+                        <button onclick="addMoneyToTray(50)" class="btn-3d px-4 h-12 rounded-xl bg-orange-400 border-3 border-orange-600 text-white font-display font-bold text-base">50 kr</button>
+                        <button onclick="addMoneyToTray(100)" class="btn-3d px-5 h-12 rounded-xl bg-sky-500 border-3 border-sky-700 text-white font-display font-bold text-base">100 kr</button>
+                        <button onclick="addMoneyToTray(200)" class="btn-3d px-5 h-12 rounded-xl bg-emerald-600 border-3 border-emerald-800 text-white font-display font-bold text-base">200 kr</button>
+                        <button onclick="addMoneyToTray(500)" class="btn-3d px-5 h-12 rounded-xl bg-rose-600 border-3 border-rose-800 text-white font-display font-bold text-base">500 kr</button>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <button onclick="checkShopAnswer()" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-bold text-lg sm:text-xl px-8 py-3.5 rounded-2xl">
+                        Betala / Kontrollera ✨
+                    </button>
+                </div>
+
+                <div id="shop-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="shop-next-wrap" class="hidden mt-4">
+                    <button onclick="generateShopQuestion()" class="btn-3d bg-gradient-to-r from-amber-500 to-orange-500 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa kund ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('shop')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man räknar ut</span>
+                    </button>
+                </div>
+
+                <div id="shop-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Kassahjälpen</span>
+                        <span id="shop-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="shop-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="shop-hint-next-btn" onclick="nextHintStep('shop')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 14: DIAGRAM & STATISTIK
+        ========================================================== -->
+        <section id="view-chart" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-purple-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="chart-sub-mix" onclick="setChartSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-purple-600 text-white">🎲 Mix</button>
+                    <button id="chart-sub-read" onclick="setChartSubMode('read')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">📊 Läs av stapel</button>
+                    <button id="chart-sub-diff" onclick="setChartSubMode('diff')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">⚖️ Jämför & Totalt</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="chart-mode-choice" onclick="setInputMode('chart', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-purple-600 text-white">🔘 Flerval</button>
+                    <button id="chart-mode-type" onclick="setInputMode('chart', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-purple-300 shadow-md text-center">
+                <span id="chart-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-purple-100 text-purple-900 text-xs font-extrabold mb-2">📊 Stapeldiagram</span>
+                <h2 id="chart-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Hur många elever valde Äpple?</h2>
+
+                <div id="chart-visual-container" class="my-4 flex justify-center"></div>
+
+                <div id="chart-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="chart-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="chart-type-input" type="number" inputmode="numeric" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-purple-500">
+                    <button onclick="checkChartTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="chart-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="chart-next-wrap" class="hidden mt-4">
+                    <button onclick="generateChartQuestion()" class="btn-3d bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa diagramfråga ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('chart')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man läser av diagrammet</span>
+                    </button>
+                </div>
+
+                <div id="chart-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles diagramknep</span>
+                        <span id="chart-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="chart-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="chart-hint-next-btn" onclick="nextHintStep('chart')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 15: MEDELVÄRDE (GENOMSNITT), MEDIAN & TYPVÄRDE
+        ========================================================== -->
+        <section id="view-avg" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-rose-200">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="avg-sub-mix" onclick="setAvgSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-rose-600 text-white">🎲 Mix</button>
+                    <button id="avg-sub-mean" onclick="setAvgSubMode('mean')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-rose-200 text-slate-700">⚖️ Medelvärde (Genomsnitt)</button>
+                    <button id="avg-sub-median" onclick="setAvgSubMode('median')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-rose-200 text-slate-700">🎯 Median</button>
+                    <button id="avg-sub-mode" onclick="setAvgSubMode('mode')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-rose-200 text-slate-700">👑 Typvärde</button>
+                    <button id="avg-sub-level" onclick="setAvgSubMode('level')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-rose-200 text-slate-700">🧱 Jämna ut</button>
+                </div>
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="avg-mode-choice" onclick="setInputMode('avg', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-rose-600 text-white">🔘 Flerval</button>
+                    <button id="avg-mode-type" onclick="setInputMode('avg', 'type')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-slate-600">⌨️ Skriv själv</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-rose-300 shadow-md text-center">
+                <span id="avg-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-rose-100 text-rose-900 text-xs font-extrabold mb-2">⚖️ Medelvärde (Genomsnitt)</span>
+                <h2 id="avg-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Vad är medelvärdet (genomsnittet) av talen?</h2>
+                <p id="avg-context-note" class="text-xs sm:text-sm font-extrabold text-rose-700 mb-2"></p>
+
+                <div id="avg-visual-container" class="my-5 flex flex-wrap items-center justify-center gap-3"></div>
+
+                <div id="avg-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="avg-type-wrap" class="hidden max-w-md mx-auto mt-4 flex items-center justify-center gap-3">
+                    <input id="avg-type-input" type="text" inputmode="decimal" placeholder="?" class="w-36 h-16 text-center font-hand font-bold text-3xl border-3 border-amber-400 rounded-2xl focus:outline-none focus:border-rose-500">
+                    <button onclick="checkAvgTyped()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-xl px-6 h-16 rounded-2xl">Svara ✨</button>
+                </div>
+
+                <div id="avg-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="avg-next-wrap" class="hidden mt-4">
+                    <button onclick="generateAvgQuestion()" class="btn-3d bg-gradient-to-r from-rose-500 to-pink-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa statistikfråga ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('avg')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="avg-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles statistikknep</span>
+                        <span id="avg-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="avg-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="avg-hint-next-btn" onclick="nextHintStep('avg')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VY 16: UGGLAN OLLES MATTESKOLA (I PEDAGOGISK ORDNING)
+        ========================================================== -->
+        <section id="view-school" class="hidden space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/95 p-3.5 rounded-2xl border-3 border-violet-300 shadow-xs">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <span class="font-display font-bold text-violet-950 text-lg sm:text-xl">🦉 Ugglan Olles Matteskola</span>
+                <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-violet-100 text-violet-800">Knepen & Strategierna</span>
+            </div>
+
+            <div class="bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-600 text-white rounded-3xl p-5 sm:p-6 shadow-md flex flex-col sm:flex-row items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-4xl shrink-0 border-2 border-white/30">🦉</div>
+                <div>
+                    <h2 class="font-display font-bold text-xl sm:text-2xl">Hej! Jag är Ugglan Olle!</h2>
+                    <p class="text-sm sm:text-base text-violet-100 font-semibold mt-1">
+                        Matte handlar inte om att gissa – utan om att ha smarta verktyg! Här är mina bästa knep i samma ordning som på startsidan. Klicka på <strong>"Träna på detta"</strong> när du vill testa själv!
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Kort 1: Plus & Minus -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-emerald-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-extrabold">1. Huvudräkning</span>
+                            <span class="text-2xl">➕➖</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-emerald-950 mb-1.5">Hoppa i tiotal och ental</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            Dela upp det andra talet i <strong>tiotal</strong> och <strong>ental</strong>! För <strong>36 + 25</strong> tar du först <strong>+20</strong> till 56 och sedan <strong>+5</strong> till 61.
+                        </p>
+                        <div class="my-3 bg-emerald-50/70 border-2 border-emerald-200 rounded-2xl p-3 flex items-center justify-center gap-2 font-display font-bold text-sm">
+                            <span class="px-2.5 py-1 rounded-xl bg-white border border-slate-300">36</span>
+                            <span class="text-emerald-700">+20 ➔</span>
+                            <span class="px-2.5 py-1 rounded-xl bg-sky-100 border border-sky-300 text-sky-900">56</span>
+                            <span class="text-sky-700">+5 ➔</span>
+                            <span class="px-3 py-1 rounded-xl bg-amber-200 border border-amber-400 text-amber-950">61</span>
+                        </div>
+                    </div>
+                    <button onclick="navigateTo('addsub')" class="btn-3d mt-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Plus & Minus ➔</button>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setAddSubMode('missing');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Saknat tal</button>
+                        <button onclick="setAddSubMode('jumps');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Hoppa själv</button>
+                    </div>
+                </div>
+
+                <!-- Kort 2: Gångertabellen -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-orange-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-900 text-xs font-extrabold">2. Multiplikation</span>
+                            <span class="text-2xl">✖️</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-orange-950 mb-1.5">Grupper & Byta plats</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            <strong>3 × 4</strong> betyder 3 grupper med 4 i varje (4 + 4 + 4 = 12). Kom ihåg: <strong>3 × 4</strong> är exakt lika mycket som <strong>4 × 3</strong>!
+                        </p>
+                        <div class="my-3 bg-orange-50/70 border-2 border-orange-200 rounded-2xl p-3 flex items-center justify-center gap-2 text-base">
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-orange-200">🍎🍎🍎🍎</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-orange-200">🍎🍎🍎🍎</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-orange-200">🍎🍎🍎🍎</span>
+                        </div>
+                    </div>
+                    <button onclick="navigateTo('mult')" class="btn-3d mt-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Gångertabellen ➔</button>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setMultMissing(true);navigateTo('mult')" class="px-2 py-1 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-900 text-[11px] font-extrabold">Saknat faktor</button>
+                    </div>
+                </div>
+
+                <!-- Kort 3: Division -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-teal-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-teal-100 text-teal-900 text-xs font-extrabold">3. Division</span>
+                            <span class="text-2xl">➗</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-teal-950 mb-1.5">Dela lika eller räkna påsar</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            <strong>12 ÷ 3</strong> kan betyda "12 delat på 3 högar" (varje hög får 4) ELLER "hur många 3-högar får plats i 12?" (4 påsar). Samma svar – division är multiplikation baklänges!
+                        </p>
+                        <div class="my-3 bg-teal-50/70 border-2 border-teal-200 rounded-2xl p-3 flex items-center justify-center gap-2 text-base">
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-teal-200">🍎🍎🍎🍎</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-teal-200">🍎🍎🍎🍎</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-teal-200">🍎🍎🍎🍎</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="navigateTo('div')" class="btn-3d mt-2 w-full bg-teal-500 hover:bg-teal-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Division ➔</button>
+                        <div class="flex flex-wrap gap-1.5 mt-1.5">
+                            <button onclick="setDivSubMode('share');navigateTo('div')" class="px-2 py-1 rounded-lg bg-teal-100 hover:bg-teal-200 text-teal-900 text-[11px] font-extrabold">Dela lika</button>
+                            <button onclick="setDivSubMode('group');navigateTo('div')" class="px-2 py-1 rounded-lg bg-teal-100 hover:bg-teal-200 text-teal-900 text-[11px] font-extrabold">Påsar</button>
+                            <button onclick="setDivSubMode('quick');navigateTo('div')" class="px-2 py-1 rounded-lg bg-teal-100 hover:bg-teal-200 text-teal-900 text-[11px] font-extrabold">Snabb division</button>
+                            <button onclick="setDivSubMode('missing');navigateTo('div')" class="px-2 py-1 rounded-lg bg-teal-100 hover:bg-teal-200 text-teal-900 text-[11px] font-extrabold">Saknat tal</button>
+                            <button onclick="setDivSubMode('hands');navigateTo('div')" class="px-2 py-1 rounded-lg bg-teal-100 hover:bg-teal-200 text-teal-900 text-[11px] font-extrabold">Dela själv</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kort 4: Mönster & Talföljder -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-purple-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-900 text-xs font-extrabold">4. Mönster</span>
+                            <span class="text-2xl">🔢</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-purple-950 mb-1.5">Hitta regeln!</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            Alla mönster har en <strong>regel</strong>. Fråga alltid: "vad händer mellan varje steg?" Talföljden 3, 7, 11, 15 ökar med <strong>+4</strong> varje gång – nästa är 15 + 4 = <strong>19</strong>!
+                        </p>
+                        <div class="my-3 bg-purple-50/70 border-2 border-purple-200 rounded-2xl p-3 flex items-center justify-center gap-2 text-base font-display font-bold">
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-purple-200">3</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-purple-200">7</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-purple-200">11</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-purple-200">15</span>
+                            <span class="bg-purple-600 text-white px-2.5 py-1 rounded-xl">?</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="navigateTo('seq')" class="btn-3d mt-2 w-full bg-purple-500 hover:bg-purple-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Mönster ➔</button>
+                        <div class="flex flex-wrap gap-1.5 mt-1.5">
+                            <button onclick="setSeqSubMode('numbers');navigateTo('seq')" class="px-2 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-900 text-[11px] font-extrabold">Talföljd</button>
+                            <button onclick="setSeqSubMode('shapes');navigateTo('seq')" class="px-2 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-900 text-[11px] font-extrabold">Formmönster</button>
+                            <button onclick="setSeqSubMode('grow');navigateTo('seq')" class="px-2 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-900 text-[11px] font-extrabold">Växande figur</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kort 5: Uppställning & Låna 10 -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-sky-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-sky-100 text-sky-900 text-xs font-extrabold">5. Uppställning</span>
+                            <span class="text-2xl">📝</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-sky-950 mb-1.5">Växla (Låna 10) i subtraktion</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            Börja alltid från <strong>höger (entalen)</strong>! Räcker inte entalen? Stryk över tiotalet med ett rött streck och skriv <strong class="text-emerald-600 font-hand text-lg">10</strong> ovanför!
+                        </p>
+                        <div class="my-3 bg-sky-50/70 border-2 border-sky-200 rounded-2xl p-2.5 flex items-center justify-center gap-4">
+                            <div class="inline-grid grid-cols-3 bg-white border-2 border-sky-300 rounded-xl overflow-hidden text-center font-display font-bold">
+                                <div class="w-9 h-7"></div>
+                                <div class="w-9 h-7"></div>
+                                <div class="w-9 h-7 font-hand text-emerald-600 text-sm flex items-end justify-center">10</div>
+                                <div class="w-9 h-8 border-t border-slate-200"></div>
+                                <div class="w-9 h-8 border-t border-l border-slate-200 digit-struck flex items-center justify-center">6</div>
+                                <div class="w-9 h-8 border-t border-l border-slate-200 flex items-center justify-center text-emerald-800">3</div>
+                                <div class="w-9 h-8 border-t border-b-2 border-slate-900 text-sky-600 flex items-center justify-center">−</div>
+                                <div class="w-9 h-8 border-t border-l border-b-2 border-slate-900 flex items-center justify-center">1</div>
+                                <div class="w-9 h-8 border-t border-l border-b-2 border-slate-900 flex items-center justify-center text-emerald-800">7</div>
+                                <div class="w-9 h-8"></div>
+                                <div class="w-9 h-8 border-l border-slate-200 font-hand text-sky-900 flex items-center justify-center">4</div>
+                                <div class="w-9 h-8 border-l border-slate-200 font-hand text-sky-900 flex items-center justify-center">6</div>
+                            </div>
+                            <span class="text-xs font-extrabold text-slate-600 text-left max-w-[140px]">10 + 3 = 13<br>13 − 7 = 6<br>5 − 1 = 4</span>
+                        </div>
+                    </div>
+                    <button onclick="navigateTo('algo')" class="btn-3d mt-2 w-full bg-sky-500 hover:bg-sky-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Uppställning ➔</button>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setAlgoOp('add');navigateTo('algo')" class="px-2 py-1 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-[11px] font-extrabold">＋ Addition</button>
+                        <button onclick="setAlgoOp('sub');navigateTo('algo')" class="px-2 py-1 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-[11px] font-extrabold">− Subtraktion</button>
+                        <button onclick="setAlgoOp('mul');navigateTo('algo')" class="px-2 py-1 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-[11px] font-extrabold">× Multiplikation</button>
+                        <button onclick="setAlgoOp('div');navigateTo('algo')" class="px-2 py-1 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-[11px] font-extrabold">÷ Division</button>
+                    </div>
+                </div>
+
+                <!-- Kort 6: Bråk, Blandad form & Procent -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-pink-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-pink-100 text-pink-900 text-xs font-extrabold">7. Bråk & Procent</span>
+                            <span class="text-2xl">🍕</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-pink-950 mb-1.5">Täljare, Nämnare & 100 %</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            <strong>Täljaren</strong> där uppe räknar bitarna vi har. <strong>Nämnaren</strong> där nere visar hur många bitar 1 hel är delad i. En hel = <strong>100 %</strong>!
+                        </p>
+                        <div class="my-3 bg-pink-50/70 border-2 border-pink-200 rounded-2xl p-3 flex items-center justify-center gap-4 font-display font-bold text-base">
+                            <span class="px-3 py-1 rounded-xl bg-white border border-pink-300 text-pink-900"><span class="stacked-frac"><span class="stacked-frac-num">1</span><span class="stacked-frac-den">2</span></span> = 50%</span>
+                            <span class="px-3 py-1 rounded-xl bg-white border border-pink-300 text-pink-900"><span class="stacked-frac"><span class="stacked-frac-num">1</span><span class="stacked-frac-den">4</span></span> = 25%</span>
+                            <span class="px-3 py-1 rounded-xl bg-white border border-pink-300 text-pink-900"><span class="stacked-frac"><span class="stacked-frac-num">3</span><span class="stacked-frac-den">4</span></span> = 75%</span>
+                        </div>
+                    </div>
+                    <button onclick="navigateTo('frac')" class="btn-3d mt-2 w-full bg-pink-500 hover:bg-pink-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Bråk & Procent ➔</button>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setFracSubMode('frac');navigateTo('frac')" class="px-2 py-1 rounded-lg bg-pink-100 hover:bg-pink-200 text-pink-900 text-[11px] font-extrabold">Bråkform</button>
+                        <button onclick="setFracSubMode('mixed');navigateTo('frac')" class="px-2 py-1 rounded-lg bg-pink-100 hover:bg-pink-200 text-pink-900 text-[11px] font-extrabold">Blandad form</button>
+                        <button onclick="setFracSubMode('twins');navigateTo('frac')" class="px-2 py-1 rounded-lg bg-pink-100 hover:bg-pink-200 text-pink-900 text-[11px] font-extrabold">Tvillingar</button>
+                        <button onclick="setFracSubMode('percent');navigateTo('frac')" class="px-2 py-1 rounded-lg bg-pink-100 hover:bg-pink-200 text-pink-900 text-[11px] font-extrabold">Procent</button>
+                        <button onclick="setFracSubMode('percentof');navigateTo('frac')" class="px-2 py-1 rounded-lg bg-pink-100 hover:bg-pink-200 text-pink-900 text-[11px] font-extrabold">Procent av</button>
+                        <button onclick="setFracSubMode('arith');navigateTo('frac')" class="px-2 py-1 rounded-lg bg-pink-100 hover:bg-pink-200 text-pink-900 text-[11px] font-extrabold">Bråkräkning</button>
+                    </div>
+                </div>
+
+                <!-- Kort 7: Decimaltal -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-blue-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-900 text-xs font-extrabold">9. Decimaltal</span>
+                            <span class="text-2xl">🔢</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-blue-950 mb-1.5">Tiondelar & Tallinjen</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            Dela sträckan mellan <strong>0</strong> och <strong>1</strong> i 10 lika steg: varje steg är <strong>0,1 (en tiondel)</strong>. Halvvägs ligger <strong>0,5 = ½ = 50 %</strong>!
+                        </p>
+                        <div class="my-3 bg-blue-50/80 border-2 border-blue-200 rounded-2xl p-3 flex flex-wrap items-center justify-center gap-2 font-display font-bold text-xs">
+                            <span class="px-2.5 py-1 rounded-lg bg-white border border-blue-300">0,25 = ¼ = 25%</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-white border border-blue-300">0,5 = ½ = 50%</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-white border border-blue-300">0,75 = ¾ = 75%</span>
+                        </div>
+                    </div>
+                    <button onclick="navigateTo('decimal')" class="btn-3d mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Decimaltal ➔</button>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setDecimalSubMode('place');navigateTo('decimal')" class="px-2 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 text-[11px] font-extrabold">Placera på linjen</button>
+                        <button onclick="setDecimalSubMode('read');navigateTo('decimal')" class="px-2 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 text-[11px] font-extrabold">Läs av linjen</button>
+                        <button onclick="setDecimalSubMode('link');navigateTo('decimal')" class="px-2 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 text-[11px] font-extrabold">Bråk ↔ %</button>
+                    </div>
+                </div>
+
+                <!-- Kort 8: Längd, Vikt & Volym -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-teal-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-teal-100 text-teal-900 text-xs font-extrabold">10–11. Enhetstrappan</span>
+                            <span class="text-2xl">📏🧪</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-teal-950 mb-1.5">Längd, Vikt & Volym</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            <strong>Längd:</strong> 1 m = 10 dm = 100 cm = 1 000 mm (1 km = 1 000 m).<br>
+                            <strong>Volym & Vikt:</strong> 1 l = 10 dl = 100 cl &nbsp;|&nbsp; 1 kg = 10 hg = 1 000 g.
+                        </p>
+                        <div class="my-3 bg-teal-50/70 border-2 border-teal-200 rounded-2xl p-3 flex flex-wrap items-center justify-center gap-1.5 font-display font-bold text-xs">
+                            <span class="px-2 py-1 rounded-lg bg-white border border-teal-300">1 m = 100 cm</span>
+                            <span class="px-2 py-1 rounded-lg bg-white border border-teal-300">1 l = 10 dl</span>
+                            <span class="px-2 py-1 rounded-lg bg-white border border-teal-300">1 kg = 1000 g</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <button onclick="navigateTo('length')" class="btn-3d bg-teal-500 hover:bg-teal-600 text-white font-display font-bold py-2.5 rounded-2xl text-xs sm:text-sm">Träna Längd ➔</button>
+                        <button onclick="navigateTo('volweight')" class="btn-3d bg-lime-600 hover:bg-lime-700 text-white font-display font-bold py-2.5 rounded-2xl text-xs sm:text-sm">Träna Vikt/Volym ➔</button>
+                    </div>
+                </div>
+
+                <!-- Kort 9: Klockan & Mattekiosken -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-violet-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-violet-100 text-violet-900 text-xs font-extrabold">12–13. Tid & Pengar</span>
+                            <span class="text-2xl">🕒💰</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-violet-950 mb-1.5">Klockan & Räkna upp växel</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            På klockan är varje siffra <strong>5 minuter</strong> (3:an = 15, 6:an = 30, 9:an = 45). När du ger växel, räkna <strong>uppåt</strong> från varans pris till sedeln!
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                        <button onclick="navigateTo('clock')" class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-display font-bold py-2.5 rounded-2xl text-xs sm:text-sm">Öppna Klockan ➔</button>
+                        <button onclick="navigateTo('shop')" class="btn-3d bg-amber-500 hover:bg-amber-600 text-white font-display font-bold py-2.5 rounded-2xl text-xs sm:text-sm">Mattekiosken ➔</button>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setClockSubMode('read');navigateTo('clock')" class="px-2 py-1 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-900 text-[11px] font-extrabold">Läs klockslag</button>
+                        <button onclick="setClockSubMode('jump');navigateTo('clock')" class="px-2 py-1 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-900 text-[11px] font-extrabold">Tidshopp</button>
+                        <button onclick="setClockSubMode('sandbox');navigateTo('clock')" class="px-2 py-1 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-900 text-[11px] font-extrabold">Övningsklocka</button>
+                    </div>
+                </div>
+
+                <!-- Kort 10: Medelvärde, Median & Typvärde -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-rose-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-900 text-xs font-extrabold">16. Statistik</span>
+                            <span class="text-2xl">📈</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-rose-950 mb-1.5">Medelvärde, Median & Typvärde</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            <strong>Medelvärde (genomsnitt):</strong> Plussa ihop alla tal och dela med hur många de är.<br>
+                            <strong>Median:</strong> Sortera från minst till störst – ta talet i mitten!<br>
+                            <strong>Typvärde:</strong> Det tal som dyker upp flest gånger.
+                        </p>
+                        <div class="my-3 bg-rose-50/80 border-2 border-rose-200 rounded-2xl p-2.5 flex flex-wrap items-center justify-center gap-2 font-display font-bold text-xs">
+                            <span class="px-2 py-1 rounded-lg bg-white border border-rose-300">2, 4, 9 ➔ Medel: 5</span>
+                            <span class="px-2 py-1 rounded-lg bg-white border border-rose-300">2, 4, 9 ➔ Median: 4</span>
+                        </div>
+                    </div>
+                    <button onclick="navigateTo('avg')" class="btn-3d mt-2 w-full bg-rose-500 hover:bg-rose-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Medelvärde & Median ➔</button>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setAvgSubMode('mean');navigateTo('avg')" class="px-2 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 text-[11px] font-extrabold">Medelvärde</button>
+                        <button onclick="setAvgSubMode('median');navigateTo('avg')" class="px-2 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 text-[11px] font-extrabold">Median</button>
+                        <button onclick="setAvgSubMode('mode');navigateTo('avg')" class="px-2 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 text-[11px] font-extrabold">Typvärde</button>
+                        <button onclick="setAvgSubMode('level');navigateTo('avg')" class="px-2 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 text-[11px] font-extrabold">Jämna ut</button>
+                    </div>
+                </div>
+
+                <!-- Kort 11: Geometri -->
+                <div class="bg-white rounded-3xl p-5 border-3 border-fuchsia-300 shadow-sm flex flex-col justify-between md:col-span-2">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-3 py-1 rounded-full bg-fuchsia-100 text-fuchsia-900 text-xs font-extrabold">14. Geometri</span>
+                            <span class="text-2xl">📐🔺⭕</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-fuchsia-950 mb-1.5">Omkrets (kanten) & Area (ytan inuti)</h3>
+                        <p class="text-sm text-slate-700 font-semibold">
+                            <strong>Omkrets</strong> är sträckan runt hela figuren (mäts i <strong>cm</strong>). <strong>Area</strong> är hur många rutor som får plats inuti ytan (mäts i <strong>cm²</strong>)!
+                        </p>
+                        <div class="my-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-extrabold">
+                            <div class="bg-fuchsia-50/80 border-2 border-fuchsia-200 rounded-2xl p-3 text-center">
+                                <div class="font-display font-bold text-sm text-fuchsia-950 mb-1">📐 Rektangel & Kvadrat</div>
+                                <div class="text-slate-700">Omkrets: <span class="text-sky-700">sida + sida + sida + sida</span></div>
+                                <div class="text-slate-700 mt-0.5">Area: <span class="text-emerald-700">basen × höjden</span></div>
+                            </div>
+                            <div class="bg-amber-50/80 border-2 border-amber-200 rounded-2xl p-3 text-center">
+                                <div class="font-display font-bold text-sm text-amber-950 mb-1">🔺 Triangel</div>
+                                <div class="text-slate-700">Omkrets: <span class="text-sky-700">alla 3 sidorna ihop</span></div>
+                                <div class="text-slate-700 mt-0.5">Area: <span class="text-emerald-700">(basen × höjden) ÷ 2</span></div>
+                            </div>
+                            <div class="bg-rose-50/80 border-2 border-rose-200 rounded-2xl p-3 text-center">
+                                <div class="font-display font-bold text-sm text-rose-950 mb-1">⭕ Cirkel (π ≈ 3 / 3,14)</div>
+                                <div class="text-slate-700">Omkrets: <span class="text-sky-700">diametern × π</span></div>
+                                <div class="text-slate-700 mt-0.5">Area: <span class="text-emerald-700">radien × radien × π</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="navigateTo('geo')" class="btn-3d mt-2 w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Geometri (Area & Omkrets) ➔</button>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setGeoSubMode('rect');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Rektangel</button>
+                        <button onclick="setGeoSubMode('tri');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Triangel</button>
+                        <button onclick="setGeoSubMode('circle');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Cirkel</button>
+                        <button onclick="setGeoSubMode('build');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Bygg rutor</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             DOCKAT KLADDBLOCK (UNDER UPPGIFTEN – TÄCKER ALDRIG TEXTEN)
+        ========================================================== -->
+        <section id="docked-scratchpad" class="hidden mt-6 bg-white rounded-3xl p-4 sm:p-5 border-3 border-sky-400 shadow-lg">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-sky-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">✍️</span>
+                    <div>
+                        <h3 class="font-display font-bold text-base sm:text-lg text-slate-900 leading-none">Kladdblocket</h3>
+                        <span class="text-[11px] font-extrabold text-sky-700">Ligger tryggt under uppgiften så du ser hela frågan!</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button id="sp-tab-grid" onclick="setScratchpadTab('grid')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-sky-600 text-white">🔢 Rutpapper</button>
+                    <button id="sp-tab-draw" onclick="setScratchpadTab('draw')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">🖊️ Rita / Skissa</button>
+                    <button onclick="clearScratchpad()" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300">🧹 Rensa</button>
+                    <button onclick="toggleScratchpad()" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300">✕ Stäng</button>
+                </div>
+            </div>
+
+            <div id="sp-grid-panel" class="text-center">
+                <div class="flex flex-wrap items-center justify-center gap-1.5 mb-3">
+                    <button onclick="insertScratchpadSymbol('+')" class="w-9 h-9 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 font-display font-bold text-lg text-sky-900">+</button>
+                    <button onclick="insertScratchpadSymbol('−')" class="w-9 h-9 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 font-display font-bold text-lg text-sky-900">−</button>
+                    <button onclick="insertScratchpadSymbol('×')" class="w-9 h-9 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 font-display font-bold text-lg text-sky-900">×</button>
+                    <button onclick="insertScratchpadSymbol('÷')" class="w-9 h-9 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 font-display font-bold text-lg text-sky-900">÷</button>
+                    <button onclick="insertScratchpadSymbol('=')" class="w-9 h-9 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 font-display font-bold text-lg text-sky-900">=</button>
+                    <button onclick="insertScratchpadSymbol(',')" class="w-9 h-9 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 font-display font-bold text-lg text-sky-900">,</button>
+                    <button onclick="toggleScratchpadLine()" class="px-3 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-xs font-extrabold text-slate-800">➖ Räknestreck</button>
+                </div>
+                <div id="scratchpad-grid-container" class="flex justify-center overflow-x-auto"></div>
+            </div>
+
+            <div id="sp-draw-panel" class="hidden text-center">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <button id="sp-pen-blue" onclick="setScratchpadPen('#0284c7', 4)" class="px-3 py-1 rounded-xl bg-sky-600 text-white text-xs font-extrabold">🔵 Blå penna</button>
+                    <button id="sp-pen-rose" onclick="setScratchpadPen('#e11d48', 4)" class="px-3 py-1 rounded-xl bg-rose-100 text-rose-900 text-xs font-extrabold">🔴 Röd penna</button>
+                    <button id="sp-pen-eraser" onclick="setScratchpadPen('#ffffff', 18)" class="px-3 py-1 rounded-xl bg-slate-100 text-slate-800 text-xs font-extrabold">🧼 Suddgummi</button>
+                </div>
+                <div class="w-full max-w-2xl mx-auto h-52 bg-white border-2 border-sky-300 rounded-2xl overflow-hidden touch-none">
+                    <canvas id="scratchpad-canvas" class="w-full h-full block cursor-crosshair"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- =========================================================
+         SIDOPANEL: MULTIPLIKATIONSTABELLEN (1–10)
+    ========================================================== -->
+    <div id="table-drawer-backdrop" onclick="toggleTableDrawer()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40"></div>
+    <aside id="table-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl border-l-4 border-amber-400 z-50 transform translate-x-full transition-transform duration-200 flex flex-col">
+        <div class="p-4 bg-amber-50 border-b-2 border-amber-200 flex items-center justify-between">
+            <div>
+                <h3 class="font-display font-bold text-xl text-amber-950">📊 Hjälptabellen (1–10)</h3>
+                <p class="text-xs font-extrabold text-amber-800">Hovra eller klicka på en ruta för att följa rad och kolumn!</p>
+            </div>
+            <button onclick="toggleTableDrawer()" class="w-9 h-9 rounded-xl bg-white border border-amber-300 font-bold text-slate-700 hover:bg-amber-100">✕</button>
+        </div>
+        <div class="p-3 sm:p-4 overflow-auto flex-1 flex flex-col items-center justify-center">
+            <div id="mult-helper-grid" class="w-full"></div>
+            <div id="mult-helper-readout" class="mt-3 px-4 py-2 rounded-2xl bg-amber-100 border border-amber-300 font-display font-bold text-base text-amber-950">
+                Peka på valfri ruta i tabellen!
+            </div>
+        </div>
+    </aside>
+
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/quiz.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+        }
+    </script>
+</body>
+</html>
