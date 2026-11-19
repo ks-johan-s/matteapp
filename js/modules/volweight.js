@@ -7,6 +7,35 @@ import { buildUnitLadderSVGHTML, renderKitchenScaleSVG, renderMeasuringJugSVG } 
 /* =============================================================
    12. MODUL 9: VIKT & VOLYM (MÅTTBÄGARE & KÖKSVÅG)
 ============================================================== */
+// Vardagsföremål som "väger ungefär så här" – bygger referensvikter.
+const WEIGHT_OBJECTS = {
+    50: { emoji: '🥚', label: 'ett ägg' },
+    400: { emoji: '🍬', label: 'godispåse' },
+    500: { emoji: '🧈', label: 'smörpaket' },
+    600: { emoji: '🍞', label: 'limpa' },
+    750: { emoji: '🍞', label: 'stor limpa' },
+    1000: { emoji: '🥛', label: 'mjölkpaket' },
+    1250: { emoji: '🐔', label: 'liten kyckling' },
+    1500: { emoji: '🐔', label: 'kyckling' },
+    1850: { emoji: '🍉', label: 'liten melon' },
+    2000: { emoji: '🥛🥛', label: 'två mjölkpaket' },
+    2400: { emoji: '🐈', label: 'liten katt' },
+    2500: { emoji: '🐈', label: 'katt' },
+    3000: { emoji: '🐈', label: 'stor katt' },
+    3450: { emoji: '🎃', label: 'pumpa' },
+    4750: { emoji: '🐕', label: 'liten hund' }
+};
+
+const WEIGHT_BENCHMARKS_HTML = `
+    <div class="mt-3 inline-flex flex-wrap items-center justify-center gap-1.5 bg-lime-50/80 border border-lime-200 px-3.5 py-2 rounded-2xl text-[11px] font-extrabold text-lime-950">
+        <span class="mr-1">⚖️ Ungefärliga vikter:</span>
+        <span>🥚 ägg ≈ 50 g</span><span class="text-lime-400">•</span>
+        <span>🍎 äpple ≈ 2 hg</span><span class="text-lime-400">•</span>
+        <span>🧈 smör ≈ 5 hg</span><span class="text-lime-400">•</span>
+        <span>🥛 mjölk ≈ 1 kg</span><span class="text-lime-400">•</span>
+        <span>🐈 katt ≈ 3 kg</span>
+    </div>`;
+
 export function setVolWeightSubMode(mode) {
     playSound('click');
     state.volWeightSubMode = mode;
@@ -84,7 +113,9 @@ export function generateVolWeightQuestion() {
               ]);
         const t = tasks[randInt(0, tasks.length - 1)];
         fromVal = t.fv; fromUnit = t.fu; toUnit = t.tu; answer = t.ans; ruleText = t.rule;
-        visualHtml = renderKitchenScaleSVG(fromVal, fromUnit);
+        const grams = Math.round(fromVal * (fromUnit === 'kg' ? 1000 : (fromUnit === 'hg' ? 100 : 1)));
+        const obj = WEIGHT_OBJECTS[grams];
+        visualHtml = renderKitchenScaleSVG(fromVal, fromUnit, obj?.emoji || '', obj?.label || '') + WEIGHT_BENCHMARKS_HTML;
         const units = ['kg', 'hg', 'g'];
         const isMul = units.indexOf(fromUnit) < units.indexOf(toUnit);
         ladderHtml = buildUnitLadderSVGHTML(units, ['×10', '×100'], ['÷10', '÷100'], fromUnit, toUnit, isMul);

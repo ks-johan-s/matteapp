@@ -161,11 +161,15 @@ export function renderMeasuringJugSVG(val, unit, litersRatio) {
     `;
 }
 
-export function renderKitchenScaleSVG(val, unit) {
+export function renderKitchenScaleSVG(val, unit, emoji = '', label = '') {
+    const objectHtml = emoji
+        ? `<text x="120" y="52" text-anchor="middle" font-size="26">${emoji}</text>
+           <text x="120" y="68" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="10.5" fill="#78350f">${label}</text>`
+        : `<text x="120" y="53" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#78350f">${formatNumSv(val)} ${unit}</text>`;
     return `
         <svg width="240" height="175" viewBox="0 0 240 175" class="drop-shadow-xs">
             <rect x="78" y="24" width="84" height="48" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="3" />
-            <text x="120" y="53" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#78350f">${formatNumSv(val)} ${unit}</text>
+            ${objectHtml}
             <rect x="56" y="74" width="128" height="8" rx="4" fill="#4d7c0f" />
             <rect x="110" y="82" width="20" height="22" fill="#65a30d" />
             <path d="M 48 162 L 66 104 L 174 104 L 192 162 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="3.5" stroke-linejoin="round" />
