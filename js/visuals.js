@@ -30,7 +30,7 @@ export function buildNumberLineJumpSVG(start, mid, end, lbl1, lbl2, isSub = fals
 ============================================================== */
 export function renderScaleSVG(leftText, rightText, tiltDeg = -8) {
     return `
-        <svg viewBox="0 0 380 185" class="w-full max-w-md mx-auto">
+        <svg viewBox="0 0 380 235" class="w-full max-w-md mx-auto">
             <polygon points="155,172 225,172 190,115" fill="#0891b2" />
             <rect x="135" y="170" width="110" height="10" rx="5" fill="#164e63" />
             <g transform="translate(190, 115) rotate(${tiltDeg})">
