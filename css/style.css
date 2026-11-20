@@ -121,6 +121,13 @@ body {
     transition: background 0.12s ease, transform 0.12s ease;
 }
 .level-explore-chip:hover { background: #e0e7ff; transform: translateY(-1px); }
+.level-step-stars { margin-left: auto; display: flex; gap: 1px; flex: none; }
+.lvl-star { font-size: 1rem; color: #e2e8f0; transition: color 0.2s ease; }
+.lvl-star.on { color: #f59e0b; text-shadow: 0 1px 2px rgba(245, 158, 11, 0.35); }
+.level-explore-chip .level-step-stars { margin-left: 6px; }
+.level-explore-chip .lvl-star { font-size: 0.75rem; }
+.level-crumb-label .level-step-stars { display: inline-flex; margin-left: 6px; }
+.level-crumb-label .lvl-star { font-size: 0.8rem; }
 
 .math-grid-input::placeholder {
     color: #94a3b8;

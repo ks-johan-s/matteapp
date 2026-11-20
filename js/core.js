@@ -47,6 +47,8 @@ export const state = {
     addsubOp: 'add',
     levelModule: null,
     levelStepLabel: '',
+    levelStepKey: '',
+    stepProgress: {},
     algoLevel: '',
     currentAddSub: null,
     selectedTable: 'all',
@@ -196,6 +198,11 @@ export function addReward(points = 1) {
     playSound('correct');
     state.stars += points;
     state.streak += 1;
+    if (state.levelStepKey) {
+        if (!state.stepProgress) state.stepProgress = {};
+        state.stepProgress[state.levelStepKey] = Math.min((state.stepProgress[state.levelStepKey] || 0) + 1, 9);
+        if (window.updateLevelBreadcrumb) window.updateLevelBreadcrumb();
+    }
     document.getElementById('star-count').textContent = state.stars;
     document.getElementById('streak-count').textContent = state.streak;
     saveState();

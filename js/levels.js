@@ -237,6 +237,13 @@ export function openModule(key) {
     navigateTo('levelpicker');
 }
 
+function stepStarsHtml(key) {
+    const count = (state.stepProgress && state.stepProgress[key]) || 0;
+    const stars = Math.min(3, Math.floor(count / 3));
+    return `<span class="level-step-stars">${[0, 1, 2].map(i =>
+        `<span class="lvl-star${i < stars ? ' on' : ''}">★</span>`).join('')}</span>`;
+}
+
 export function renderModulePicker(key) {
     const mod = LEVEL_MODULES[key];
     if (!mod) return;
@@ -246,11 +253,12 @@ export function renderModulePicker(key) {
             <span class="level-step-num">${i + 1}</span>
             <span class="level-step-icon">${s.icon}</span>
             <span class="level-step-text"><strong>${s.label}</strong><small>${s.desc || ''}</small></span>
+            ${stepStarsHtml(`${key}:steps:${i}`)}
         </button>`).join('');
     const wrap = document.getElementById('levelpicker-explore-wrap');
     wrap.classList.toggle('hidden', !mod.explore.length);
     document.getElementById('levelpicker-explore').innerHTML = mod.explore.map((s, i) =>
-        `<button onclick="chooseModuleStep('explore', ${i})" class="level-explore-chip">${s.icon} ${s.label}</button>`).join('');
+        `<button onclick="chooseModuleStep('explore', ${i})" class="level-explore-chip">${s.icon} ${s.label}${stepStarsHtml(`${key}:explore:${i}`)}</button>`).join('');
 }
 
 export function chooseModuleStep(group, idx) {
@@ -258,6 +266,7 @@ export function chooseModuleStep(group, idx) {
     if (!mod) return navigateTo('home');
     const step = (group === 'steps' ? mod.steps : mod.explore)[idx];
     state.levelStepLabel = `${step.icon} ${step.label}`;
+    state.levelStepKey = `${state.levelModule}:${group}:${idx}`;
     const view = step.apply();
     navigateTo(view);
     updateLevelBreadcrumb();
@@ -276,5 +285,6 @@ export function backToModulePicker() {
 export function updateLevelBreadcrumb() {
     const mod = LEVEL_MODULES[state.levelModule];
     const text = mod ? `${mod.icon} ${mod.title} › ${state.levelStepLabel || 'Välj nivå'}` : '';
-    document.querySelectorAll('.level-crumb-label').forEach(el => { el.textContent = text; });
+    const stars = state.levelStepKey ? stepStarsHtml(state.levelStepKey) : '';
+    document.querySelectorAll('.level-crumb-label').forEach(el => { el.innerHTML = text + stars; });
 }

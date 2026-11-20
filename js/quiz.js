@@ -29,6 +29,7 @@ function startQuiz() {
         advancing: false,
         prevClockSubMode: state.clockSubMode
     };
+    state.levelStepKey = '';
     // Övningsklockan har inget fråga–svar-flöde, så quizet använder alltid frågelägena.
     if (state.clockSubMode === 'sandbox') setClockSubMode('mix');
 
