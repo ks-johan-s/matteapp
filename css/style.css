@@ -500,11 +500,11 @@ body.focus-mode-active .gamification-badge {
 
 /* "Visa mig"-demon: större rutnät + animationer */
 .math-grid-big .math-grid-cell {
-    width: 54px;
-    height: 52px;
-    font-size: 1.55rem;
+    width: 62px;
+    height: 60px;
+    font-size: 1.7rem;
 }
-.math-grid-big .math-grid-carry { font-size: 1.05rem; }
+.math-grid-big .math-grid-carry { font-size: 1.15rem; }
 .math-grid-big .cell-hl {
     animation: cellHlPulse 1.3s ease-in-out infinite;
 }

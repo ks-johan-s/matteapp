@@ -59,7 +59,7 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     const cell = (content, cls = '') => `<div class="math-grid-cell ${cls}">${content}</div>`;
     const carryCls = c => `math-grid-carry${freshCarry.includes(c) ? ' carry-pop' : ''}`;
 
-    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 54 : 34}px);">`;
+    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 62 : 34}px);">`;
     if (op !== 'mul') for (let c = 0; c < cols; c++) h += cell(carries[c] || '', carryCls(c));
     for (let c = 0; c < cols; c++) {
         const cls = [c > 0 ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '',
@@ -95,7 +95,7 @@ function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1
     const ansStr = String(answer);
     const cols = divLen + 2 + ansStr.length;
     const span = (col) => `grid-row: 2 / span 3; grid-column: ${col}; height: auto;`;
-    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 54 : 34}px);">`;
+    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 62 : 34}px);">`;
     // Minnessifferrad över täljarsiffror 2..n (rutnätskolumn dIdx + 2).
     for (let c = 1; c <= cols; c++) {
         const dIdx = c - 2;
@@ -296,7 +296,7 @@ export function generateAlgoQuestion() {
             steps.push({
                 text: i === 0
                     ? `<p><strong>Steg ${i + 1} – börja till vänster:</strong> Hur många gånger går <strong>${b}</strong> i <strong>${cur}</strong>? <strong>${q}</strong> gång${q === 1 ? '' : 'er'}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> skrivs litet över nästa siffra!` : ' – jämnt, ingen rest!'}</p>`
-                    : `<p><strong>Steg ${i + 1}:</strong> Minnessiffran + siffran = <strong>${cur}</strong>. <strong>${b}</strong> går i ${cur} <strong>${q}</strong> gång${q === 1 ? '' : 'er'}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> över nästa!` : ' – jämnt!'}</p>`,
+                    : `<p><strong>Steg ${i + 1}:</strong> Minnessiffran + siffran = <strong>${cur}</strong>. Hur många gånger går <strong>${b}</strong> i ${cur}? <strong>${q}</strong> gång${q === 1 ? '' : 'er'}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> över nästa!` : ' – jämnt!'}</p>`,
                 divGrid: { showAns: i + 1, carries: { ...acc }, hlDigit: i }
             });
         }
@@ -336,6 +336,17 @@ export function generateAlgoQuestion() {
         document.getElementById('algo-mode-badge').textContent = '📺 Visa mig – så här gör man!';
         const sym = op === 'sub' ? '−' : (op === 'add' ? '+' : (op === 'mul' ? '×' : '÷'));
         document.getElementById('algo-question-text').innerHTML = `${a} ${sym} ${b} = <span class="text-emerald-600">?</span>`;
+        // Inramande introsteg: visar själva uppställningen innan räkningen börjar.
+        const intros = {
+            add: `Vi räknar <strong>${a} + ${b}</strong> med uppställning! <strong>Börja alltid längst till höger — med entalen.</strong>`,
+            sub: `Vi räknar <strong>${a} − ${b}</strong> med uppställning! <strong>Börja längst till höger — med entalen.</strong>`,
+            mul: `Vi räknar <strong>${a} × ${b}</strong> med uppställning! <strong>Gångra en siffra i taget, från höger till vänster.</strong>`,
+            div: `Vi delar <strong>${a}</strong> med <strong>${b}</strong> i trappan! <strong>I division börjar vi TILL VÄNSTER</strong> — tvärtom mot de andra räknesätten!`
+        };
+        const intro = { text: `<p>${intros[op]}</p>` };
+        if (op === 'div') intro.divGrid = { showAns: 0, carries: {}, hlDigit: -1 };
+        else intro.grid = { showAns: 0 };
+        steps.unshift(intro);
         state.algoDemoStep = 0;
         state.algoDemoPlaying = false;
         renderAlgoDemo();
@@ -363,9 +374,18 @@ export function renderAlgoDemo() {
     state.algoDemoStep = idx;
     const step = steps[idx];
     const prevG = idx > 0 ? (steps[idx - 1].grid || steps[idx - 1].divGrid || {}) : {};
-    const g = step.grid || step.divGrid || {};
+    let g = step.grid || step.divGrid || {};
     const freshStruck = (g.struck || []).filter(c => !(prevG.struck || []).includes(c));
     const freshCarry = Object.keys(g.carries || {}).map(Number).filter(c => !(prevG.carries || {})[c]);
+    // Auto-highlight: om steget inte markerar någon kolumn själv lyser den
+    // kolumn vars svarssiffra precis avslöjades (t.ex. entalen i steg 1).
+    if (g.highlight === undefined && (g.showAns || 0) > 0 && cur.op !== 'div') {
+        const digits = Math.max(String(cur.a).length, String(cur.b).length, String(cur.answer).length);
+        const col = digits - g.showAns + 1;
+        if (col >= 1 && col <= digits) g = { ...g, highlight: col };
+    }
+    // I demon finns inget att "trycka" på – formulera om låna-stegen.
+    const text = step.text.replace(/Tryck på (\w+)talet/g, 'Stryk $1talet');
     const gridHtml = cur.op === 'div'
         ? algoMiniDivGrid(cur.a, cur.b, cur.answer, { ...g, freshCarry, popAnsIdx: (g.showAns || 0) - 1, big: true })
         : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...g, freshStruck, freshCarry, popAns: true, big: true });
@@ -376,7 +396,7 @@ export function renderAlgoDemo() {
             <div class="inline-block px-4 py-1 rounded-full bg-violet-500 text-white text-xs font-extrabold mb-3">
                 📺 VISA MIG · Steg ${idx + 1} av ${steps.length}
             </div>
-            <div class="demo-step-text text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-2">${step.text}</div>
+            <div class="demo-step-text text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-2">${text}</div>
             <div class="demo-grid-wrap">${gridHtml}</div>
             <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
                 <button onclick="algoDemoNav(-1)" ${idx === 0 ? 'disabled' : ''}
