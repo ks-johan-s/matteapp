@@ -247,6 +247,7 @@ export function renderGuidedAlgoGrid() {
                 html += `<div class="math-grid-cell pv-col-${place}">
                     <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
                         oninput="if(this.value && document.getElementById('algo-ans-${idx + 1}')) document.getElementById('algo-ans-${idx + 1}').focus()"
+                        onkeydown="algoAnsKey(event, ${idx})"
                         class="math-grid-input pv-num pv-${place}" placeholder="?">
                 </div>`;
             }
@@ -313,6 +314,7 @@ export function renderGuidedAlgoGrid() {
                 <div class="math-grid-cell pv-col-${place}">
                     <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
                         oninput="if(this.value && document.getElementById('algo-ans-${prevIdx}')) document.getElementById('algo-ans-${prevIdx}').focus()"
+                        onkeydown="algoAnsKey(event, ${idx})"
                         class="math-grid-input pv-num pv-${place}" placeholder="?">
                 </div>
             `;
@@ -363,6 +365,14 @@ export function toggleBlankStrikeMode() {
             ? 'px-3 py-1.5 rounded-xl bg-rose-600 text-white border border-rose-700 text-xs font-extrabold'
             : 'px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-300 text-rose-900 text-xs font-extrabold';
     }
+}
+
+// Piltangenter i svarsrutorna: vänster/höger flyttar rumsligt.
+export function algoAnsKey(e, idx) {
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+    if (step == null) return;
+    const next = document.getElementById(`algo-ans-${idx + step}`);
+    if (next) { e.preventDefault(); next.focus(); next.select(); }
 }
 
 export function clearBlankSheet() {
