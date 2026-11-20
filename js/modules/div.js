@@ -188,11 +188,11 @@ export function generateDivQuestion() {
 
 export function checkDivChoice(val) {
     if (!document.getElementById('div-next-wrap').classList.contains('hidden')) return;
-    const { total, divisor, answer, fullEq, pendingReveal, revealHtml } = state.currentDiv;
+    const { total, divisor, quotient, answer, fullEq, pendingReveal, revealHtml } = state.currentDiv;
     if (val === answer) {
         if (pendingReveal && revealHtml) document.getElementById('div-visual-container').innerHTML = revealHtml;
         addReward(1);
-        showFeedback('div-feedback', true, `🎉 Rätt! ${fullEq || `${total} ÷ ${divisor} = ${answer}`}!`);
+        showFeedback('div-feedback', true, `🎉 Rätt! ${fullEq || `${total} ÷ ${divisor} = ${answer}`}! 💡 Kolla med gånger: ${quotient} × ${divisor} = ${total}.`);
         document.getElementById('div-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();
@@ -268,6 +268,6 @@ export function checkDivHands() {
         return;
     }
     addReward(2);
-    showFeedback('div-feedback', true, `🎉 Perfekt fördelat! Varje hög fick ${cur.quotient} – ${cur.total} ÷ ${cur.divisor} = ${cur.quotient}!`);
+    showFeedback('div-feedback', true, `🎉 Perfekt fördelat! Varje hög fick ${cur.quotient} – ${cur.total} ÷ ${cur.divisor} = ${cur.quotient}! 💡 Kolla: ${cur.quotient} × ${cur.divisor} = ${cur.total}.`);
     document.getElementById('div-next-wrap').classList.remove('hidden');
 }

@@ -299,6 +299,26 @@ export function generateAddSubQuestion() {
     }
 }
 
+// En kort tänknugget efter rätt svar – visar en strategi eller ett matteord.
+function thinkAddSub({ a, b, isSub, answer, missing }) {
+    if (missing) return '💡 Kolla alltid: sätt in svaret i ekvationen och se att den stämmer!';
+    const op = isSub ? '−' : '+';
+    const tens = Math.floor(b / 10) * 10, ones = b % 10;
+    if (tens > 0 && ones > 0) {
+        const mid = isSub ? a - tens : a + tens;
+        return `💡 Tänk: ${a} ${op} ${tens} = ${mid}, sen ${op} ${ones} = ${answer}.`;
+    }
+    const aOnes = a % 10;
+    if (!isSub && b < 10 && aOnes + b >= 10 && aOnes > 0) {
+        const gap = 10 - aOnes;
+        return `💡 Tänk "bron till tia": ${a} + ${gap} = ${a + gap}, sen +${b - gap} = ${answer}.`;
+    }
+    if (isSub && b < 10 && aOnes > 0 && aOnes < b) {
+        return `💡 Tänk "bron till tia": ${a} − ${aOnes} = ${a - aOnes}, sen −${b - aOnes} = ${answer}.`;
+    }
+    return `💡 Matteord: svaret kallas <strong>${isSub ? 'differens' : 'summa'}</strong>!`;
+}
+
 export function checkAddSubChoice(val) {
     if (!document.getElementById('addsub-next-wrap').classList.contains('hidden')) return;
     const cur = state.currentAddSub;
@@ -317,7 +337,7 @@ export function checkAddSubChoice(val) {
     if (val === answer) {
         addReward(1);
         const eq = missing ? missing.fullEq : `${a} ${isSub ? '−' : '+'} ${b} = ${answer}`;
-        showFeedback('addsub-feedback', true, `🎉 Snyggt! ${eq}!`);
+        showFeedback('addsub-feedback', true, `🎉 Snyggt! ${eq}! ${thinkAddSub(cur)}`);
         document.getElementById('addsub-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();

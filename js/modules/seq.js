@@ -41,20 +41,20 @@ export function generateSeqQuestion() {
     let hints, answer;
 
     if (mode === 'numbers') {
-        let seq, step, doubling = false;
+        let seq, step, doubling = false, asc = true;
         if (diff === 'hard' && Math.random() < 0.4) {
             doubling = true;
             const start = randInt(1, 3);
             seq = [start, start * 2, start * 4, start * 8];
             answer = start * 16;
         } else {
-            const asc = diff === 'easy' ? true : Math.random() < 0.6;
+            asc = diff === 'easy' ? true : Math.random() < 0.6;
             step = diff === 'easy' ? randInt(1, 5) : (diff === 'medium' ? randInt(2, 10) : randInt(3, 15));
             const start = asc ? randInt(1, 15) : randInt(diff === 'medium' ? 40 : 60, 100);
             seq = Array.from({ length: 4 }, (_, i) => asc ? start + i * step : start - i * step);
             answer = asc ? start + 4 * step : start - 4 * step;
         }
-        state.currentSeq = { mode, seq, step, doubling, answer };
+        state.currentSeq = { mode, seq, step, doubling, asc, answer };
 
         badgeEl.textContent = '🔢 Talföljd';
         qEl.innerHTML = `Vilket tal kommer <strong>härnäst</strong> i talföljden?`;
@@ -191,10 +191,13 @@ export function generateSeqQuestion() {
 
 export function checkSeqChoice(val) {
     if (!document.getElementById('seq-next-wrap').classList.contains('hidden')) return;
-    const { answer } = state.currentSeq;
+    const { answer, mode, step, doubling, asc, figs } = state.currentSeq;
     if (val === answer) {
         addReward(1);
-        showFeedback('seq-feedback', true, `🎉 Rätt – du hittade mönstret!`);
+        const nudge = mode === 'numbers'
+            ? (doubling ? '💡 Varje tal var dubbelt så stort som det förra!' : `💡 Regeln var ${asc ? '+' : '−'}${step} mellan varje tal!`)
+            : (mode === 'grow' && figs && figs.length > 1 ? `💡 Varje ny figur fick ${figs[1] - figs[0]} prickar till!` : '');
+        showFeedback('seq-feedback', true, `🎉 Rätt – du hittade mönstret! ${nudge}`);
         document.getElementById('seq-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();
@@ -207,7 +210,7 @@ export function checkSeqShape(idx) {
     const picked = state.currentSeq.options[idx];
     if (picked === state.currentSeq.answer) {
         addReward(1);
-        showFeedback('seq-feedback', true, `🎉 Rätt – mönstret fortsätter med ${picked}!`);
+        showFeedback('seq-feedback', true, `🎉 Rätt – mönstret fortsätter med ${picked}! 💡 Det upprepas: ${state.currentSeq.pattern.join(' ')}.`);
         document.getElementById('seq-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();

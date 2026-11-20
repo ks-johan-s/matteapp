@@ -107,8 +107,8 @@ export function checkMultChoice(val) {
     if (val === answer) {
         addReward(1);
         showFeedback('mult-feedback', true, missing
-            ? `🎉 Grymt! ${t} × ${f} = ${total} – den saknade faktorn var ${answer}!`
-            : `🎉 Grymt! ${t} × ${f} = ${answer}!`);
+            ? `🎉 Grymt! ${t} × ${f} = ${total} – den saknade faktorn var ${answer}! 💡 Kolla: ${total} ÷ ${f} = ${t}.`
+            : `🎉 Grymt! ${t} × ${f} = ${answer}! ${t <= 6 ? `💡 Tänk: ${Array(t).fill(f).join(' + ')} = ${total}.` : `💡 Matteord: ${t} och ${f} är <strong>faktorer</strong>, ${total} är <strong>produkten</strong>!`}`);
         document.getElementById('mult-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();
