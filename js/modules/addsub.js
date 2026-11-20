@@ -65,9 +65,9 @@ export function generateAddSubQuestion() {
         const target = isSub ? a - b : a + b;
         badge = '🐸 Hoppa själv';
         answer = target;
-        state.currentAddSub = { a, b, isSub, answer, missing: null, jumps: { pos: a, target } };
+        state.currentAddSub = { a, b, isSub, answer, missing: null, jumps: { pos: a, target, count: 0, best: optimalJumps(b) } };
         document.getElementById('addsub-mode-badge').textContent = badge;
-        document.getElementById('addsub-question-text').innerHTML = `Hoppa dig fram till <strong>${a} ${isSub ? '−' : '+'} ${b}</strong> – du står på <strong>${a}</strong>, målet är <strong>${target}</strong>!`;
+        document.getElementById('addsub-question-text').innerHTML = `Hoppa dig fram till <strong>${a} ${isSub ? '−' : '+'} ${b}</strong> – du står på <strong>${a}</strong>, målet är <strong>${target}</strong> – på <strong>så få hopp som möjligt</strong>!`;
         if (modeToggle) modeToggle.parentElement.classList.add('hidden');
         document.getElementById('addsub-options').classList.add('hidden');
         document.getElementById('addsub-type-wrap').classList.add('hidden');
@@ -353,6 +353,27 @@ export function checkAddSubTyped() {
     checkAddSubChoice(val);
 }
 
+// Minsta antalet hopp (±10/±5/±1) för en sträcka — tillåter omväg via
+// överskjut, t.ex. 9 = +10,−1 (2 hopp). Dynamisk programmering.
+function optimalJumps(dist) {
+    const d = Math.abs(dist);
+    const dp = [0];
+    for (let n = 1; n <= d + 10; n++) {
+        dp[n] = Math.min(
+            (dp[Math.max(0, n - 1)] || 0) + 1,
+            n >= 5 ? dp[n - 5] + 1 : Infinity,
+            n >= 10 ? dp[n - 10] + 1 : Infinity
+        );
+    }
+    // Överskjut: hoppa förbi och tillbaka kan ge färre hopp (9 → +10,−1).
+    let best = dp[d];
+    for (let over = 1; over <= 10 && d + over < dp.length; over++) {
+        const via = dp[d + over] + dp[over];
+        if (via < best) best = via;
+    }
+    return best;
+}
+
 // Hoppa själv-läget (CPA): eleven hoppar på tallinjen med knapparna.
 function renderAddSubJumps() {
     const cur = state.currentAddSub;
@@ -364,7 +385,7 @@ function renderAddSubJumps() {
     document.getElementById('addsub-visual').innerHTML = `
         <div class="w-full max-w-lg mx-auto">
             <div class="font-display font-bold text-lg text-emerald-950 mb-1">
-                🐸 Du är på <span class="text-emerald-700" id="jump-pos">${j.pos}</span> • målet är ${j.target} • kvar: <span id="jump-left">${j.target - j.pos}</span>
+                🐸 Du är på <span class="text-emerald-700" id="jump-pos">${j.pos}</span> • målet är ${j.target} • kvar: <span id="jump-left">${j.target - j.pos}</span> • hopp: <span id="jump-count">0</span>
             </div>
             <div class="relative h-24 mt-2">
                 <div class="absolute left-0 right-0 top-14 h-1.5 bg-emerald-200 rounded-full"></div>
@@ -405,6 +426,8 @@ function updateJumpVisual(oldPos) {
     document.getElementById('jump-pos-label').textContent = j.pos;
     document.getElementById('jump-pos').textContent = j.pos;
     document.getElementById('jump-left').textContent = j.target - j.pos;
+    const counter = document.getElementById('jump-count');
+    if (counter) counter.textContent = j.count;
     const arcs = document.getElementById('jump-arcs');
     const x0 = pct(oldPos), x1 = pct(j.pos);
     const arcH = Math.min(12 + Math.abs(x1 - x0) * 0.35, 34);
@@ -429,10 +452,18 @@ export function addSubJump(d) {
     playSound('click');
     const oldPos = cur.jumps.pos;
     cur.jumps.pos += d;
+    cur.jumps.count++;
     updateJumpVisual(oldPos);
     if (cur.jumps.pos === cur.jumps.target) {
-        addReward(2);
-        showFeedback('addsub-feedback', true, `🎉 Du hoppade dig hela vägen! ${cur.a} ${cur.isSub ? '−' : '+'} ${cur.b} = ${cur.answer}!`);
+        const { count, best } = cur.jumps;
+        addReward(count === best ? 3 : 2);
+        const eq = `${cur.a} ${cur.isSub ? '−' : '+'} ${cur.b} = ${cur.answer}`;
+        const msg = count === best
+            ? `🏆 FÄRSTA MÖJLIGA! ${eq} – du klarade det på bara ${count} hopp, smart strategi!`
+            : count <= best + 2
+                ? `🎉 Bra! ${eq} – du använde ${count} hopp, det snabbaste sättet är ${best}. Nära!`
+                : `🐸 Du kom fram! ${eq} – men med smarta stora hopp räcker ${best} st. Prova fler tiotalshopp nästa gång!`;
+        showFeedback('addsub-feedback', true, msg);
         document.getElementById('addsub-next-wrap').classList.remove('hidden');
     }
 }
