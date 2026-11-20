@@ -306,6 +306,11 @@ input.digit-struck {
 .hint-step-card {
     animation: hintStepReveal 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+@keyframes hintBoxIn {
+    0% { opacity: 0; transform: translateY(14px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hint-box-enter { animation: hintBoxIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 .svg-arc-draw {
     stroke-dasharray: 320;
     stroke-dashoffset: 320;

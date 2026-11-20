@@ -46,7 +46,13 @@ export function toggleHintBox(mod) {
     if (!box) return;
     const willOpen = box.classList.contains('hidden');
     box.classList.toggle('hidden');
-    if (willOpen) renderHintBox(mod);
+    if (willOpen) {
+        renderHintBox(mod);
+        box.classList.remove('hint-box-enter');
+        void box.offsetWidth;
+        box.classList.add('hint-box-enter');
+        setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+    }
 }
 
 export function nextHintStep(mod) {
