@@ -58,7 +58,7 @@ export const state = {
     fracSubMode: 'mix',
     currentFrac: null,
     twinSelected: [],
-    algoOp: 'sub',
+    algoOp: 'add',
     algoSheetMode: 'guided',
     currentAlgo: null,
     algoLoans: {},

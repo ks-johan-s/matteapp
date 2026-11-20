@@ -335,14 +335,11 @@
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-emerald-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex flex-wrap items-center gap-1.5">
-                    <button id="addsub-op-add" onclick="setAddSubOp('add')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-700 text-white">➕ Addition</button>
-                    <button id="addsub-op-sub" onclick="setAddSubOp('sub')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-300 text-emerald-800">➖ Subtraktion</button>
-                    <span class="w-px self-stretch bg-slate-200 mx-1"></span>
+                    <button id="addsub-sub-pv" onclick="setAddSubMode('pv')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔢 Platsvärde</button>
+                    <button id="addsub-sub-jumps" onclick="setAddSubMode('jumps')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🐸 Hoppa själv</button>
                     <button id="addsub-sub-mix" onclick="setAddSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-500 text-white">🎲 Övning</button>
                     <button id="addsub-sub-tens" onclick="setAddSubMode('tens')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔟 Tiotalshopp</button>
                     <button id="addsub-sub-missing" onclick="setAddSubMode('missing')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">❓ Saknat tal</button>
-                    <button id="addsub-sub-jumps" onclick="setAddSubMode('jumps')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🐸 Hoppa själv</button>
-                    <button id="addsub-sub-pv" onclick="setAddSubMode('pv')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔢 Platsvärde</button>
                     <button onclick="state.algoOp = state.addsubOp;navigateTo('algo')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-100 border border-sky-300 text-sky-800">📝 Ställ upp</button>
                 </div>
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
@@ -465,11 +462,11 @@
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex flex-wrap items-center gap-1.5">
                     <button id="div-sub-mix" onclick="setDivSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-teal-600 text-white">🎲 Mix</button>
+                    <button id="div-sub-hands" onclick="setDivSubMode('hands')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🤲 Dela själv</button>
                     <button id="div-sub-share" onclick="setDivSubMode('share')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🧺 Dela lika</button>
                     <button id="div-sub-group" onclick="setDivSubMode('group')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🛍️ Påsar</button>
                     <button id="div-sub-quick" onclick="setDivSubMode('quick')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">⚡ Snabb division</button>
                     <button id="div-sub-missing" onclick="setDivSubMode('missing')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">❓ Saknat tal</button>
-                    <button id="div-sub-hands" onclick="setDivSubMode('hands')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🤲 Dela själv</button>
                     <button onclick="setAlgoOp('div');navigateTo('algo')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-100 border border-sky-300 text-sky-800">📝 Ställ upp</button>
                 </div>
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
@@ -524,8 +521,8 @@
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex flex-wrap items-center gap-1.5">
                     <button id="seq-sub-mix" onclick="setSeqSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-purple-600 text-white">🎲 Mix</button>
-                    <button id="seq-sub-numbers" onclick="setSeqSubMode('numbers')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">🔢 Talföljd</button>
                     <button id="seq-sub-shapes" onclick="setSeqSubMode('shapes')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">🎨 Formmönster</button>
+                    <button id="seq-sub-numbers" onclick="setSeqSubMode('numbers')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">🔢 Talföljd</button>
                     <button id="seq-sub-grow" onclick="setSeqSubMode('grow')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-purple-200 text-slate-700">📈 Växande figur</button>
                 </div>
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
@@ -656,8 +653,8 @@
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-sky-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex flex-wrap items-center gap-1.5">
-                    <button id="algo-op-sub" onclick="setAlgoOp('sub')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-600 text-white">− Låna</button>
-                    <button id="algo-op-add" onclick="setAlgoOp('add')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-sky-200 text-slate-700">+ Minne</button>
+                    <button id="algo-op-add" onclick="setAlgoOp('add')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-600 text-white">+ Minne</button>
+                    <button id="algo-op-sub" onclick="setAlgoOp('sub')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-sky-200 text-slate-700">− Låna</button>
                     <button id="algo-op-mul" onclick="setAlgoOp('mul')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-sky-200 text-slate-700">× Gånger</button>
                     <button id="algo-op-div" onclick="setAlgoOp('div')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-sky-200 text-slate-700">÷ Division</button>
                 </div>
