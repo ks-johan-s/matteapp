@@ -354,25 +354,39 @@ export function renderGuidedAlgoGrid() {
 export function buildBlankAlgoSheet() {
     const container = document.getElementById('algo-blank-grid-container');
     if (!container) return;
-    const rows = 5, cols = 8;
+    // Rutpappret formas efter räknesättet – samma metod som i Färdig mall:
+    // + och −: minnessiffra/lån i toppraden, streck under andra operanden.
+    // ×: minnessiffran hör hemma på multiplikatorraden, så toppraden blir
+    //    vanlig arbetsyta.
+    // ÷: trappan – rester litet över täljaren, streck direkt under täljaren
+    //    och = + svar på raden under, plus arbetsrader längst ner.
+    const op = state.algoOp;
+    const isDiv = op === 'div';
+    const rows = isDiv ? 6 : 5, cols = 8;
+    const carryRow = op === 'mul' ? -1 : 0;
+    const lineRow = isDiv ? 1 : 2;
+    const ansRow = lineRow + 1;
     let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 48px);">`;
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
             const cellId = `blank-cell-${r}-${c}`;
+            const isCarry = r === carryRow;
+            const ph = isCarry ? '·' : (r === ansRow ? '?' : '');
             html += `
                 <div class="math-grid-cell" style="width:48px;height:48px;">
-                    <input id="${cellId}" maxlength="${r === 0 ? 2 : 1}"
+                    <input id="${cellId}" maxlength="${isCarry ? 2 : 1}"
+                        ${ph ? `placeholder="${ph}"` : ''}
                         onfocus="state.lastFocusedCellId='${cellId}'"
                         onclick="if(state.blankStrikeMode){this.classList.toggle('digit-struck');}"
                         onkeydown="handleSheetKeyDown(event, '${cellId}')"
                         oninput="handleSheetInput(this, ${r})"
-                        class="math-grid-input ${r === 0 ? 'math-grid-carry-input' : ''}">
+                        class="math-grid-input ${isCarry ? 'math-grid-carry-input' : ''}">
                 </div>
             `;
         }
-        // Ett sammanhängande räknestreck under rad 2 – från ruta 1 till
-        // näst sista, inte utbrutet av cellkanterna.
-        if (r === 2) {
+        // Ett sammanhängande räknestreck – från ruta 1 till näst sista,
+        // inte utbrutet av cellkanterna.
+        if (r === lineRow) {
             const pct = 100 / cols;
             html += `<div style="grid-column: 1 / -1; height: 4px; margin: -6px 0 0; padding: 0 ${pct}%;">
                 <div style="height: 4px; background: #0f172a; border-radius: 2px;"></div>
@@ -492,18 +506,34 @@ export function checkAlgoAnswer() {
         }
     } else {
         let foundRowVal = null;
-        for (let r = 4; r >= 0; r--) {
-            let rowDigits = '';
-            for (let c = 0; c < 8; c++) {
-                const el = document.getElementById(`blank-cell-${r}-${c}`);
-                if (el && !el.classList.contains('digit-struck')) {
+        if (op === 'div') {
+            // Trappan: svaret står efter = – nämnaren före = räknas inte med.
+            for (let r = 9; r >= 0 && foundRowVal === null; r--) {
+                let afterEq = false, digits = '';
+                for (let c = 0; c < 8; c++) {
+                    const el = document.getElementById(`blank-cell-${r}-${c}`);
+                    if (!el) continue;
                     const ch = el.value.trim();
-                    if (/^[0-9]+$/.test(ch)) rowDigits += ch;
+                    if (ch === '=') { afterEq = true; continue; }
+                    if (afterEq && /^[0-9]+$/.test(ch) && !el.classList.contains('digit-struck')) digits += ch;
                 }
+                if (afterEq && digits) foundRowVal = parseInt(digits, 10);
             }
-            if (rowDigits.length > 0) {
-                foundRowVal = parseInt(rowDigits, 10);
-                break;
+        }
+        if (foundRowVal === null) {
+            for (let r = 9; r >= 0; r--) {
+                let rowDigits = '';
+                for (let c = 0; c < 8; c++) {
+                    const el = document.getElementById(`blank-cell-${r}-${c}`);
+                    if (el && !el.classList.contains('digit-struck')) {
+                        const ch = el.value.trim();
+                        if (/^[0-9]+$/.test(ch)) rowDigits += ch;
+                    }
+                }
+                if (rowDigits.length > 0) {
+                    foundRowVal = parseInt(rowDigits, 10);
+                    break;
+                }
             }
         }
         if (foundRowVal === null) {
@@ -517,7 +547,7 @@ export function checkAlgoAnswer() {
         } else {
             resetStreak();
             const ahaTip = diagnoseAlgoMistake(foundRowVal, a, b, op, answer);
-            showFeedback('algo-feedback', false, ahaTip || `🤔 Nedersta raden visar ${foundRowVal}, men rätt svar är ${answer}. Kolla raderna och försök igen!`);
+            showFeedback('algo-feedback', false, ahaTip || `🤔 ${op === 'div' ? 'Svaret efter =' : 'Nedersta raden'} visar ${foundRowVal}, men rätt svar är ${answer}. Kolla raderna och försök igen!`);
         }
     }
 }

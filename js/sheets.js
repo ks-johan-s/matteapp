@@ -41,14 +41,14 @@ export function handleSheetInput(inp, rowIdx) {
     } else if (v === '/' || v === ':') {
         inp.value = '÷';
     }
-    if (rowIdx === 0 || inp.value.trim() === '10') {
+    if (inp.maxLength === 2 || inp.value.trim() === '10') {
         inp.classList.add('math-grid-carry-input');
     } else {
         inp.classList.remove('math-grid-carry-input');
     }
     // En siffra per ruta → hoppa vidare när tecknet är inskrivet.
-    // Minnessifferaden (rad 0) får två tecken för "10" innan hopp.
-    const maxLen = rowIdx === 0 ? 2 : 1;
+    // Minnessifferrutor (maxlength 2) får plats med "10" innan hopp.
+    const maxLen = inp.maxLength > 0 ? inp.maxLength : 1;
     if (inp.value.length >= maxLen) {
         const m = inp.id.match(/^blank-cell-(\d+)-(\d+)$/);
         const next = m && document.getElementById(`blank-cell-${m[1]}-${+m[2] + 1}`);
