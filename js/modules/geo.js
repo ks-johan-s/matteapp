@@ -393,7 +393,19 @@ export function buildGeoDemoSteps() {
           html: grid('count') },
         { text: `<p>Men det går smartare! Varje <strong>rad har ${w} rutor</strong> och det finns <strong>${h} rader</strong> – precis som multiplikation!</p>`,
           html: grid('rows') },
-        { text: `<p><strong>Area = bas × höjd = ${w} × ${h} = ${w * h} rutor</strong> 🎉 Om rutorna är 1 cm blir det <strong>${w * h} cm²</strong>!</p>`,
-          html: `${grid('rows')}<div class="demo-pop font-display font-bold text-3xl text-fuchsia-700 mt-3">${w} × ${h} = ${w * h} cm²</div>` },
+        { text: `<p>Många räknar bara rutorna <strong>runt kanten</strong> – men det är <strong>omkretsen</strong>! Arean är alla rutor <strong>inuti</strong>.</p>`,
+          warn: true,
+          html: `<div class="flex items-center justify-center gap-8 font-display font-bold text-2xl">
+              <span class="text-red-400 line-through opacity-70">omkrets: 14 rutor ✗</span>
+              <span class="text-emerald-600">area: ${w * h} rutor ✓</span>
+          </div>` },
+        { text: `<p><strong>Din tur!</strong> Vad är arean – antalet rutor inuti?</p>`,
+          html: grid('rows'),
+          guess: { options: [
+              { label: '14', ok: false },
+              { label: `${w * h}`, ok: true },
+              { label: '10', ok: false },
+          ] },
+          doneText: `Area = ${w} × ${h} = ${w * h} cm²! 🎉` },
     ] };
 }

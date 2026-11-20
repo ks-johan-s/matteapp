@@ -152,8 +152,20 @@ export function buildMultDemoSteps() {
           html: `${grid(2, true)}<div class="demo-pop font-display font-bold text-2xl text-orange-700 mt-2">${f} + ${f} = ${2 * f}</div>` },
         { text: `<p>Och den tredje: <strong>${2 * f} + ${f} = ${t * f}</strong>.</p>`,
           html: `${grid(3, true)}<div class="demo-pop font-display font-bold text-2xl text-orange-700 mt-2">${2 * f} + ${f} = ${t * f}</div>` },
-        { text: `<p><strong>${t} × ${f} = ${t * f}</strong> 🎉 Samma som ${f} + ${f} + ${f} – men mycket snabbare att räkna!</p>`,
-          html: `${grid(3, false)}<div class="demo-pop font-display font-bold text-4xl text-orange-600 mt-2">${t} × ${f} = ${t * f}</div>` },
+        { text: `<p>Många råkar plussa ihop i stället: ${t} + ${f} = ${t + f} – <strong>men × betyder grupper</strong>, inte addition av talen!</p>`,
+          warn: true,
+          html: `<div class="flex items-center justify-center gap-8 font-display font-bold text-3xl">
+              <span class="text-emerald-600">${t} × ${f} = ${t * f} ✓</span>
+              <span class="text-red-400 line-through opacity-70">${t} + ${f} = ${t + f} ✗</span>
+          </div>` },
+        { text: `<p><strong>Din tur!</strong> Vad är ${t} × ${f}?</p>`,
+          html: grid(3, false),
+          guess: { options: [
+              { label: `${t + f}`, ok: false },
+              { label: `${t * f}`, ok: true },
+              { label: `${t * f - 1}`, ok: false },
+          ] },
+          doneText: `${t} × ${f} = ${t * f} – samma som ${f} + ${f} + ${f}! 🎉` },
     ];
     return { steps };
 }

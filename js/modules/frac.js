@@ -500,7 +500,19 @@ export function buildFracDemoSteps() {
           html: pizza([0], { popIdx: 0 }) },
         { text: `<p>Nu tar vi <strong>${num} bitar</strong> – räkna med: en… två… tre!</p>`,
           html: pizza(sel(num), { staggerFrom: 0 }) },
-        { text: `<p><strong>${num} av ${den} delar = ${formatFractionHTML(num, den)}</strong> 🎉<br><span class="text-rose-600 font-bold">Täljaren ${num}</span> räknar bitarna – <span class="text-amber-700 font-bold">nämnaren ${den}</span> säger hur många delar pizzan delades i!</p>`,
-          html: `<div class="flex items-center justify-center gap-6 flex-wrap">${renderPizzaSVG(den, sel(num), false, '', 170)}<span class="demo-pop font-display font-bold text-5xl text-rose-500">${formatFractionHTML(num, den)}</span></div>` },
+        { text: `<p>Många skriver bråket <strong>baklänges</strong>! Nämnaren står <strong>under</strong> strecket: ${formatFractionHTML(num, den)} betyder ${num} av ${den} delar – <strong>inte</strong> ${formatFractionHTML(den, num)}!</p>`,
+          warn: true,
+          html: `<div class="flex items-center justify-center gap-8 font-display font-bold text-4xl">
+              <span class="text-emerald-600">${formatFractionHTML(num, den)} ✓</span>
+              <span class="text-red-400 line-through opacity-70">${formatFractionHTML(den, num)} ✗</span>
+          </div>` },
+        { text: `<p><strong>Din tur!</strong> Vilket bråk visar pizzan? Kom ihåg: täljaren räknar bitarna, nämnaren säger hur många delar pizzan delades i.</p>`,
+          html: `<div class="flex justify-center">${renderPizzaSVG(den, sel(num), false, '', 185)}</div>`,
+          guess: { options: [
+              { label: formatFractionHTML(den, num), ok: false },
+              { label: formatFractionHTML(num, den), ok: true },
+              { label: formatFractionHTML(num, den + 3), ok: false },
+          ] },
+          doneText: `${formatFractionHTML(num, den)} – ${num} av ${den} delar! 🎉` },
     ] };
 }

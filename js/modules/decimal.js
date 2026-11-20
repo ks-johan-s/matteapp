@@ -287,9 +287,16 @@ export function buildDecimalDemoSteps() {
           html: line({ hideMarker: true }) },
         { text: `<p>Den är delad i <strong>10 lika stora delar</strong> – varje litet streck är <strong>en tiondel (0,1)</strong>!</p>`,
           html: line({ hideMarker: true }) },
-        { text: `<p>Markören hoppar fram! Räkna strecken med mig: <strong>0,1 – 0,2 – 0,3 …</strong></p>`,
-          html: line({ label: false, markerCls: 'demo-marker-hop' }) },
-        { text: `<p>Markören stannade på det <strong>sjunde</strong> strecket: <strong>${formatNumSv(val)}</strong> – sju tiondelar! 🎉</p>`,
-          html: line({ markerCls: 'demo-marker-hop' }) },
+        { text: `<p>Räkna inte strecken från 1 – börja vid <strong>nollan</strong>! Första strecket efter 0 är ${formatNumSv(0.1)}, andra är ${formatNumSv(0.2)} …</p>`,
+          warn: true,
+          html: line({ hideMarker: true }) },
+        { text: `<p><strong>Din tur!</strong> Vilket tal visar markören? Räkna strecken: 0,1 – 0,2 – 0,3 …</p>`,
+          html: line({ label: false, markerCls: 'demo-marker-hop' }),
+          guess: { options: [
+              { label: '7', ok: false },
+              { label: formatNumSv(val), ok: true },
+              { label: formatNumSv(0.07), ok: false },
+          ] },
+          doneText: `${formatNumSv(val)} – sju tiondelar! 🎉` },
     ] };
 }

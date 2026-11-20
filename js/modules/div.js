@@ -298,12 +298,25 @@ export function buildDivDemoSteps() {
           html: basket(total - divisor) + piles(1, true) },
         { text: `<p><strong>Varv 2:</strong> en till var och en – nu har alla <strong>två</strong>.</p>`,
           html: basket(total - 2 * divisor) + piles(2, true) },
-        { text: `<p><strong>Varv 3:</strong> tre i varje hög – korgen börjar tömmas…</p>`,
-          html: basket(total - 3 * divisor) + piles(3, true) },
-        { text: `<p><strong>Varv 4:</strong> sista varvet – korgen är <strong>tom</strong>!</p>`,
+        { text: `<p><strong>Varv 3 och 4:</strong> fortsätt tills korgen är <strong>tom</strong> – nu har alla fyra var!</p>`,
           html: basket(0) + piles(4, true) },
-        { text: `<p>Alla fick <strong>${quotient} jordgubbar</strong> var: ${total} ÷ ${divisor} = <strong>${quotient}</strong> 🎉<br>Division är att <strong>dela lika</strong>!</p>`,
-          html: piles(4, false) + `<div class="demo-pop font-display font-bold text-3xl text-teal-700 mt-3">${total} ÷ ${divisor} = ${quotient}</div>` },
+        { text: `<p>Alla ska få <strong>lika många</strong>! Att ge allt åt den första högen är <strong>inte</strong> att dividera – det är orättvist!</p>`,
+          warn: true,
+          html: `<div class="flex flex-wrap justify-center gap-2">
+              ${[8, 3, 1].map(n => `
+                  <div class="px-3 py-2 rounded-2xl border-2 border-red-300 bg-red-50 min-w-[64px] opacity-80">
+                      <div class="text-base sm:text-lg">${item.repeat(n)}</div>
+                      <div class="text-[11px] font-extrabold text-red-700">Barn ✗</div>
+                  </div>`).join('')}
+          </div>` },
+        { text: `<p><strong>Din tur!</strong> Hur många jordgubbar fick varje barn?</p>`,
+          html: piles(4, false),
+          guess: { options: [
+              { label: '3', ok: false },
+              { label: '12', ok: false },
+              { label: '4', ok: true },
+          ] },
+          doneText: `${total} ÷ ${divisor} = ${quotient} – division är att dela lika! 🎉` },
     ];
     return { steps };
 }

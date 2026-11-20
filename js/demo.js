@@ -71,6 +71,21 @@ export function demoNav(d) {
     renderDemoStep();
 }
 
+// Svarschip i "Din tur!"-steget: rätt låser upp 'Öva själv nu!',
+// fel stryker chippet så eleven kan gissa om.
+export function demoGuess(btn, ok) {
+    if (!demo || btn.disabled) return;
+    if (ok) {
+        playSound('correct');
+        demo.solved = true;
+        renderDemoStep();
+    } else {
+        playSound('wrong');
+        btn.disabled = true;
+        btn.classList.add('opacity-40', 'line-through', 'demo-shake');
+    }
+}
+
 export function demoTogglePlay() {
     if (!demo) return;
     playSound('click');
@@ -103,8 +118,14 @@ function renderDemoStep() {
             <div class="flex items-center justify-center gap-1.5 mb-3">
                 ${steps.map((_, i) => `<span class="inline-block w-2 h-2 rounded-full ${i === idx ? 'bg-violet-500 scale-125' : i < idx ? 'bg-violet-300' : 'bg-violet-200'}"></span>`).join('')}
             </div>
-            <div class="demo-fade text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-3">${step.text}</div>
+            <div class="demo-fade text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-3 ${step.warn ? 'bg-amber-100 border-2 border-amber-400 rounded-2xl px-4 py-2.5' : ''}">
+                ${step.warn ? '<span class="inline-block px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[11px] font-extrabold mb-1">⚠️ SE UPP!</span><br>' : ''}${step.text}</div>
             <div class="demo-fade demo-grid-wrap">${step.html}</div>
+            ${step.guess ? `<div class="demo-fade flex flex-wrap items-center justify-center gap-2 mt-3">
+                ${step.guess.options.map((o, i) => `<button onclick="demoGuess(this, ${o.ok ? 'true' : 'false'})"
+                    class="demo-guess-chip btn-3d bg-white border-2 border-violet-300 text-violet-900 font-display font-bold text-lg px-5 py-2 rounded-xl">${o.label}</button>`).join('')}
+            </div>
+            ${demo.solved && step.doneText ? `<div class="demo-pop text-emerald-700 font-extrabold mt-3">${step.doneText}</div>` : ''}` : ''}
             <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
                 <button onclick="demoNav(-1)" ${idx === 0 ? 'disabled' : ''}
                     class="btn-3d bg-white border-2 border-violet-300 text-violet-900 font-extrabold text-sm px-4 py-2 rounded-xl disabled:opacity-40">◀ Förra</button>
@@ -112,7 +133,8 @@ function renderDemoStep() {
                     class="btn-3d ${demo.playing ? 'bg-amber-500 hover:bg-amber-600' : 'bg-violet-500 hover:bg-violet-600'} text-white font-extrabold text-sm px-4 py-2 rounded-xl">
                     ${demo.playing ? '⏸ Pausa' : '▶ Spela upp'}</button>
                 ${last
-                    ? `<button onclick="demoExit()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-sm px-5 py-2 rounded-xl">✏️ Öva själv nu!</button>`
+                    ? `<button onclick="demoExit()" ${step.guess && !demo.solved ? 'disabled title="Svara på frågan först!"' : ''}
+                        class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-sm px-5 py-2 rounded-xl ${step.guess && !demo.solved ? 'opacity-40' : ''}">✏️ Öva själv nu!</button>`
                     : `<button onclick="demoNav(1)" class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-sm px-4 py-2 rounded-xl">Nästa ▶</button>`}
             </div>
         </div>`;

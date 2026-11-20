@@ -226,7 +226,16 @@ export function buildClockDemoSteps() {
           html: clock('hour') },
         { text: `<p>Nu den <span class="text-sky-600 font-bold">långa minutvisaren</span>: varje siffra på urtavlan betyder <strong>5 minuter</strong>. Räkna: 5, 10, <strong>${m}</strong> – ${m} minuter kallas <strong>en kvart</strong>!</p>`,
           html: clock('min') },
-        { text: `<p>Sätt ihop det: <strong>${describeTimeInWords(h, m)}</strong>! 🎉<br>Digitalt skriver vi <strong>${formatDigitalTime(h, m)}</strong>.</p>`,
-          html: `${clock(null)}<div class="demo-pop font-display font-bold text-3xl text-violet-700 mt-1">${formatDigitalTime(h, m)}</div>` },
+        { text: `<p>Många blandar ihop visarna! Den <span class="text-rose-600 font-bold">korta</span> är timmar och den <span class="text-sky-600 font-bold">långa</span> är minuter – inte tvärtom!</p>`,
+          warn: true,
+          html: clock(null) },
+        { text: `<p><strong>Din tur!</strong> Vad visar klockan?</p>`,
+          html: clock(null),
+          guess: { options: [
+              { label: 'Kvart i fyra', ok: false },
+              { label: 'Kvart över fyra', ok: true },
+              { label: 'Halv fyra', ok: false },
+          ] },
+          doneText: `${describeTimeInWords(h, m)} – digitalt ${formatDigitalTime(h, m)}! 🎉` },
     ] };
 }

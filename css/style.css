@@ -626,3 +626,6 @@ div.demo-struck::after {
     60% { transform: translateY(3px); opacity: 1; }
     100% { transform: translateY(0); opacity: 1; }
 }
+
+/* Felgissat svarschip i 'Din tur!' skakar */
+.demo-shake { animation: cellShake .4s ease; }

@@ -2,7 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { handleSheetInput, handleSheetKeyDown } from '../sheets.js';
-import { randInt, showFeedback } from '../utils.js';
+import { randInt, showFeedback, shuffleArray } from '../utils.js';
 
 /* =============================================================
    6. MODUL 3: UPPSTÄLLNING (MED SPECIFICERAD AHA-FEEDBACK)
@@ -370,6 +370,43 @@ export function buildAlgoDemoSteps() {
             ? algoMiniDivGrid(cur.a, cur.b, cur.answer, { ...g, freshCarry, popAnsIdx: (g.showAns || 0) - 1, big: true })
             : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...g, freshStruck, freshCarry, popAns: true, big: true });
         return { text, html };
+    });
+
+    // "Se upp!"-steg: det vanligaste felet för just detta räknesätt.
+    const hasCarry = cur.steps.some(s => Object.keys((s.grid || s.divGrid || {}).carries || {}).length > 0);
+    const warns = {
+        add: hasCarry
+            ? 'Glöm inte <strong>minnessiffran</strong> – den lilla siffran högst upp räknas också!'
+            : 'Börja alltid med <strong>entalen längst till höger</strong> – inte från vänster!',
+        sub: 'Byt inte plats på siffrorna när den nedersta är större! 4 − 7 blir INTE 3 – <strong>växla ett tiotal</strong> först!',
+        mul: 'Minnessiffran <strong>läggs till</strong> efteråt – den gångas inte med nästa siffra!',
+        div: 'Kolla alltid med <strong>gånger</strong> efteråt: om 12 ÷ 3 = 4 ska 4 × 3 = 12 stämma!',
+    };
+    steps.push({ text: `<p>${warns[op]}</p>`, warn: true, html: '' });
+
+    // "Din tur!"-steg: en svarssiffra saknas – eleven gissar den innan
+    // 'Öva själv nu!' låses upp.
+    const ansStr = String(cur.answer);
+    const missIdx = cur.op === 'div' ? ansStr.length - 1 : 0;
+    const missDigit = +ansStr[missIdx];
+    const options = shuffleArray([
+        { label: String(missDigit), ok: true },
+        { label: String((missDigit + 1) % 10), ok: false },
+        { label: String((missDigit + 9) % 10), ok: false },
+    ]);
+    const lastRaw = raw[raw.length - 1];
+    const lg = lastRaw.grid || lastRaw.divGrid || {};
+    const guessGrid = { ...lg, showAns: ansStr.length - 1 };
+    if (cur.op !== 'div') guessGrid.highlight = 1;
+    else guessGrid.hlDigit = -1;
+    const sym = cur.op === 'sub' ? '−' : (cur.op === 'add' ? '+' : (cur.op === 'mul' ? '×' : '÷'));
+    steps.push({
+        text: `<p><strong>Din tur!</strong> Vilken siffra saknas i svaret?</p>`,
+        html: cur.op === 'div'
+            ? algoMiniDivGrid(cur.a, cur.b, cur.answer, { ...guessGrid, big: true })
+            : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...guessGrid, big: true }),
+        guess: { options },
+        doneText: `${cur.a} ${sym} ${cur.b} = ${cur.answer} 🎉`,
     });
     return { steps };
 }
