@@ -10,7 +10,7 @@ import { renderDecimalNumberLineSVG, renderPizzaSVG } from '../visuals.js';
 export function setDecimalSubMode(mode) {
     playSound('click');
     state.decimalSubMode = mode;
-    ['mix', 'place', 'read', 'link'].forEach(m => {
+    ['mix', 'place', 'read', 'link', 'neg'].forEach(m => {
         const btn = document.getElementById(`dec-sub-${m}`);
         if (!btn) return;
         btn.className = 'px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold ' +
@@ -21,7 +21,7 @@ export function setDecimalSubMode(mode) {
 
 export let decimalDragging = false;
 
-export function attachDecimalLineEvents(maxVal, step) {
+export function attachDecimalLineEvents(minVal, maxVal, step) {
     const svg = document.getElementById('decimal-interactive-svg');
     if (!svg) return;
 
@@ -30,12 +30,12 @@ export function attachDecimalLineEvents(maxVal, step) {
         const relX = ((clientX - rect.left) / rect.width) * 400;
         const clamped = Math.max(35, Math.min(365, relX));
         const ratio = (clamped - 35) / 330;
-        const rawVal = ratio * maxVal;
+        const rawVal = minVal + ratio * (maxVal - minVal);
         const snapped = Math.round(rawVal / step) * step;
         state.decimalSliderVal = Math.round(snapped * 100) / 100;
         document.getElementById('decimal-slider-readout').textContent = formatNumSv(state.decimalSliderVal);
-        document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(maxVal, step, state.decimalSliderVal, true, true);
-        attachDecimalLineEvents(maxVal, step);
+        document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(minVal, maxVal, step, state.decimalSliderVal, true, true);
+        attachDecimalLineEvents(minVal, maxVal, step);
     };
 
     svg.onpointerdown = (e) => {
@@ -53,12 +53,28 @@ export function attachDecimalLineEvents(maxVal, step) {
 export function nudgeDecimalSlider(dir) {
     if (!state.currentDecimal) return;
     playSound('click');
-    const { maxVal, step } = state.currentDecimal;
-    const next = Math.max(0, Math.min(maxVal, Math.round((state.decimalSliderVal + dir * step) * 100) / 100));
+    const { minVal, maxVal, step } = state.currentDecimal;
+    const next = Math.max(minVal, Math.min(maxVal, Math.round((state.decimalSliderVal + dir * step) * 100) / 100));
     state.decimalSliderVal = next;
     document.getElementById('decimal-slider-readout').textContent = formatNumSv(next);
-    document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(maxVal, step, next, true, true);
-    attachDecimalLineEvents(maxVal, step);
+    document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(minVal, maxVal, step, next, true, true);
+    attachDecimalLineEvents(minVal, maxVal, step);
+}
+
+// Intervall per svårighetsgrad: [min, max, steg] — varierad linje och strecktäthet.
+const RANGE_TABLE = {
+    easy: [[0, 1, 0.1]],
+    medium: [[0, 1, 0.1], [0, 10, 1], [0, 20, 2], [0, 50, 5], [0, 2, 0.2]],
+    hard: [[0, 2, 0.05], [0, 100, 10], [0, 500, 50], [0, 1000, 100]]
+};
+const NEG_TABLE = {
+    easy: [[-10, 10, 1]],
+    medium: [[-10, 10, 1], [-20, 20, 2]],
+    hard: [[-20, 20, 2], [-50, 50, 5], [-100, 100, 10]]
+};
+function pickRange(table) {
+    const arr = table[state.difficulty] || table.medium;
+    return arr[randInt(0, arr.length - 1)];
 }
 
 export function generateDecimalQuestion() {
@@ -79,45 +95,83 @@ export function generateDecimalQuestion() {
         typeEl.classList.add('hidden');
         document.getElementById('decimal-place-controls').classList.remove('hidden');
 
-        const maxVal = state.difficulty === 'hard' ? 2 : 1;
-        const step = state.difficulty === 'easy' ? 0.1 : 0.05;
-        const stepsCount = Math.round(maxVal / step);
-        const target = Math.round(randInt(1, stepsCount - 1) * step * 100) / 100;
+        const [minVal, maxVal, step] = pickRange(RANGE_TABLE);
+        const stepsCount = Math.round((maxVal - minVal) / step);
+        const target = Math.round((minVal + randInt(1, stepsCount - 1) * step) * 100) / 100;
 
-        state.currentDecimal = { mode: 'place', target, maxVal, step };
-        state.decimalSliderVal = 0;
+        state.currentDecimal = { mode: 'place', target, minVal, maxVal, step };
+        state.decimalSliderVal = minVal;
 
         document.getElementById('decimal-mode-badge').textContent = '🎯 Placera på tallinjen';
         document.getElementById('decimal-question-text').textContent = `Dra eller klicka på tallinjen för att markera ${formatNumSv(target)} !`;
-        document.getElementById('decimal-slider-readout').textContent = '0,0';
-        document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(maxVal, step, 0, true, true);
-        attachDecimalLineEvents(maxVal, step);
+        document.getElementById('decimal-slider-readout').textContent = formatNumSv(minVal);
+        document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(minVal, maxVal, step, minVal, true, true);
+        attachDecimalLineEvents(minVal, maxVal, step);
 
         setHintSteps('decimal', [
-            `<p>Mellan <strong>0</strong> och <strong>1</strong> är tallinjen uppdelad i <strong>10 tiondelar</strong> (varje litet streck här är <strong>${formatNumSv(step)}</strong>, och mittenstrecket mellan heltal är <strong>0,5</strong> / <strong>1,5</strong>).</p>`,
+            `<p>Tallinjen går från <strong>${formatNumSv(minVal)}</strong> till <strong>${formatNumSv(maxVal)}</strong> och är uppdelad i <strong>${stepsCount} lika stora steg</strong> à <strong>${formatNumSv(step)}</strong>.</p>`,
             `<p>Gå fram till <strong>${formatNumSv(target)}</strong> på tallinjen:</p>
-             ${renderDecimalNumberLineSVG(maxVal, step, target, false, true, target)}`
+             ${renderDecimalNumberLineSVG(minVal, maxVal, step, target, false, true, target)}`
         ]);
+        return;
+    }
+
+    if (mode === 'neg') {
+        const [minVal, maxVal, step] = pickRange(NEG_TABLE);
+        const stepsCount = Math.round((maxVal - minVal) / step);
+        const target = Math.round((minVal + randInt(1, stepsCount - 1) * step) * 100) / 100;
+        state.currentDecimal = { mode: 'neg', target, minVal, maxVal, step };
+
+        document.getElementById('decimal-mode-badge').textContent = '🌡️ Negativa tal';
+        document.getElementById('decimal-question-text').textContent = 'Vilket tal pekar den röda markören (?) på?';
+        document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(minVal, maxVal, step, target, false, false);
+
+        setHintSteps('decimal', [
+            `<p>Tallinjen går <strong>genom noll</strong> – talen till vänster om den <strong>tealfärgade nollan</strong> är <strong>negativa</strong> (minus). Varje streck är <strong>${formatNumSv(step)}</strong>.</p>`,
+            `<p>Markören står på <strong>${formatNumSv(target)}</strong>:</p>
+             ${renderDecimalNumberLineSVG(minVal, maxVal, step, target, false, true, target)}`
+        ]);
+
+        if (state.inputModes.decimal === 'choice') {
+            optsEl.classList.remove('hidden');
+            typeEl.classList.add('hidden');
+            const set = new Set([target]);
+            if (-target !== target) set.add(-target);
+            while (set.size < 4) {
+                const cand = Math.round((minVal + randInt(0, stepsCount) * step) * 100) / 100;
+                set.add(cand);
+            }
+            optsEl.innerHTML = shuffleArray([...set]).map(v => `
+                <button onclick="checkDecimalChoice(${v})" class="btn-3d bg-white hover:bg-blue-50 border-3 border-blue-300 rounded-2xl py-4 font-display font-bold text-2xl text-slate-900">
+                    ${formatNumSv(v)}
+                </button>
+            `).join('');
+        } else {
+            optsEl.classList.add('hidden');
+            typeEl.classList.remove('hidden');
+            const inp = document.getElementById('decimal-type-input');
+            inp.value = '';
+            inp.focus();
+        }
         return;
     }
 
     if (toggleWrap) toggleWrap.classList.remove('hidden');
 
     if (mode === 'read') {
-        const maxVal = state.difficulty === 'hard' ? 2 : 1;
-        const step = state.difficulty === 'hard' ? 0.05 : 0.1;
-        const stepsCount = Math.round(maxVal / step);
-        const target = Math.round(randInt(1, stepsCount - 1) * step * 100) / 100;
-        state.currentDecimal = { mode: 'read', target, maxVal, step };
+        const [minVal, maxVal, step] = pickRange(RANGE_TABLE);
+        const stepsCount = Math.round((maxVal - minVal) / step);
+        const target = Math.round((minVal + randInt(1, stepsCount - 1) * step) * 100) / 100;
+        state.currentDecimal = { mode: 'read', target, minVal, maxVal, step };
 
         document.getElementById('decimal-mode-badge').textContent = '🔍 Läs av tallinjen';
-        document.getElementById('decimal-question-text').textContent = 'Vilket decimaltal pekar den röda markören (?) på?';
-        document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(maxVal, step, target, false, false);
+        document.getElementById('decimal-question-text').textContent = 'Vilket tal pekar den röda markören (?) på?';
+        document.getElementById('decimal-visual-container').innerHTML = renderDecimalNumberLineSVG(minVal, maxVal, step, target, false, false);
 
         setHintSteps('decimal', [
-            `<p>Varje litet streck på tallinjen är värt <strong>${formatNumSv(step)}</strong>. Räkna strecken från närmaste heltal eller halv!</p>`,
+            `<p>Varje litet streck på tallinjen är värt <strong>${formatNumSv(step)}</strong>. Räkna strecken från närmaste markerade tal!</p>`,
             `<p>Markören står på <strong>${formatNumSv(target)}</strong>:</p>
-             ${renderDecimalNumberLineSVG(maxVal, step, target, false, true, target)}`
+             ${renderDecimalNumberLineSVG(minVal, maxVal, step, target, false, true, target)}`
         ]);
 
         if (state.inputModes.decimal === 'choice') {
@@ -166,7 +220,7 @@ export function generateDecimalQuestion() {
         setHintSteps('decimal', [
             `<p>${formatFractionHTML(item.num, item.den)} betyder <strong>${item.text}</strong>, vilket är <strong>${item.pct} %</strong> av en hel (1,0).</p>`,
             `<p>På tallinjen mellan 0 och 1 ligger ${formatFractionHTML(item.num, item.den)} på <strong>${formatNumSv(item.dec)}</strong>:</p>
-             ${renderDecimalNumberLineSVG(1, 0.05, item.dec, false, true, item.dec)}`
+             ${renderDecimalNumberLineSVG(0, 1, 0.05, item.dec, false, true, item.dec)}`
         ]);
 
         if (state.inputModes.decimal === 'choice') {

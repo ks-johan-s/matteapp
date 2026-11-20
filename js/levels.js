@@ -156,6 +156,7 @@ export const LEVEL_MODULES = {
             { icon: '🔍', label: 'Läs av tallinjen', desc: 'Vilket tal pekar pilen på?', apply: () => { setDecimalSubMode('read'); return 'decimal'; } },
             { icon: '🎯', label: 'Placera på tallinjen', desc: 'Var hör talet hemma?', apply: () => { setDecimalSubMode('place'); return 'decimal'; } },
             { icon: '🔗', label: 'Bråk & %', desc: 'Koppla decimaltal till bråk', apply: () => { setDecimalSubMode('link'); return 'decimal'; } },
+            { icon: '🌡️', label: 'Negativa tal', desc: 'Tallinjen under noll', apply: () => { setDecimalSubMode('neg'); return 'decimal'; } },
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setDecimalSubMode('mix'); return 'decimal'; } },

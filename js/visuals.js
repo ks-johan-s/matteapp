@@ -86,26 +86,33 @@ export function renderPizzaSVG(den, selectedArr, interactive = false, clickPrefi
     `;
 }
 
-export function renderDecimalNumberLineSVG(maxVal, step, markerVal, interactive = false, showMarkerLabel = true, highlightJumpTo = null) {
+export function renderDecimalNumberLineSVG(minVal, maxVal, step, markerVal, interactive = false, showMarkerLabel = true, highlightJumpTo = null) {
     const xStart = 35, xEnd = 365, width = xEnd - xStart;
-    const totalSteps = Math.round(maxVal / step);
+    const span = maxVal - minVal;
+    const totalSteps = Math.round(span / step);
+    // Etiketter: heltal/halva för decimalintervall, annars "snygga" heltalssteg
+    const labelStep = step < 1
+        ? (span <= 2 ? 0.5 : 1)
+        : [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000].find(c => span / c <= 8) || 1000;
+    const isLabel = (v) => Math.abs(v / labelStep - Math.round(v / labelStep)) < 0.01;
     let ticksHtml = '';
 
     for (let i = 0; i <= totalSteps; i++) {
-        const val = Math.round(i * step * 100) / 100;
+        const val = Math.round((minVal + i * step) * 100) / 100;
         const x = xStart + (i / totalSteps) * width;
-        const isWhole = Math.abs(val - Math.round(val)) < 0.001;
-        const isHalf = Math.abs((val * 2) - Math.round(val * 2)) < 0.001 && !isWhole;
-        const tickH = isWhole ? 18 : (isHalf ? 13 : 8);
-        ticksHtml += `<line x1="${x.toFixed(1)}" y1="${65 - tickH}" x2="${x.toFixed(1)}" y2="${65 + tickH}" stroke="${isWhole ? '#1e3a8a' : '#64748b'}" stroke-width="${isWhole ? 3 : 1.8}" />`;
-        if (isWhole || (maxVal === 1 && isHalf)) {
+        const major = isLabel(val);
+        const isZero = Math.abs(val) < step / 2 && minVal < 0;
+        const tickH = major ? 18 : 8;
+        const col = isZero ? '#0f766e' : (major ? '#1e3a8a' : '#64748b');
+        ticksHtml += `<line x1="${x.toFixed(1)}" y1="${65 - tickH}" x2="${x.toFixed(1)}" y2="${65 + tickH}" stroke="${col}" stroke-width="${major || isZero ? 3 : 1.8}" />`;
+        if (major) {
             ticksHtml += `<text x="${x.toFixed(1)}" y="102" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#1e293b">${formatNumSv(val)}</text>`;
         }
     }
 
     let jumpArcHtml = '';
     if (highlightJumpTo !== null) {
-        const targetX = xStart + (highlightJumpTo / maxVal) * width;
+        const targetX = xStart + ((highlightJumpTo - minVal) / span) * width;
         jumpArcHtml = `
             <defs>
                 <marker id="dec-arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
@@ -116,7 +123,7 @@ export function renderDecimalNumberLineSVG(maxVal, step, markerVal, interactive 
         `;
     }
 
-    const mx = xStart + Math.max(0, Math.min(1, markerVal / maxVal)) * width;
+    const mx = xStart + Math.max(0, Math.min(1, (markerVal - minVal) / span)) * width;
     const markerHtml = `
         <g transform="translate(${mx.toFixed(1)}, 65)" class="${interactive ? 'cursor-grab active:cursor-grabbing' : ''}">
             <circle cx="0" cy="0" r="11" fill="#f59e0b" stroke="#78350f" stroke-width="3" />
