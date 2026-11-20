@@ -110,7 +110,9 @@ export function generateShopQuestion() {
     if (mode === 'mix') mode = Math.random() < 0.5 ? 'pay' : 'change';
 
     const isHard = state.difficulty === 'hard';
-    const itemCount = state.difficulty === 'easy' ? 1 : (isHard ? 3 : 2);
+    const itemCount = state.difficulty === 'easy'
+        ? (Math.random() < 0.6 ? 1 : 2)
+        : (isHard ? 3 : 2);
     const picked = [];
     const pool = state.difficulty === 'easy'
         ? SHOP_CATALOG.slice(0, 5)
