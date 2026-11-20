@@ -295,9 +295,11 @@ export function buildBlankAlgoSheet() {
         const isLineRow = r === 2;
         for (let c = 0; c < cols; c++) {
             const cellId = `blank-cell-${r}-${c}`;
+            // Strecket dras inte hela vägen ut – en ruta in och till näst sista.
+            const lineCell = isLineRow && c >= 1 && c <= cols - 2;
             html += `
-                <div class="math-grid-cell ${isLineRow ? 'math-grid-row-line' : ''}" style="width:48px;height:48px;">
-                    <input id="${cellId}" maxlength="2"
+                <div class="math-grid-cell ${lineCell ? 'math-grid-row-line' : ''}" style="width:48px;height:48px;">
+                    <input id="${cellId}" maxlength="${r === 0 ? 2 : 1}"
                         onfocus="state.lastFocusedCellId='${cellId}'"
                         onclick="if(state.blankStrikeMode){this.classList.toggle('digit-struck');}"
                         onkeydown="handleSheetKeyDown(event, '${cellId}')"
