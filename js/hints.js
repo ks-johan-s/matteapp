@@ -61,6 +61,9 @@ export function nextHintStep(mod) {
     if (state.hintSteps[mod] < steps.length) {
         state.hintSteps[mod] += 1;
         renderHintBox(mod);
+        const cards = document.getElementById(`${mod}-hint-content`)?.querySelectorAll('.hint-step-card');
+        const last = cards && cards[cards.length - 1];
+        if (last) setTimeout(() => last.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
     }
 }
 
