@@ -45,6 +45,11 @@ if (typeof document !== 'undefined') {
         const btn = e.target.closest('button');
         lastOptionBtn = (btn && btn.closest('[id$="-options"]')) ? btn : null;
     }, true);
+    // Felmarkering i svarsrutor (cell-wrong/cell-right) suddas när eleven skriver om.
+    document.addEventListener('input', (e) => {
+        if (e.target.id && e.target.id.startsWith('algo-ans-'))
+            e.target.classList.remove('cell-wrong', 'cell-right');
+    });
 }
 
 export function showFeedback(elId, isSuccess, htmlMsg) {

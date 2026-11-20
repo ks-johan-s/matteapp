@@ -119,6 +119,23 @@ input.digit-struck {
     background-size: 66% 66% !important;
 }
 
+/* Felmarkering i svarsrutor – visar exakt vilken talsort som brast */
+.cell-wrong {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+    color: #b91c1c !important;
+    animation: cellShake .4s ease;
+}
+.cell-right {
+    border-color: #10b981 !important;
+    background-color: #ecfdf5 !important;
+}
+@keyframes cellShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
 /* Staplade bråk & blandad form */
 .stacked-frac {
     display: inline-flex;

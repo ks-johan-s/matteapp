@@ -390,8 +390,25 @@ export function checkAlgoAnswer() {
             document.getElementById('algo-next-wrap').classList.remove('hidden');
         } else {
             resetStreak();
+            // Markera varje svarsruta: grön om siffran stämmer, röd + skak om fel.
+            const wrongPos = [];
+            for (let i = 0; i < ansStr.length; i++) {
+                const inp = document.getElementById(`algo-ans-${i}`);
+                if (!inp) continue;
+                const ok = inp.value.trim() === ansStr[i];
+                inp.classList.remove('cell-wrong', 'cell-right');
+                void inp.offsetWidth;
+                inp.classList.add(ok ? 'cell-right' : 'cell-wrong');
+                if (!ok) wrongPos.push(ansStr.length - 1 - i);
+            }
+            const placeNames = ['entalen', 'tiotalen', 'hundratalen', 'tusentalen'];
+            const placeMsg = wrongPos.length === 1
+                ? ` Felet sitter i <strong>${placeNames[wrongPos[0]]}</strong> – den röda rutan!`
+                : ' De röda rutorna visar exakt var det blev fel!';
             const ahaTip = diagnoseAlgoMistake(userVal, a, b, op, answer);
-            showFeedback('algo-feedback', false, ahaTip || `🤔 Det blev ${userStr}, men rätt svar är ${answer}. Kika på talsorterna och försök igen!`);
+            showFeedback('algo-feedback', false, ahaTip
+                ? ahaTip + placeMsg
+                : `🤔 Det blev ${userStr}, men rätt svar är ${answer}.${placeMsg} Kika på talsorterna och försök igen!`);
         }
     } else {
         let foundRowVal = null;
