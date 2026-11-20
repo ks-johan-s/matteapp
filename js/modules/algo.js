@@ -389,10 +389,6 @@ export function renderAlgoDemo() {
                     : `<button onclick="algoDemoNav(1)" class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-sm px-4 py-2 rounded-xl">Nästa ▶</button>`}
             </div>
         </div>`;
-    const wrap = document.getElementById('algo-demo-area');
-    wrap.classList.remove('card-in');
-    void wrap.offsetWidth;
-    wrap.classList.add('card-in');
 }
 
 function stopAlgoDemoTimer() {
