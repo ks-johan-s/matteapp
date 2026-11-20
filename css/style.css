@@ -646,3 +646,9 @@ div.demo-struck::after {
     0%, 100% { filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7)); }
     50% { filter: drop-shadow(0 0 9px rgba(245, 158, 11, 1)); }
 }
+
+/* Fasta zoner i Visa mig-modalen – höjden låses per demo så att
+   modalen håller samma mått genom hela genomgången */
+#demo-text { min-height: 132px; display: flex; align-items: center; justify-content: center; }
+#demo-visual { min-height: 330px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#demo-guess { min-height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; }

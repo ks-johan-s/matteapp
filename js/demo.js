@@ -143,15 +143,16 @@ function renderDemoStep() {
 
     document.getElementById('demo-visual').innerHTML = step.html || '';
 
-    document.getElementById('demo-guess').innerHTML = step.guess
-        ? `<div class="flex flex-wrap items-center justify-center gap-2 mt-3">
+    // Gissningszonen är alltid lika hög. När steget är löst ersätts
+    // chip-raden av belöningstexten i samma zon – modalen växer inte.
+    document.getElementById('demo-guess').innerHTML = demo.solved && step.doneText
+        ? `<div class="demo-pop text-emerald-700 font-extrabold text-lg">${step.doneText}</div>`
+        : (step.guess ? `<div class="flex flex-wrap items-center justify-center gap-2">
             ${step.guess.options.map(o => `<button onclick="demoGuess(this, ${o.ok ? 'true' : 'false'})"
-                class="demo-guess-chip btn-3d border-2 font-display font-bold text-lg px-5 py-2 rounded-xl ${demo.solved && o.ok
-                    ? 'bg-emerald-500 border-emerald-600 text-white'
-                    : 'bg-white border-violet-300 text-violet-900'}">${o.label}</button>`).join('')}
-        </div>` : '';
-    document.getElementById('demo-done').innerHTML =
-        demo.solved && step.doneText ? `<div class="demo-pop text-emerald-700 font-extrabold mt-3">${step.doneText}</div>` : '';
+                class="demo-guess-chip btn-3d border-2 font-display font-bold text-lg px-5 py-2 rounded-xl
+                    bg-white border-violet-300 text-violet-900">${o.label}</button>`).join('')}
+        </div>` : '');
+    document.getElementById('demo-done').innerHTML = '';
 
     document.getElementById('demo-btn-prev').disabled = idx === 0;
     const playBtn = document.getElementById('demo-btn-play');
