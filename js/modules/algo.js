@@ -28,8 +28,11 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     }
     for (let c = 0; c < cols; c++) {
         const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>`;
-        h += cell(content, `math-grid-row-line ${c > 0 ? `pv-col-${place(c)}` : ''}`);
+        h += cell(content, `${c > 0 ? `pv-col-${place(c)}` : ''}`);
     }
+    h += `<div style="grid-column: 1 / -1; height: 3px; margin: -4px 1px 0;">
+        <div style="height: 3px; background: #0f172a; border-radius: 2px;"></div>
+    </div>`;
     for (let c = 0; c < cols; c++) {
         const d = c === 0 ? '' : ansStr[c - 1];
         const shown = d.trim() !== '' && digits - c < showAns;
@@ -292,8 +295,13 @@ export function renderGuidedAlgoGrid() {
     for (let c = 0; c < cols; c++) {
         const place = c === 0 ? 0 : Math.pow(10, cols - 1 - c);
         const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : `<span class="pv-num pv-${place}">${bStr[c - 1]}</span>`;
-        html += `<div class="math-grid-cell math-grid-row-line text-slate-900 ${c > 0 ? `pv-col-${place}` : ''}">${content}</div>`;
+        html += `<div class="math-grid-cell text-slate-900 ${c > 0 ? `pv-col-${place}` : ''}">${content}</div>`;
     }
+    // Sammanhängande räknestreck under hela operandraden (inte uppdelat
+    // av cellkanterna).
+    html += `<div style="grid-column: 1 / -1; height: 4px; margin: -6px 2px 0;">
+        <div style="height: 4px; background: #0f172a; border-radius: 2px;"></div>
+    </div>`;
     for (let c = 0; c < cols; c++) {
         if (c === 0) {
             html += `<div class="math-grid-cell"></div>`;
@@ -320,13 +328,10 @@ export function buildBlankAlgoSheet() {
     const rows = 5, cols = 8;
     let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 48px);">`;
     for (let r = 0; r < rows; r++) {
-        const isLineRow = r === 2;
         for (let c = 0; c < cols; c++) {
             const cellId = `blank-cell-${r}-${c}`;
-            // Strecket dras inte hela vägen ut – en ruta in och till näst sista.
-            const lineCell = isLineRow && c >= 1 && c <= cols - 2;
             html += `
-                <div class="math-grid-cell ${lineCell ? 'math-grid-row-line' : ''}" style="width:48px;height:48px;">
+                <div class="math-grid-cell" style="width:48px;height:48px;">
                     <input id="${cellId}" maxlength="${r === 0 ? 2 : 1}"
                         onfocus="state.lastFocusedCellId='${cellId}'"
                         onclick="if(state.blankStrikeMode){this.classList.toggle('digit-struck');}"
@@ -335,6 +340,14 @@ export function buildBlankAlgoSheet() {
                         class="math-grid-input ${r === 0 ? 'math-grid-carry-input' : ''}">
                 </div>
             `;
+        }
+        // Ett sammanhängande räknestreck under rad 2 – från ruta 1 till
+        // näst sista, inte utbrutet av cellkanterna.
+        if (r === 2) {
+            const pct = 100 / cols;
+            html += `<div style="grid-column: 1 / -1; height: 4px; margin: -6px 0 0; padding: 0 ${pct}%;">
+                <div style="height: 4px; background: #0f172a; border-radius: 2px;"></div>
+            </div>`;
         }
     }
     html += `</div>`;
