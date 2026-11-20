@@ -170,6 +170,13 @@ body {
 }
 .frog-hop { animation: frogHop 0.45s ease; }
 
+.avg-dragging {
+    box-shadow: 0 12px 28px rgba(0,0,0,.28);
+    z-index: 50;
+    position: relative;
+}
+.avg-sort-card { transition: box-shadow 0.15s ease; }
+
 .math-grid-input::placeholder {
     color: #94a3b8;
     opacity: 0.55;
