@@ -219,47 +219,49 @@ export function renderGuidedAlgoGrid() {
     const ansStr = String(answer);
 
     if (op === 'div') {
-        // Svensk kort division ("trappan"): minnessiffror överst, täljaren
-        // siffra för siffra med ETT sammanhängande streck under, och
-        // nämnaren liten under första täljarsiffran – som i skolboken.
+        // Svensk kort division ("trappan"): minnessiffror överst, täljarens
+        // siffror med streck under – och nämnare, = och svar på streckets
+        // höjd (de "korsar" raderna, vertikalt centrerade) som i skolboken.
         const aStr = String(a);
         const divLen = aStr.length;
-        const cols = divLen + 1 + ansStr.length;
+        const cols = divLen + 2 + ansStr.length; // nämnare | täljare | = | svar
+        const spanStyle = (col) => `grid-row: 2 / span 3; grid-column: ${col}; height: auto;`;
         let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 54px);">`;
         // Minnessifferrad: carry-rutor över täljarsiffrorna (utom första).
         for (let c = 0; c < cols; c++) {
-            if (c >= 1 && c < divLen) {
+            if (c >= 2 && c <= divLen) {
                 html += `<div class="math-grid-cell"><input maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
             } else {
                 html += `<div class="math-grid-cell"></div>`;
             }
         }
-        // Mittenraden: täljarsiffror | = | svarsrutor
-        for (let c = 0; c < cols; c++) {
-            if (c < divLen) {
-                const place = Math.pow(10, divLen - 1 - c);
-                html += `<div class="math-grid-cell pv-col-${place}"><span class="pv-num pv-${place}">${aStr[c]}</span></div>`;
-            } else if (c === divLen) {
-                html += `<div class="math-grid-cell text-slate-900">=</div>`;
-            } else {
-                const idx = c - divLen - 1;
-                const place = Math.pow(10, ansStr.length - 1 - idx);
-                html += `<div class="math-grid-cell pv-col-${place}">
-                    <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
-                        oninput="if(this.value && document.getElementById('algo-ans-${idx + 1}')) document.getElementById('algo-ans-${idx + 1}').focus()"
-                        onkeydown="algoAnsKey(event, ${idx})"
-                        class="math-grid-input pv-num pv-${place}" placeholder="?">
-                </div>`;
-            }
+        // Nämnaren: vertikalt centrerad på streckets höjd, längst till vänster.
+        html += `<div class="math-grid-cell text-sky-700" style="${spanStyle(1)}">${b}</div>`;
+        // Täljarsiffrorna på rad 2.
+        for (let c = 0; c < divLen; c++) {
+            const place = Math.pow(10, divLen - 1 - c);
+            html += `<div class="math-grid-cell pv-col-${place}"><span class="pv-num pv-${place}">${aStr[c]}</span></div>`;
         }
-        // Ett sammanhängande streck under bara täljarsiffrorna.
-        const linePct = (divLen / cols) * 100;
-        html += `<div style="grid-column: 1 / -1; height: 4px; margin: -8px 2px 0;">
-            <div style="width: calc(${linePct}% - 6px); height: 4px; background: #0f172a; border-radius: 2px;"></div>
+        // = på streckets höjd, direkt till höger om täljaren.
+        html += `<div class="math-grid-cell text-slate-900" style="${spanStyle(divLen + 2)}">=</div>`;
+        // Svarsrutorna på streckets höjd.
+        for (let idx = 0; idx < ansStr.length; idx++) {
+            const place = Math.pow(10, ansStr.length - 1 - idx);
+            html += `<div class="math-grid-cell pv-col-${place}" style="${spanStyle(divLen + 3 + idx)}">
+                <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
+                    oninput="if(this.value && document.getElementById('algo-ans-${idx + 1}')) document.getElementById('algo-ans-${idx + 1}').focus()"
+                    onkeydown="algoAnsKey(event, ${idx})"
+                    class="math-grid-input pv-num pv-${place}" placeholder="?">
+            </div>`;
+        }
+        // Strecket under bara täljarsiffrorna.
+        html += `<div style="grid-row: 3; grid-column: 2 / ${divLen + 2}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
+            <div style="width: 100%; height: 4px; background: #0f172a; border-radius: 2px;"></div>
         </div>`;
-        // Nämnaren liten under första täljarsiffran.
-        for (let c = 0; c < cols; c++) {
-            html += `<div class="math-grid-cell ${c === 0 ? 'text-sky-700' : ''}" style="font-size: 1.15rem;">${c === 0 ? b : ''}</div>`;
+        // Tomma celler under täljaren håller radhöjden symmetrisk så att
+        // nämnare/=/svar hamnar exakt på streckets mitt.
+        for (let c = 0; c < divLen; c++) {
+            html += `<div class="math-grid-cell" style="grid-row: 4; grid-column: ${c + 2};"></div>`;
         }
         html += `</div>`;
         container.innerHTML = html;
