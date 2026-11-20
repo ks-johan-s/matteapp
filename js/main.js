@@ -36,7 +36,10 @@ Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_nav
 ============================================================== */
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        if (state.currentView && state.currentView !== 'home') navigateTo('home');
+        if (!state.currentView || state.currentView === 'home') return;
+        if (state.levelModule && LEVEL_MODULES[state.levelModule]
+            && state.currentView !== 'levelpicker' && state.currentView !== 'school') backToModulePicker();
+        else navigateTo('home');
         return;
     }
     if (e.key !== 'Enter') return;

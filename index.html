@@ -1732,12 +1732,12 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="navigateTo('geo')" class="btn-3d mt-2 w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Geometri (Area & Omkrets) ➔</button>
+                    <button onclick="openModule('geo')" class="btn-3d mt-2 w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Geometri (Area & Omkrets) ➔</button>
                     <div class="flex flex-wrap gap-1.5 mt-1.5">
-                        <button onclick="setGeoSubMode('rect');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Rektangel</button>
-                        <button onclick="setGeoSubMode('tri');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Triangel</button>
-                        <button onclick="setGeoSubMode('circle');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Cirkel</button>
-                        <button onclick="setGeoSubMode('build');navigateTo('geo')" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Bygg rutor</button>
+                        <button onclick="goModuleStep('geo','steps',0)" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Rektangel</button>
+                        <button onclick="goModuleStep('geo','steps',1)" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Triangel</button>
+                        <button onclick="goModuleStep('geo','steps',2)" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Cirkel</button>
+                        <button onclick="goModuleStep('geo','explore',0)" class="px-2 py-1 rounded-lg bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-900 text-[11px] font-extrabold">Bygg rutor</button>
                     </div>
                 </div>
             </div>
