@@ -179,7 +179,7 @@ export function generateAlgoQuestion() {
         qText = `Räkna ut ${a} ÷ ${b}!`;
 
         hints = [
-            `<p><strong>Steg 1 (Från vänster i division):</strong> Dela upp <strong>${a}</strong> talsort för talsort med <strong>${b}</strong>.</p>`,
+            `<p><strong>Steg 1 (Från vänster i division):</strong> Dela <strong>${a}</strong> talsort för talsort med <strong>${b}</strong>. Blir det rest skriver du den som liten <strong class="text-emerald-600">minnessiffra</strong> ovanför nästa siffra!</p>`,
             `<p><strong>Steg 2:</strong> Kontrollera med multiplikation: <strong>${b} × ${answer} = ${a}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`
         ];
     }
@@ -216,21 +216,43 @@ export function renderGuidedAlgoGrid() {
     const ansStr = String(answer);
 
     if (op === 'div') {
-        container.innerHTML = `
-            <div class="inline-flex items-center gap-3 bg-white border-3 border-sky-300 rounded-2xl px-6 py-4 font-display font-bold text-3xl">
-                <span>${a}</span>
-                <span class="text-sky-600">÷</span>
-                <span>${b}</span>
-                <span>=</span>
-                <div class="inline-flex gap-1.5">
-                    ${ansStr.split('').map((_, i) => `
-                        <input id="algo-ans-${i}" maxlength="1" inputmode="numeric"
-                            oninput="if(this.value && document.getElementById('algo-ans-${i + 1}')) document.getElementById('algo-ans-${i + 1}').focus()"
-                            class="w-12 h-14 text-center font-hand font-bold text-3xl border-2 border-sky-400 rounded-xl focus:outline-none focus:bg-sky-50">
-                    `).join('')}
-                </div>
-            </div>
-        `;
+        // Svensk kort division ("trappan"): nämnaren till vänster på samma rad
+        // som täljaren, minnessiffror ovanför, svar efter likamedtecknet.
+        const aStr = String(a);
+        const divLen = aStr.length;
+        const cols = 1 + divLen + 1 + ansStr.length;
+        let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 54px);">`;
+        // Minnessifferrad: tom över nämnaren, carry-rutor över täljarsiffrorna
+        // (utom första), tomt över = och svaret.
+        for (let c = 0; c < cols; c++) {
+            if (c >= 2 && c <= divLen) {
+                html += `<div class="math-grid-cell"><input maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
+            } else {
+                html += `<div class="math-grid-cell"></div>`;
+            }
+        }
+        // Mittenraden: nämnare | täljarsiffror | = | svarsrutor
+        for (let c = 0; c < cols; c++) {
+            if (c === 0) {
+                html += `<div class="math-grid-cell text-sky-600">${b}</div>`;
+            } else if (c <= divLen) {
+                const d = aStr[c - 1];
+                const place = Math.pow(10, divLen - c);
+                html += `<div class="math-grid-cell math-grid-row-line pv-col-${place}"><span class="pv-num pv-${place}">${d}</span></div>`;
+            } else if (c === divLen + 1) {
+                html += `<div class="math-grid-cell text-slate-900">=</div>`;
+            } else {
+                const idx = c - divLen - 2;
+                const place = Math.pow(10, ansStr.length - 1 - idx);
+                html += `<div class="math-grid-cell pv-col-${place}">
+                    <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
+                        oninput="if(this.value && document.getElementById('algo-ans-${idx + 1}')) document.getElementById('algo-ans-${idx + 1}').focus()"
+                        class="math-grid-input pv-num pv-${place}" placeholder="?">
+                </div>`;
+            }
+        }
+        html += `</div>`;
+        container.innerHTML = html;
         return;
     }
 
