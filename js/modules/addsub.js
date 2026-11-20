@@ -387,12 +387,20 @@ function updateJumpVisual(oldPos) {
     document.getElementById('jump-left').textContent = j.target - j.pos;
     const arcs = document.getElementById('jump-arcs');
     const x0 = pct(oldPos), x1 = pct(j.pos);
+    const arcH = Math.min(12 + Math.abs(x1 - x0) * 0.35, 34);
     const arc = document.createElement('div');
     arc.className = 'jump-arc';
     arc.style.left = Math.min(x0, x1) + '%';
     arc.style.width = Math.abs(x1 - x0) + '%';
-    arc.style.height = Math.min(12 + Math.abs(x1 - x0) * 0.35, 34) + 'px';
+    arc.style.height = arcH + 'px';
     arcs.appendChild(arc);
+    const d = j.pos - oldPos;
+    const label = document.createElement('div');
+    label.className = 'jump-arc-label';
+    label.textContent = (d > 0 ? '+' : '−') + Math.abs(d);
+    label.style.left = ((x0 + x1) / 2) + '%';
+    label.style.bottom = (arcH - 4) + 'px';
+    arcs.appendChild(label);
 }
 
 export function addSubJump(d) {

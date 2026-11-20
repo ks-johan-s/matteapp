@@ -133,11 +133,30 @@ body {
 .jump-arc {
     position: absolute;
     bottom: 0;
-    border: 2.5px solid #059669;
+    border: 3px solid #059669;
     border-bottom: none;
     border-radius: 50% 50% 0 0 / 100% 100% 0 0;
     transform-origin: bottom center;
     animation: arcGrow 0.45s ease-out;
+}
+.jump-arc-label {
+    position: absolute;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 2px solid #059669;
+    color: #047857;
+    font-weight: 900;
+    font-size: 0.7rem;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 999px;
+    box-shadow: 0 1px 3px rgba(4, 120, 87, 0.2);
+    animation: labelPop 0.45s ease-out;
+    white-space: nowrap;
+}
+@keyframes labelPop {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.6); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1); }
 }
 @keyframes arcGrow {
     0% { transform: scaleY(0); opacity: 0; }
