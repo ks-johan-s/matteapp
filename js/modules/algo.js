@@ -21,13 +21,15 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     const cell = (content, cls = '') => `<div class="math-grid-cell ${cls}">${content}</div>`;
 
     let h = `<div class="math-grid-paper math-grid-mini mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, 34px);">`;
-    for (let c = 0; c < cols; c++) h += cell(carries[c] || '', 'math-grid-carry');
+    if (op !== 'mul') for (let c = 0; c < cols; c++) h += cell(carries[c] || '', 'math-grid-carry');
     for (let c = 0; c < cols; c++) {
         const cls = [c > 0 ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '', c === highlight ? 'cell-hl' : ''].join(' ');
         h += cell(c > 0 ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : '', cls);
     }
     for (let c = 0; c < cols; c++) {
-        const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>`;
+        // Minnessiffran i multiplikation visas litet på multiplikatorns rad.
+        const carry = op === 'mul' && carries[c] ? `<span class="math-grid-carry">${carries[c]}</span>` : null;
+        const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : (carry || `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>`);
         h += cell(content, `${c > 0 ? `pv-col-${place(c)}` : ''}`);
     }
     h += `<div style="grid-column: 1 / -1; height: 3px; margin: -4px 1px 0;">
@@ -168,11 +170,14 @@ export function generateAlgoQuestion() {
         const eTop = a % 10;
         const rest = Math.floor(a / 10) * 10;
         const eProd = eTop * b;
+        const eCarry = Math.floor(eProd / 10);
+        const mulDigits = Math.max(String(a).length, String(b).length, String(answer).length);
+        const mulCarries = eCarry > 0 ? { [mulDigits - 1]: String(eCarry) } : {};
         hints = [
-            `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>.</p>` +
-            algoMiniGrid(a, b, op, answer, { highlight: Math.max(String(a).length, String(b).length, String(answer).length) }),
-            `<p><strong>Steg 2:</strong> Gångra resten: <strong>${b} × ${rest} = ${b * rest}</strong>. Lägg ihop <strong>${b * rest} + ${eProd} = ${answer}</strong>!</p>` +
-            algoMiniGrid(a, b, op, answer, { showAns: 99 })
+            `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>. Skriv <strong>${eProd % 10}</strong> längst ner${eCarry > 0 ? ` och minnessiffran <strong class="text-emerald-600">${eCarry}</strong> litet på multiplikatorns rad` : ''}.</p>` +
+            algoMiniGrid(a, b, op, answer, { highlight: mulDigits, carries: mulCarries, showAns: 1 }),
+            `<p><strong>Steg 2:</strong> Gångra resten${eCarry > 0 ? ' och lägg till minnessiffran' : ''}: <strong>${b} × ${rest} = ${b * rest}</strong>. Tillsammans blir det <strong>${answer}</strong>!</p>` +
+            algoMiniGrid(a, b, op, answer, { carries: mulCarries, showAns: 99 })
         ];
     } else {
         badge = '÷ Kort division';
@@ -275,13 +280,18 @@ export function renderGuidedAlgoGrid() {
     const opSym = op === 'sub' ? '−' : (op === 'add' ? '+' : '×');
 
     let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 54px);">`;
-    for (let c = 0; c < cols; c++) {
-        if (op === 'sub' && c >= 2 && state.algoLoans[c - 1]) {
-            html += `<div class="math-grid-cell font-hand text-emerald-600 text-xl font-bold items-end pb-1">10</div>`;
-        } else if ((op === 'add' || op === 'mul') && c > 0 && c < cols - 1) {
-            html += `<div class="math-grid-cell"><input maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
-        } else {
-            html += `<div class="math-grid-cell"></div>`;
+    // Översta raden: lånade 10:or (subtraktion) eller minnessiffror
+    // (addition). Multiplikation skriver minnessiffran på multiplikatorns
+    // rad istället, så där ritas ingen topprad.
+    if (op !== 'mul') {
+        for (let c = 0; c < cols; c++) {
+            if (op === 'sub' && c >= 2 && state.algoLoans[c - 1]) {
+                html += `<div class="math-grid-cell font-hand text-emerald-600 text-xl font-bold items-end pb-1">10</div>`;
+            } else if (op === 'add' && c > 0 && c < cols - 1) {
+                html += `<div class="math-grid-cell"><input maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
+            } else {
+                html += `<div class="math-grid-cell"></div>`;
+            }
         }
     }
     for (let c = 0; c < cols; c++) {
@@ -297,8 +307,16 @@ export function renderGuidedAlgoGrid() {
     }
     for (let c = 0; c < cols; c++) {
         const place = c === 0 ? 0 : Math.pow(10, cols - 1 - c);
-        const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : `<span class="pv-num pv-${place}">${bStr[c - 1]}</span>`;
-        html += `<div class="math-grid-cell text-slate-900 ${c > 0 ? `pv-col-${place}` : ''}">${content}</div>`;
+        if (op === 'mul' && c > 0 && c < cols - 1) {
+            // Minnessiffran i multiplikation skrivs litet på multiplikatorns
+            // rad, i kolumnen där den ska adderas (entalskolumnen har
+            // multiplikatorn själv).
+            const isCarryCol = c >= cols - String(a).length && c <= cols - 2;
+            html += `<div class="math-grid-cell">${isCarryCol ? '<input maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·">' : ''}</div>`;
+        } else {
+            const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : `<span class="pv-num pv-${place}">${bStr[c - 1]}</span>`;
+            html += `<div class="math-grid-cell text-slate-900 ${c > 0 ? `pv-col-${place}` : ''}">${content}</div>`;
+        }
     }
     // Sammanhängande räknestreck under hela operandraden (inte uppdelat
     // av cellkanterna).
