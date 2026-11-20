@@ -196,6 +196,13 @@ export function generateAlgoQuestion() {
     document.getElementById('algo-mode-badge').textContent = badge;
     document.getElementById('algo-question-text').textContent = qText;
     document.getElementById('algo-blank-problem-label').textContent = `${a} ${op === 'sub' ? '−' : (op === 'add' ? '+' : (op === 'mul' ? '×' : '÷'))} ${b}`;
+    const opTips = {
+        add: '➕ Minnessiffran skriver du litet i toppraden, över talsorten där den ska adderas.',
+        sub: '➖ Låna genom att stryka siffran (Space) och skriva 10 i toppraden.',
+        mul: '✖️ Minnessiffran skriver du litet på multiplikatorns rad – i kolumnen där den ska adderas.',
+        div: '➗ Trappan: täljarens siffror ovanför strecket, nämnaren till vänster, svaret efter = – på streckets höjd.'
+    };
+    document.getElementById('algo-blank-op-tip').textContent = opTips[op];
     setHintSteps('algo', hints);
 
     if (state.algoSheetMode === 'guided') renderGuidedAlgoGrid();
