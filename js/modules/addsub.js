@@ -7,15 +7,34 @@ import { buildNumberLineJumpSVG } from '../visuals.js';
 /* =============================================================
    4. MODUL 1: PLUS & MINUS (HUVUDRÄKNING)
 ============================================================== */
-export function setAddSubMode(mode) {
+// Vilket räknesätt modulen övar – sätts av hemkorten Addition/Subtraktion
+// eller av op-chip:en i vyn. 'pv' är op-neutralt.
+export function setAddSubOp(op) {
     playSound('click');
-    state.addSubMode = mode;
-    ['mix', 'plus', 'minus', 'tens', 'missing', 'jumps', 'pv'].forEach(m => {
+    state.addsubOp = op;
+    refreshAddSubChips();
+    generateAddSubQuestion();
+}
+
+function refreshAddSubChips() {
+    ['add', 'sub'].forEach(o => {
+        const btn = document.getElementById(`addsub-op-${o}`);
+        if (!btn) return;
+        btn.className = 'px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold ' +
+            (o === state.addsubOp ? 'bg-emerald-700 text-white' : 'bg-white border border-emerald-300 text-emerald-800');
+    });
+    ['mix', 'tens', 'missing', 'jumps', 'pv'].forEach(m => {
         const btn = document.getElementById(`addsub-sub-${m}`);
         if (!btn) return;
         btn.className = 'px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold ' +
-            (m === mode ? 'bg-emerald-500 text-white' : 'bg-white border border-emerald-200 text-slate-700');
+            (m === state.addSubMode ? 'bg-emerald-500 text-white' : 'bg-white border border-emerald-200 text-slate-700');
     });
+}
+
+export function setAddSubMode(mode) {
+    playSound('click');
+    state.addSubMode = mode;
+    refreshAddSubChips();
     generateAddSubQuestion();
 }
 
@@ -27,13 +46,14 @@ export function generateAddSubQuestion() {
     if (modeToggle) modeToggle.parentElement.classList.remove('hidden');
 
     let mode = state.addSubMode;
-    if (mode === 'mix') mode = ['plus', 'minus', 'tens', 'missing', 'jumps'][randInt(0, 4)];
+    if (mode === 'plus' || mode === 'minus') mode = 'basic';
+    if (mode === 'mix') mode = ['basic', 'missing', 'tens', 'jumps'][randInt(0, 3)];
 
     let a, b, isSub, answer, badge, missing = null;
 
     if (mode === 'jumps') {
         // CPA-läge: eleven gör tallinjehoppen själv med knapparna.
-        isSub = state.difficulty !== 'easy' && Math.random() < 0.4;
+        isSub = state.addsubOp === 'sub';
         if (state.difficulty === 'easy') {
             a = randInt(11, 60); b = randInt(5, 24);
         } else if (state.difficulty === 'medium') {
@@ -141,7 +161,9 @@ export function generateAddSubQuestion() {
         isSub = false;
         badge = '❓ Saknat tal';
         const c = state.difficulty === 'easy' ? randInt(12, 50) : (state.difficulty === 'medium' ? randInt(30, 120) : randInt(120, 900));
-        const variant = randInt(0, 2);
+        // Addition-modulen frågar "del + ? = hela", subtraktions-modulen
+        // "hela − ? = del" eller "? − del = del".
+        const variant = state.addsubOp === 'add' ? 0 : randInt(1, 2);
         if (variant === 2) {
             // ? − b = c  → hela är okänd, delarna b och c kända
             b = randInt(4, Math.min(state.difficulty === 'hard' ? 300 : 40, c - 5));
@@ -157,7 +179,7 @@ export function generateAddSubQuestion() {
                 : { shown: `${c} − ? = ${part}`, whole: c, part1: part, part2: answer, wholeKnown: true, fullEq: `${c} − ${answer} = ${part}` };
         }
     } else if (mode === 'tens') {
-        isSub = Math.random() < 0.5;
+        isSub = state.addsubOp === 'sub';
         badge = '🔟 Tiotalshopp';
         if (state.difficulty === 'easy') {
             a = randInt(12, 58);
@@ -172,7 +194,7 @@ export function generateAddSubQuestion() {
         if (isSub && a <= b) a += b + 24;
         answer = isSub ? a - b : a + b;
     } else {
-        isSub = mode === 'minus';
+        isSub = state.addsubOp === 'sub';
         badge = isSub ? '➖ Subtraktion' : '➕ Addition';
         if (state.difficulty === 'easy') {
             a = randInt(11, 45);

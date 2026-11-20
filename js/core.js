@@ -44,6 +44,7 @@ export const state = {
         avg: 1
     },
     addSubMode: 'mix',
+    addsubOp: 'add',
     currentAddSub: null,
     selectedTable: 'all',
     currentMult: null,

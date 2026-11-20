@@ -92,53 +92,66 @@
 
             <!-- MODULKORT (17 MODULER I PEDAGOGISK INLÄRNINGSORDNING) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- 1. Plus & Minus (Grundläggande taluppfattning & huvudräkning) -->
-                <button onclick="navigateTo('addsub')" class="btn-3d text-left bg-white hover:bg-emerald-50/70 rounded-3xl p-5 border-3 border-emerald-300 flex flex-col justify-between group">
+                <!-- 1. Addition (Lägga ihop & huvudräkning) -->
+                <button onclick="setAddSubOp('add');navigateTo('addsub')" class="btn-3d text-left bg-white hover:bg-emerald-50/70 rounded-3xl p-5 border-3 border-emerald-300 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">➕</span>
                             <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">1 • Huvudräkning</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">1. Plus & Minus</h2>
-                        <p class="text-slate-600 text-sm font-semibold mt-1">Tiotalshopp, tiokompisar och smarta tallinjeskutt.</p>
+                        <h2 class="font-display font-bold text-xl text-slate-900">1. Addition</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Tiokompisar, tiotalshopp, platsvärde och ställ upp!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-emerald-700">Starta övning ➔</span>
                 </button>
 
-                <!-- 2. Gångertabellen (Upprepad addition & grupper) -->
+                <!-- 2. Subtraktion (Ta bort & huvudräkning) -->
+                <button onclick="setAddSubOp('sub');navigateTo('addsub')" class="btn-3d text-left bg-white hover:bg-rose-50/70 rounded-3xl p-5 border-3 border-rose-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">➖</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">2 • Huvudräkning</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">2. Subtraktion</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Tiotalshopp baklänges, saknade tal, platsvärde och ställ upp!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-rose-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 3. Multiplikation (Upprepad addition & grupper) -->
                 <button onclick="navigateTo('mult')" class="btn-3d text-left bg-white hover:bg-orange-50/70 rounded-3xl p-5 border-3 border-orange-300 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">✖️</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-orange-100 text-orange-800">2 • Tabell 1–10</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-orange-100 text-orange-800">3 • Tabell 1–10</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">2. Gångertabellen</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">3. Multiplikation</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Välj tabell eller blandat med fruktgrupper och skutträkning.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-orange-700">Starta övning ➔</span>
                 </button>
 
-                <!-- 3. Division (Delning & innehåll – multiplikation baklänges) -->
+                <!-- 4. Division (Delning & innehåll – multiplikation baklänges) -->
                 <button onclick="navigateTo('div')" class="btn-3d text-left bg-white hover:bg-teal-50/70 rounded-3xl p-5 border-3 border-teal-300 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">➗</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">3 • Dela lika</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">4 • Dela lika</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">3. Division</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">4. Division</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Dela ut ett i taget, packa påsar och tänk multiplikation baklänges.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-teal-700">Starta övning ➔</span>
                 </button>
 
-                <!-- 4. Mönster & Talföljder (Hitta regeln – tidig algebra) -->
+                <!-- 5. Mönster & Talföljder (Hitta regeln – tidig algebra) -->
                 <button onclick="navigateTo('seq')" class="btn-3d text-left bg-white hover:bg-purple-50/70 rounded-3xl p-5 border-3 border-purple-300 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🔢</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">4 • Mönster</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">5 • Mönster</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">4. Mönster & Talföljder</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">5. Mönster & Talföljder</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Hitta regeln i talföljder, formmönster och växande figurer.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-purple-700">Starta övning ➔</span>
@@ -149,9 +162,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📝</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">5 • Rutpapper</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">6 • Rutpapper</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">5. Uppställning</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">6. Uppställning</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">− med lån (+10), + med minnessiffra, ×, ÷ och ställ upp själv!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-sky-700">Starta övning ➔</span>
@@ -162,9 +175,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">⚖️</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-800">6 • Likhetstecknet</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-800">7 • Likhetstecknet</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">6. Balansvågen</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">7. Balansvågen</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Gör båda sidor av likhetstecknet lika tunga!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-cyan-700">Starta övning ➔</span>
@@ -175,9 +188,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-pink-100 text-pink-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🍕</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-pink-100 text-pink-800">7 • Bråk & %</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-pink-100 text-pink-800">8 • Bråk & %</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">7. Bråk, Tvillingar & %</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">8. Bråk, Tvillingar & %</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Bråkform, blandad form, likvärdiga bråktvillingar och procent.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-pink-700">Starta övning ➔</span>
@@ -188,9 +201,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🍎</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">8 • Del av antal</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">9 • Del av antal</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">8. Bråk av antal</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">9. Bråk av antal</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Hur mycket är t.ex. 2/3 av 18 äpplen? Dela i högar!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-indigo-700">Starta övning ➔</span>
@@ -201,9 +214,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🔢</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">9 • Tallinjen</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">10 • Tallinjen</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">9. Decimaltal</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">10. Decimaltal</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Placera tal på tallinjen och se kopplingen till bråk och procent.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-blue-700">Starta övning ➔</span>
@@ -214,9 +227,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📏</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">10 • mm • cm • m • km</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">11 • mm • cm • m • km</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">10. Längd & Enheter</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">11. Längd & Enheter</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Omvandla mellan millimeter, centimeter, decimeter, meter och kilometer.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-teal-700">Starta övning ➔</span>
@@ -227,9 +240,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-lime-100 text-lime-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🧪</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-lime-100 text-lime-800">11 • g • kg & ml • l</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-lime-100 text-lime-800">12 • g • kg & ml • l</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">11. Vikt & Volym</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">12. Vikt & Volym</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Måttbägare och köksvåg – omvandla mellan liter, dl, cl, g och kg.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-lime-700">Starta övning ➔</span>
@@ -240,9 +253,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🕒</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-violet-100 text-violet-800">12 • Tid & Visare</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-violet-100 text-violet-800">13 • Tid & Visare</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">12. Klockan & Tid</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">13. Klockan & Tid</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Läs av klockan, räkna tidshopp och dra visarna i Övningsklockan!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-violet-700">Starta övning ➔</span>
@@ -253,9 +266,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">💰</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800">13 • Pengar & Växel</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800">14 • Pengar & Växel</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">13. Mattekiosken</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">14. Mattekiosken</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Handla varor, betala med sedlar och mynt eller räkna ut växel!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-yellow-700">Starta övning ➔</span>
@@ -266,9 +279,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📐</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-fuchsia-100 text-fuchsia-800">14 • Area & Omkrets</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-fuchsia-100 text-fuchsia-800">15 • Area & Omkrets</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">14. Geometri</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">15. Geometri</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Rektangel, kvadrat, triangel och cirkel – mät kanten och ytan!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-fuchsia-700">Starta övning ➔</span>
@@ -279,9 +292,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📊</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">15 • Stapeldiagram</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">16 • Stapeldiagram</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">15. Diagram</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">16. Diagram</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Läs av stapeldiagram, jämför skillnader och räkna ut totalen.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-purple-700">Starta övning ➔</span>
@@ -292,9 +305,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📈</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">16 • Statistik</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">17 • Statistik</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">16. Medelvärde & Median</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">17. Medelvärde & Median</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Jämna ut staplar för genomsnitt, sortera för median och hitta typvärde!</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-rose-700">Starta övning ➔</span>
@@ -305,9 +318,9 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📖</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">17 • Problemlösning</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">18 • Problemlösning</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">17. Textuppgifter</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">18. Textuppgifter</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Vardagsproblem i flera steg med eget rutpapper för uträkningen.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-amber-700">Starta övning ➔</span>
@@ -322,13 +335,15 @@
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-emerald-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex flex-wrap items-center gap-1.5">
-                    <button id="addsub-sub-mix" onclick="setAddSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-500 text-white">🎲 Mix</button>
-                    <button id="addsub-sub-plus" onclick="setAddSubMode('plus')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">➕ Bara Plus</button>
-                    <button id="addsub-sub-minus" onclick="setAddSubMode('minus')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">➖ Bara Minus</button>
+                    <button id="addsub-op-add" onclick="setAddSubOp('add')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-700 text-white">➕ Addition</button>
+                    <button id="addsub-op-sub" onclick="setAddSubOp('sub')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-300 text-emerald-800">➖ Subtraktion</button>
+                    <span class="w-px self-stretch bg-slate-200 mx-1"></span>
+                    <button id="addsub-sub-mix" onclick="setAddSubMode('mix')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-500 text-white">🎲 Övning</button>
                     <button id="addsub-sub-tens" onclick="setAddSubMode('tens')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔟 Tiotalshopp</button>
                     <button id="addsub-sub-missing" onclick="setAddSubMode('missing')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">❓ Saknat tal</button>
                     <button id="addsub-sub-jumps" onclick="setAddSubMode('jumps')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🐸 Hoppa själv</button>
                     <button id="addsub-sub-pv" onclick="setAddSubMode('pv')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-emerald-200 text-slate-700">🔢 Platsvärde</button>
+                    <button onclick="state.algoOp = state.addsubOp;navigateTo('algo')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-100 border border-sky-300 text-sky-800">📝 Ställ upp</button>
                 </div>
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button id="addsub-mode-choice" onclick="setInputMode('addsub', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-600 text-white">🔘 Flerval</button>
@@ -396,6 +411,7 @@
                         <option value="10">10:ans tabell</option>
                     </select>
                     <button id="mult-missing-btn" onclick="setMultMissing(!state.multMissing)" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-orange-200 text-slate-700">❓ Saknat faktor</button>
+                    <button onclick="setAlgoOp('mul');navigateTo('algo')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-100 border border-sky-300 text-sky-800">📝 Ställ upp</button>
                 </div>
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button id="mult-mode-choice" onclick="setInputMode('mult', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-orange-500 text-white">🔘 Flerval</button>
@@ -404,7 +420,7 @@
             </div>
 
             <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-orange-300 shadow-md text-center">
-                <span class="inline-block px-3.5 py-1 rounded-full bg-orange-100 text-orange-900 text-xs font-extrabold mb-2">✖️ Gångertabellen</span>
+                <span class="inline-block px-3.5 py-1 rounded-full bg-orange-100 text-orange-900 text-xs font-extrabold mb-2">✖️ Multiplikation</span>
                 <h2 id="mult-question-text" class="font-display font-bold text-3xl sm:text-5xl text-slate-900 my-2">3 × 4 = ?</h2>
 
                 <div id="mult-visual-groups" class="flex flex-wrap items-center justify-center gap-2.5 my-4 max-w-2xl mx-auto"></div>
@@ -454,6 +470,7 @@
                     <button id="div-sub-quick" onclick="setDivSubMode('quick')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">⚡ Snabb division</button>
                     <button id="div-sub-missing" onclick="setDivSubMode('missing')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">❓ Saknat tal</button>
                     <button id="div-sub-hands" onclick="setDivSubMode('hands')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-teal-200 text-slate-700">🤲 Dela själv</button>
+                    <button onclick="setAlgoOp('div');navigateTo('algo')" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-100 border border-sky-300 text-sky-800">📝 Ställ upp</button>
                 </div>
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button id="div-mode-choice" onclick="setInputMode('div', 'choice')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-teal-600 text-white">🔘 Flerval</button>
@@ -1430,11 +1447,11 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <!-- Kort 1: Plus & Minus -->
+                <!-- Kort 1: Addition & Subtraktion -->
                 <div class="bg-white rounded-3xl p-5 border-3 border-emerald-300 shadow-sm flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-extrabold">1. Huvudräkning</span>
+                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-extrabold">1. Addition & Subtraktion</span>
                             <span class="text-2xl">➕➖</span>
                         </div>
                         <h3 class="font-display font-bold text-xl text-emerald-950 mb-1.5">Hoppa i tiotal och ental</h3>
@@ -1449,8 +1466,10 @@
                             <span class="px-3 py-1 rounded-xl bg-amber-200 border border-amber-400 text-amber-950">61</span>
                         </div>
                     </div>
-                    <button onclick="navigateTo('addsub')" class="btn-3d mt-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Plus & Minus ➔</button>
+                    <button onclick="navigateTo('addsub')" class="btn-3d mt-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Addition & Subtraktion ➔</button>
                     <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button onclick="setAddSubOp('add');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">➕ Addition</button>
+                        <button onclick="setAddSubOp('sub');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">➖ Subtraktion</button>
                         <button onclick="setAddSubMode('missing');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Saknat tal</button>
                         <button onclick="setAddSubMode('jumps');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Hoppa själv</button>
                         <button onclick="setAddSubMode('pv');navigateTo('addsub')" class="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-extrabold">Platsvärde</button>
@@ -1474,7 +1493,7 @@
                             <span class="bg-white px-2.5 py-1 rounded-xl border border-orange-200">🍎🍎🍎🍎</span>
                         </div>
                     </div>
-                    <button onclick="navigateTo('mult')" class="btn-3d mt-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Gångertabellen ➔</button>
+                    <button onclick="navigateTo('mult')" class="btn-3d mt-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-display font-bold py-2.5 rounded-2xl text-sm">Träna på Multiplikation ➔</button>
                     <div class="flex flex-wrap gap-1.5 mt-1.5">
                         <button onclick="setMultMissing(true);navigateTo('mult')" class="px-2 py-1 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-900 text-[11px] font-extrabold">Saknat faktor</button>
                     </div>
