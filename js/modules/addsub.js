@@ -339,21 +339,23 @@ function renderAddSubJumps() {
     const j = cur.jumps;
     const lo = Math.min(cur.a, j.target) - 8;
     const hi = Math.max(cur.a, j.target) + 8;
+    j.lo = lo; j.hi = hi;
     const pct = (v) => ((v - lo) / (hi - lo)) * 100;
     document.getElementById('addsub-visual').innerHTML = `
         <div class="w-full max-w-lg mx-auto">
             <div class="font-display font-bold text-lg text-emerald-950 mb-1">
-                🐸 Du är på <span class="text-emerald-700">${j.pos}</span> • målet är ${j.target} • kvar: ${j.target - j.pos}
+                🐸 Du är på <span class="text-emerald-700" id="jump-pos">${j.pos}</span> • målet är ${j.target} • kvar: <span id="jump-left">${j.target - j.pos}</span>
             </div>
-            <div class="relative h-20 mt-2">
-                <div class="absolute left-0 right-0 top-9 h-1.5 bg-emerald-200 rounded-full"></div>
-                <div class="absolute -top-0.5 -translate-x-1/2 text-center" style="left:${pct(j.target)}%">
+            <div class="relative h-24 mt-2">
+                <div class="absolute left-0 right-0 top-14 h-1.5 bg-emerald-200 rounded-full"></div>
+                <div id="jump-arcs" class="absolute inset-x-0 top-0 pointer-events-none" style="height:56px"></div>
+                <div class="absolute top-5 -translate-x-1/2 text-center" style="left:${pct(j.target)}%">
                     <div class="text-xl">🚩</div>
                     <div class="text-[10px] font-extrabold text-emerald-800">${j.target}</div>
                 </div>
-                <div class="absolute top-6 -translate-x-1/2 text-center transition-all duration-300" style="left:${pct(j.pos)}%">
-                    <div class="text-2xl">${j.pos === j.target ? '🎉' : '🐸'}</div>
-                    <div class="text-xs font-extrabold text-emerald-900 bg-white/90 rounded-lg px-1.5 border border-emerald-300">${j.pos}</div>
+                <div id="jump-frog" class="absolute top-11 -translate-x-1/2 text-center" style="left:${pct(j.pos)}%; transition: left 0.45s cubic-bezier(0.22,1.3,0.36,1);">
+                    <div id="jump-frog-body" class="text-2xl">${j.pos === j.target ? '🎉' : '🐸'}</div>
+                    <div id="jump-pos-label" class="text-xs font-extrabold text-emerald-900 bg-white/90 rounded-lg px-1.5 border border-emerald-300">${j.pos}</div>
                 </div>
             </div>
             <div class="flex flex-wrap justify-center gap-2 mt-2">
@@ -367,12 +369,39 @@ function renderAddSubJumps() {
         </div>`;
 }
 
+// Uppdaterar grodans position utan att bygga om DOM:en — då hinner
+// left-transitionen spela och grodan "glidhoppar" i stället för att teleportera.
+function updateJumpVisual(oldPos) {
+    const j = state.currentAddSub.jumps;
+    const pct = (v) => ((v - j.lo) / (j.hi - j.lo)) * 100;
+    const frog = document.getElementById('jump-frog');
+    if (!frog) return;
+    frog.style.left = pct(j.pos) + '%';
+    const body = document.getElementById('jump-frog-body');
+    body.textContent = j.pos === j.target ? '🎉' : '🐸';
+    body.classList.remove('frog-hop');
+    void body.offsetWidth;
+    body.classList.add('frog-hop');
+    document.getElementById('jump-pos-label').textContent = j.pos;
+    document.getElementById('jump-pos').textContent = j.pos;
+    document.getElementById('jump-left').textContent = j.target - j.pos;
+    const arcs = document.getElementById('jump-arcs');
+    const x0 = pct(oldPos), x1 = pct(j.pos);
+    const arc = document.createElement('div');
+    arc.className = 'jump-arc';
+    arc.style.left = Math.min(x0, x1) + '%';
+    arc.style.width = Math.abs(x1 - x0) + '%';
+    arc.style.height = Math.min(12 + Math.abs(x1 - x0) * 0.35, 34) + 'px';
+    arcs.appendChild(arc);
+}
+
 export function addSubJump(d) {
     const cur = state.currentAddSub;
     if (!cur || !cur.jumps || !document.getElementById('addsub-next-wrap').classList.contains('hidden')) return;
     playSound('click');
+    const oldPos = cur.jumps.pos;
     cur.jumps.pos += d;
-    renderAddSubJumps();
+    updateJumpVisual(oldPos);
     if (cur.jumps.pos === cur.jumps.target) {
         addReward(2);
         showFeedback('addsub-feedback', true, `🎉 Du hoppade dig hela vägen! ${cur.a} ${cur.isSub ? '−' : '+'} ${cur.b} = ${cur.answer}!`);
