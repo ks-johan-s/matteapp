@@ -367,3 +367,33 @@ export function checkGeoBuild() {
         : `🎉 Perfekt bygge! Din figur har arean ${cur.target} rutor – alla former med ${cur.target} rutor har samma area!`);
     document.getElementById('geo-next-wrap').classList.remove('hidden');
 }
+
+// "Visa mig": rutorna i rektangeln fylls i – först en och en, sedan
+// som rader, så area = rader × kolumner upptäcks.
+export function buildGeoDemoSteps() {
+    const w = 4, h = 3;
+    const grid = (mode) => {
+        // mode: 'empty' | 'count' | 'rows'
+        const cells = [];
+        for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
+            const i = r * w + c;
+            if (mode === 'empty')
+                cells.push(`<div class="w-10 h-10 rounded-lg border-2 border-dashed border-fuchsia-300 bg-white"></div>`);
+            else if (mode === 'count')
+                cells.push(`<div class="demo-slice w-10 h-10 rounded-lg bg-fuchsia-300 border-2 border-fuchsia-500 flex items-center justify-center font-display font-bold text-fuchsia-800 text-sm" style="animation-delay:${i * 110}ms">${i + 1}</div>`);
+            else
+                cells.push(`<div class="${r === h - 1 ? 'demo-slice' : ''} w-10 h-10 rounded-lg border-2 ${['bg-fuchsia-200 border-fuchsia-400', 'bg-purple-300 border-purple-500', 'bg-fuchsia-400 border-fuchsia-600'][r]} flex items-center justify-center font-display font-bold text-white text-sm">${c + 1}</div>`);
+        }
+        return `<div class="inline-grid gap-1.5 p-3 rounded-2xl bg-fuchsia-50 border-2 border-fuchsia-200" style="grid-template-columns:repeat(${w},minmax(0,1fr))">${cells.join('')}</div>`;
+    };
+    return { steps: [
+        { text: `<p>Här är en rektangel som är <strong>${w} rutor bred</strong> och <strong>${h} rutor hög</strong>. Hur stor är <strong>arean</strong>?</p>`,
+          html: grid('empty') },
+        { text: `<p><strong>Area = hur många rutor som ryms inuti.</strong> Vi kan räkna dem – en, två, tre …</p>`,
+          html: grid('count') },
+        { text: `<p>Men det går smartare! Varje <strong>rad har ${w} rutor</strong> och det finns <strong>${h} rader</strong> – precis som multiplikation!</p>`,
+          html: grid('rows') },
+        { text: `<p><strong>Area = bas × höjd = ${w} × ${h} = ${w * h} rutor</strong> 🎉 Om rutorna är 1 cm blir det <strong>${w * h} cm²</strong>!</p>`,
+          html: `${grid('rows')}<div class="demo-pop font-display font-bold text-3xl text-fuchsia-700 mt-3">${w} × ${h} = ${w * h} cm²</div>` },
+    ] };
+}

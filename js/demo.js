@@ -7,6 +7,8 @@ import { buildFracDemoSteps } from './modules/frac.js';
 import { buildClockDemoSteps } from './modules/clock.js';
 import { buildMultDemoSteps } from './modules/mult.js';
 import { buildDecimalDemoSteps } from './modules/decimal.js';
+import { buildDivDemoSteps } from './modules/div.js';
+import { buildGeoDemoSteps } from './modules/geo.js';
 
 // Stegbyggare per modul. onExit körs när eleven väljer "Öva själv nu!"
 // (algo genererar om frågan så demon inte råkar visa övningens svar).
@@ -16,6 +18,8 @@ const DEMO_BUILDERS = {
     clock: { build: buildClockDemoSteps },
     mult: { build: buildMultDemoSteps },
     decimal: { build: buildDecimalDemoSteps },
+    div: { build: buildDivDemoSteps },
+    geo: { build: buildGeoDemoSteps },
 };
 
 // Demo-state hålls utanför `state` – det är flyktigt och ska inte

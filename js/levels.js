@@ -67,7 +67,7 @@ export const LEVEL_MODULES = {
     div: {
         title: 'Division', icon: '➗',
         steps: [
-            { icon: '🧠', label: 'Huvudräkning', desc: 'Dela lika i huvudet', apply: () => { setDivSubMode('share'); return 'div'; } },
+            { icon: '🧠', label: 'Huvudräkning', desc: 'Dela lika i huvudet', demo: true, apply: () => { setDivSubMode('share'); return 'div'; } },
             { icon: '📝', label: 'Uppställning', desc: 'Kort division utan rester', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
             { icon: '🔥', label: 'Uppställning med rest', desc: 'Skriv minnessiffror i trappan', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
@@ -176,7 +176,7 @@ export const LEVEL_MODULES = {
     geo: {
         title: 'Geometri', icon: '📐',
         steps: [
-            { icon: '📐', label: 'Rektangel & Kvadrat', desc: 'Omkrets och area', apply: () => { setGeoSubMode('rect'); return 'geo'; } },
+            { icon: '📐', label: 'Rektangel & Kvadrat', desc: 'Omkrets och area', demo: true, apply: () => { setGeoSubMode('rect'); return 'geo'; } },
             { icon: '🔺', label: 'Triangel', desc: 'Halva rektangeln', apply: () => { setGeoSubMode('tri'); return 'geo'; } },
             { icon: '⭕', label: 'Cirkel', desc: 'Radie, diameter, omkrets', apply: () => { setGeoSubMode('circle'); return 'geo'; } },
         ],

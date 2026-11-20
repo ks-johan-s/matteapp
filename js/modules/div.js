@@ -271,3 +271,39 @@ export function checkDivHands() {
     showFeedback('div-feedback', true, `🎉 Perfekt fördelat! Varje hög fick ${cur.quotient} – ${cur.total} ÷ ${cur.divisor} = ${cur.quotient}! 💡 Kolla: ${cur.quotient} × ${cur.divisor} = ${cur.total}.`);
     document.getElementById('div-next-wrap').classList.remove('hidden');
 }
+
+// "Visa mig": föremål delas ut ett i taget varv efter varv – som när
+// man delar ut kort. Dela-lika-tänket blir konkret.
+export function buildDivDemoSteps() {
+    const total = 12, divisor = 3, quotient = 4, item = '🍓';
+    const basket = (left) => `
+        <div class="w-full px-4 py-2 rounded-2xl bg-teal-100 border-2 border-teal-300 mb-2 text-center">
+            <span class="text-base sm:text-lg">${left > 0 ? item.repeat(Math.min(left, 12)) : '🧺'}</span>
+            <span class="text-xs font-extrabold text-teal-800 ml-1">korgen: ${left} kvar</span>
+        </div>`;
+    const piles = (count, popLast) => `
+        <div class="flex flex-wrap justify-center gap-2">
+            ${Array.from({ length: divisor }, (_, p) => `
+                <div class="px-3 py-2 rounded-2xl border-2 ${count ? 'bg-teal-50 border-teal-300' : 'border-dashed bg-white border-teal-300'} min-w-[64px]">
+                    <div class="text-base sm:text-lg min-h-[28px]">${count
+                        ? Array.from({ length: count }, (_, i) => `<span class="${popLast && i === count - 1 ? 'demo-pop' : ''}">${item}</span>`).join('')
+                        : '<span class="text-teal-400 font-display font-bold">?</span>'}</div>
+                    <div class="text-[11px] font-extrabold text-teal-900">Barn ${p + 1}</div>
+                </div>`).join('')}
+        </div>`;
+    const steps = [
+        { text: `<p><strong>${total} jordgubbar</strong> ska delas <strong>lika</strong> mellan <strong>${divisor} barn</strong>. Hur många får var och en?</p>`,
+          html: basket(total) + piles(0, false) },
+        { text: `<p>Knepet: dela ut <strong>en i taget, varv efter varv</strong> – precis som när man delar ut kort! <strong>Varv 1:</strong> en till varje barn.</p>`,
+          html: basket(total - divisor) + piles(1, true) },
+        { text: `<p><strong>Varv 2:</strong> en till var och en – nu har alla <strong>två</strong>.</p>`,
+          html: basket(total - 2 * divisor) + piles(2, true) },
+        { text: `<p><strong>Varv 3:</strong> tre i varje hög – korgen börjar tömmas…</p>`,
+          html: basket(total - 3 * divisor) + piles(3, true) },
+        { text: `<p><strong>Varv 4:</strong> sista varvet – korgen är <strong>tom</strong>!</p>`,
+          html: basket(0) + piles(4, true) },
+        { text: `<p>Alla fick <strong>${quotient} jordgubbar</strong> var: ${total} ÷ ${divisor} = <strong>${quotient}</strong> 🎉<br>Division är att <strong>dela lika</strong>!</p>`,
+          html: piles(4, false) + `<div class="demo-pop font-display font-bold text-3xl text-teal-700 mt-3">${total} ÷ ${divisor} = ${quotient}</div>` },
+    ];
+    return { steps };
+}
