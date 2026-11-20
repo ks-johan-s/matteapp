@@ -484,3 +484,23 @@ export function checkFracTyped() {
         }
     }
 }
+
+// "Visa mig": pizzan delas upp och bitarna fylls i – täljare/nämnare
+// blir konkreta. Spelas i den delade demo-overlaysn (js/demo.js).
+export function buildFracDemoSteps() {
+    const den = 4, num = 3;
+    const sel = (n) => Array.from({ length: n }, (_, i) => i);
+    const pizza = (selArr, anim) => `<div class="flex justify-center">${renderPizzaSVG(den, selArr, false, '', 195, anim)}</div>`;
+    return { steps: [
+        { text: `<p>En hel pizza! 🍕 Ingen bit saknas – den är <strong>en hel</strong>.</p>`,
+          html: `<div class="demo-pop flex justify-center">${renderPizzaSVG(1, [0], false, '', 195)}</div>` },
+        { text: `<p>Vi <strong>delar</strong> pizzan i <strong>${den} lika stora bitar</strong>.</p>`,
+          html: pizza([], { popAll: true }) },
+        { text: `<p>Varje bit är <strong>en fjärdedel</strong> – det skriver vi ${formatFractionHTML(1, den)}.</p>`,
+          html: pizza([0], { popIdx: 0 }) },
+        { text: `<p>Nu tar vi <strong>${num} bitar</strong> – räkna med: en… två… tre!</p>`,
+          html: pizza(sel(num), { staggerFrom: 0 }) },
+        { text: `<p><strong>${num} av ${den} delar = ${formatFractionHTML(num, den)}</strong> 🎉<br><span class="text-rose-600 font-bold">Täljaren ${num}</span> räknar bitarna – <span class="text-amber-700 font-bold">nämnaren ${den}</span> säger hur många delar pizzan delades i!</p>`,
+          html: `<div class="flex items-center justify-center gap-6 flex-wrap">${renderPizzaSVG(den, sel(num), false, '', 170)}<span class="demo-pop font-display font-bold text-5xl text-rose-500">${formatFractionHTML(num, den)}</span></div>` },
+    ] };
+}

@@ -121,3 +121,39 @@ export function checkMultTyped() {
     if (isNaN(val)) return;
     checkMultChoice(val);
 }
+
+// "Visa mig": rader med prickar byggs upp en i taget – multiplikation
+// som upprepad addition blir synlig.
+export function buildMultDemoSteps() {
+    const t = 3, f = 4;
+    const grid = (rows, popLast) => `
+        <div class="inline-flex items-center gap-4 bg-orange-50 border-2 border-orange-200 rounded-3xl p-4">
+            <div class="flex flex-col items-center font-display font-bold text-orange-800">
+                <span class="text-2xl">${rows}</span>
+                <span class="text-[10px] font-extrabold uppercase">rader ↕</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                ${Array.from({ length: rows }, (_, r) => `
+                    <div class="${popLast && r === rows - 1 ? 'pile-pop' : ''} flex gap-2">
+                        ${Array.from({ length: f }, () => '<span class="w-4 h-4 rounded-full bg-orange-500"></span>').join('')}
+                    </div>`).join('')}
+            </div>
+            <div class="flex flex-col items-center font-display font-bold text-orange-800">
+                <span class="text-2xl">${f}</span>
+                <span class="text-[10px] font-extrabold uppercase">i varje →</span>
+            </div>
+        </div>`;
+    const steps = [
+        { text: `<p><strong>${t} × ${f}</strong> betyder <strong>${t} grupper med ${f} i varje</strong>. Multiplikation är ett genvägsknep – upprepad addition!</p>`,
+          html: `<div class="font-display font-bold text-4xl text-orange-600 demo-pop">${t} × ${f} = ?</div>` },
+        { text: `<p>Första raden: <strong>${f} prickar</strong>.</p>`,
+          html: `${grid(1, true)}<div class="demo-pop font-display font-bold text-2xl text-orange-700 mt-2">${f}</div>` },
+        { text: `<p>Andra raden till: <strong>${f} + ${f} = ${2 * f}</strong>.</p>`,
+          html: `${grid(2, true)}<div class="demo-pop font-display font-bold text-2xl text-orange-700 mt-2">${f} + ${f} = ${2 * f}</div>` },
+        { text: `<p>Och den tredje: <strong>${2 * f} + ${f} = ${t * f}</strong>.</p>`,
+          html: `${grid(3, true)}<div class="demo-pop font-display font-bold text-2xl text-orange-700 mt-2">${2 * f} + ${f} = ${t * f}</div>` },
+        { text: `<p><strong>${t} × ${f} = ${t * f}</strong> 🎉 Samma som ${f} + ${f} + ${f} – men mycket snabbare att räkna!</p>`,
+          html: `${grid(3, false)}<div class="demo-pop font-display font-bold text-4xl text-orange-600 mt-2">${t} × ${f} = ${t * f}</div>` },
+    ];
+    return { steps };
+}

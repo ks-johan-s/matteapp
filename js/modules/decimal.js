@@ -276,3 +276,20 @@ export function checkDecimalTyped() {
     if (isNaN(val)) return;
     checkDecimalChoice(val);
 }
+
+// "Visa mig": markören hoppar ut på tallinjen – tiondelarna räknas
+// streck för streck.
+export function buildDecimalDemoSteps() {
+    const val = 0.7;
+    const line = (opts) => `<div class="max-w-lg mx-auto">${renderDecimalNumberLineSVG(0, 1, 0.1, val, false, opts.label !== false, null, opts)}</div>`;
+    return { steps: [
+        { text: `<p>Den här tallinjen går från <strong>0</strong> till <strong>1</strong>.</p>`,
+          html: line({ hideMarker: true }) },
+        { text: `<p>Den är delad i <strong>10 lika stora delar</strong> – varje litet streck är <strong>en tiondel (0,1)</strong>!</p>`,
+          html: line({ hideMarker: true }) },
+        { text: `<p>Markören hoppar fram! Räkna strecken med mig: <strong>0,1 – 0,2 – 0,3 …</strong></p>`,
+          html: line({ label: false, markerCls: 'demo-marker-hop' }) },
+        { text: `<p>Markören stannade på det <strong>sjunde</strong> strecket: <strong>${formatNumSv(val)}</strong> – sju tiondelar! 🎉</p>`,
+          html: line({ markerCls: 'demo-marker-hop' }) },
+    ] };
+}

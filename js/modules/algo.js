@@ -324,36 +324,6 @@ export function generateAlgoQuestion() {
     document.getElementById('algo-blank-op-tip').textContent = opTips[op];
     setHintSteps('algo', hints);
 
-    // "Visa mig"-demo: visa det animerade genomarbetade exemplet istället
-    // för den interaktiva uppställningen.
-    const demoArea = document.getElementById('algo-demo-area');
-    if (state.algoDemo) {
-        document.getElementById('algo-guided-area').classList.add('hidden');
-        document.getElementById('algo-blank-area').classList.add('hidden');
-        document.getElementById('algo-check-btn').classList.add('hidden');
-        const sheetToggle = document.getElementById('algo-sheet-guided')?.parentElement;
-        if (sheetToggle) sheetToggle.classList.add('hidden');
-        demoArea.classList.remove('hidden');
-        document.getElementById('algo-mode-badge').textContent = '📺 Visa mig – så här gör man!';
-        const sym = op === 'sub' ? '−' : (op === 'add' ? '+' : (op === 'mul' ? '×' : '÷'));
-        document.getElementById('algo-question-text').innerHTML = `${a} ${sym} ${b} = <span class="text-emerald-600">?</span>`;
-        // Inramande introsteg: visar själva uppställningen innan räkningen börjar.
-        const intros = {
-            add: `Vi räknar <strong>${a} + ${b}</strong> med uppställning! <strong>Börja alltid längst till höger — med entalen.</strong>`,
-            sub: `Vi räknar <strong>${a} − ${b}</strong> med uppställning! <strong>Börja längst till höger — med entalen.</strong>`,
-            mul: `Vi räknar <strong>${a} × ${b}</strong> med uppställning! <strong>Gångra en siffra i taget, från höger till vänster.</strong>`,
-            div: `Vi delar <strong>${a}</strong> med <strong>${b}</strong> i trappan! <strong>I division börjar vi TILL VÄNSTER</strong> — tvärtom mot de andra räknesätten!`
-        };
-        const intro = { text: `<p>${intros[op]}</p>` };
-        if (op === 'div') intro.divGrid = { showAns: 0, carries: {}, hlDigit: -1 };
-        else intro.grid = { showAns: 0 };
-        steps.unshift(intro);
-        state.algoDemoStep = 0;
-        state.algoDemoPlaying = false;
-        renderAlgoDemo();
-        return;
-    }
-    demoArea.classList.add('hidden');
     document.getElementById('algo-check-btn').classList.remove('hidden');
     document.getElementById('algo-guided-area').classList.toggle('hidden', state.algoSheetMode !== 'guided');
     document.getElementById('algo-blank-area').classList.toggle('hidden', state.algoSheetMode !== 'blank');
@@ -364,90 +334,44 @@ export function generateAlgoQuestion() {
     else buildBlankAlgoSheet();
 }
 
-// "Visa mig": stegvis animerad genomgång av exakt samma steg som ledtrådarna.
-// Varje steg renderar om det stora rutnätet – nya siffror, minnessiffror och
-// överstrykningar får pop/draw-animationer via CSS-klasser.
-export function renderAlgoDemo() {
+// "Visa mig": bygger det animerade exemplet åt den delade demo-motorn
+// (js/demo.js). Samma stegdata som ledtrådarna – varje steg får sin
+// rutnätsbild förrenderad med pop/draw-animationer.
+export function buildAlgoDemoSteps() {
     const cur = state.currentAlgo;
-    const steps = cur.steps || [];
-    if (!steps.length) return;
-    const idx = Math.max(0, Math.min(steps.length - 1, state.algoDemoStep || 0));
-    state.algoDemoStep = idx;
-    const step = steps[idx];
-    const prevG = idx > 0 ? (steps[idx - 1].grid || steps[idx - 1].divGrid || {}) : {};
-    let g = step.grid || step.divGrid || {};
-    const freshStruck = (g.struck || []).filter(c => !(prevG.struck || []).includes(c));
-    const freshCarry = Object.keys(g.carries || {}).map(Number).filter(c => !(prevG.carries || {})[c]);
-    // Auto-highlight: om steget inte markerar någon kolumn själv lyser den
-    // kolumn vars svarssiffra precis avslöjades (t.ex. entalen i steg 1).
-    if (g.highlight === undefined && (g.showAns || 0) > 0 && cur.op !== 'div') {
-        const digits = Math.max(String(cur.a).length, String(cur.b).length, String(cur.answer).length);
-        const col = digits - g.showAns + 1;
-        if (col >= 1 && col <= digits) g = { ...g, highlight: col };
-    }
-    // I demon finns inget att "trycka" på – formulera om låna-stegen.
-    const text = step.text.replace(/Tryck på (\w+)talet/g, 'Stryk $1talet');
-    const gridHtml = cur.op === 'div'
-        ? algoMiniDivGrid(cur.a, cur.b, cur.answer, { ...g, freshCarry, popAnsIdx: (g.showAns || 0) - 1, big: true })
-        : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...g, freshStruck, freshCarry, popAns: true, big: true });
-    const last = idx === steps.length - 1;
-
-    document.getElementById('algo-demo-area').innerHTML = `
-        <div class="bg-violet-50/70 border-2 border-violet-200 rounded-3xl p-4 sm:p-6 text-center">
-            <div class="inline-block px-4 py-1 rounded-full bg-violet-500 text-white text-xs font-extrabold mb-2">
-                📺 VISA MIG · Steg ${idx + 1} av ${steps.length}
-            </div>
-            <div class="flex items-center justify-center gap-1.5 mb-3">
-                ${steps.map((_, i) => `<span class="inline-block w-2 h-2 rounded-full ${i === idx ? 'bg-violet-500 scale-125' : i < idx ? 'bg-violet-300' : 'bg-violet-200'}"></span>`).join('')}
-            </div>
-            <div class="demo-step-text text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-2">${text}</div>
-            <div class="demo-grid-wrap">${gridHtml}</div>
-            <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
-                <button onclick="algoDemoNav(-1)" ${idx === 0 ? 'disabled' : ''}
-                    class="btn-3d bg-white border-2 border-violet-300 text-violet-900 font-extrabold text-sm px-4 py-2 rounded-xl disabled:opacity-40">◀ Förra</button>
-                <button onclick="algoDemoPlay()"
-                    class="btn-3d ${state.algoDemoPlaying ? 'bg-amber-500 hover:bg-amber-600' : 'bg-violet-500 hover:bg-violet-600'} text-white font-extrabold text-sm px-4 py-2 rounded-xl">
-                    ${state.algoDemoPlaying ? '⏸ Pausa' : '▶ Spela upp'}</button>
-                ${last
-                    ? `<button onclick="endAlgoDemo()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-sm px-5 py-2 rounded-xl">✏️ Öva själv nu!</button>`
-                    : `<button onclick="algoDemoNav(1)" class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-sm px-4 py-2 rounded-xl">Nästa ▶</button>`}
-            </div>
-        </div>`;
-}
-
-function stopAlgoDemoTimer() {
-    state.algoDemoPlaying = false;
-    if (state.algoDemoTimer) { clearTimeout(state.algoDemoTimer); state.algoDemoTimer = null; }
-}
-
-export function algoDemoNav(d) {
-    stopAlgoDemoTimer();
-    const steps = state.currentAlgo?.steps || [];
-    state.algoDemoStep = Math.max(0, Math.min(steps.length - 1, (state.algoDemoStep || 0) + d));
-    playSound('click');
-    renderAlgoDemo();
-}
-
-export function algoDemoPlay() {
-    playSound('click');
-    if (state.algoDemoPlaying) { stopAlgoDemoTimer(); renderAlgoDemo(); return; }
-    state.algoDemoPlaying = true;
-    renderAlgoDemo();
-    const tick = () => {
-        const steps = state.currentAlgo?.steps || [];
-        if (!state.algoDemoPlaying || state.algoDemoStep >= steps.length - 1) { stopAlgoDemoTimer(); renderAlgoDemo(); return; }
-        state.algoDemoStep++;
-        renderAlgoDemo();
-        state.algoDemoTimer = setTimeout(tick, 3200);
+    if (!cur || !cur.steps || !cur.steps.length) return { steps: [] };
+    const { a, b, op } = cur;
+    const intros = {
+        add: `Vi räknar <strong>${a} + ${b}</strong> med uppställning! <strong>Börja alltid längst till höger — med entalen.</strong>`,
+        sub: `Vi räknar <strong>${a} − ${b}</strong> med uppställning! <strong>Börja längst till höger — med entalen.</strong>`,
+        mul: `Vi räknar <strong>${a} × ${b}</strong> med uppställning! <strong>Gångra en siffra i taget, från höger till vänster.</strong>`,
+        div: `Vi delar <strong>${a}</strong> med <strong>${b}</strong> i trappan! <strong>I division börjar vi TILL VÄNSTER</strong> — tvärtom mot de andra räknesätten!`
     };
-    state.algoDemoTimer = setTimeout(tick, 1400);
-}
+    const intro = { text: `<p>${intros[op]}</p>` };
+    if (op === 'div') intro.divGrid = { showAns: 0, carries: {}, hlDigit: -1 };
+    else intro.grid = { showAns: 0 };
+    const raw = [intro, ...cur.steps];
 
-export function endAlgoDemo() {
-    stopAlgoDemoTimer();
-    state.algoDemo = false;
-    playSound('click');
-    generateAlgoQuestion();
+    const steps = raw.map((s, idx) => {
+        const prevG = idx > 0 ? (raw[idx - 1].grid || raw[idx - 1].divGrid || {}) : {};
+        let g = s.grid || s.divGrid || {};
+        const freshStruck = (g.struck || []).filter(c => !(prevG.struck || []).includes(c));
+        const freshCarry = Object.keys(g.carries || {}).map(Number).filter(c => !(prevG.carries || {})[c]);
+        // Auto-highlight: om steget inte markerar någon kolumn själv lyser den
+        // kolumn vars svarssiffra precis avslöjades (t.ex. entalen i steg 1).
+        if (g.highlight === undefined && (g.showAns || 0) > 0 && cur.op !== 'div') {
+            const digits = Math.max(String(cur.a).length, String(cur.b).length, String(cur.answer).length);
+            const col = digits - g.showAns + 1;
+            if (col >= 1 && col <= digits) g = { ...g, highlight: col };
+        }
+        // I demon finns inget att "trycka" på – formulera om låna-stegen.
+        const text = s.text.replace(/Tryck på (\w+)talet/g, 'Stryk $1talet');
+        const html = cur.op === 'div'
+            ? algoMiniDivGrid(cur.a, cur.b, cur.answer, { ...g, freshCarry, popAnsIdx: (g.showAns || 0) - 1, big: true })
+            : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...g, freshStruck, freshCarry, popAns: true, big: true });
+        return { text, html };
+    });
+    return { steps };
 }
 
 export function toggleAlgoLoan(colIdx) {

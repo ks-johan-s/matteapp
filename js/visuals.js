@@ -56,13 +56,23 @@ export function renderScaleSVG(leftText, rightText, tiltDeg = -8) {
 /* =============================================================
    8. MODUL 5: BRÅK, BRÅKTVILLINGAR & PROCENT
 ============================================================== */
-export function renderPizzaSVG(den, selectedArr, interactive = false, clickPrefix = '', size = 150) {
+// anim: { popAll } poppar alla bitar i sekvens, { popIdx } poppar en bit,
+// { staggerFrom } poppar de fyllda bitarna fr.o.m. indexet en i taget.
+export function renderPizzaSVG(den, selectedArr, interactive = false, clickPrefix = '', size = 150, anim = null) {
     const cx = size / 2, cy = size / 2, r = size * 0.42;
     let slicesHtml = '';
+    const sliceAnim = (i) => {
+        if (!anim) return '';
+        if (anim.popAll) return `class="demo-slice" style="animation-delay:${i * 150}ms"`;
+        if (anim.staggerFrom !== undefined && i >= anim.staggerFrom && selectedArr.includes(i))
+            return `class="demo-slice" style="animation-delay:${(i - anim.staggerFrom) * 420}ms"`;
+        if (anim.popIdx !== undefined && i === anim.popIdx) return `class="demo-slice"`;
+        return '';
+    };
 
     if (den === 1) {
         const filled = selectedArr.includes(0);
-        slicesHtml = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${filled ? '#fb7185' : '#fef3c7'}" stroke="#b45309" stroke-width="3.5" ${interactive ? `onclick="${clickPrefix}(0)" class="cursor-pointer"` : ''} />`;
+        slicesHtml = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${filled ? '#fb7185' : '#fef3c7'}" stroke="#b45309" stroke-width="3.5" ${sliceAnim(0)} ${interactive ? `onclick="${clickPrefix}(0)" class="cursor-pointer"` : ''} />`;
     } else {
         for (let i = 0; i < den; i++) {
             const a1 = (i / den) * Math.PI * 2 - Math.PI / 2;
@@ -74,7 +84,9 @@ export function renderPizzaSVG(den, selectedArr, interactive = false, clickPrefi
             const largeArc = (1 / den) > 0.5 ? 1 : 0;
             const filled = selectedArr.includes(i);
             const d = `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
-            slicesHtml += `<path d="${d}" fill="${filled ? '#fb7185' : '#fef3c7'}" stroke="#b45309" stroke-width="2.5" ${interactive ? `onclick="${clickPrefix}(${i})" class="cursor-pointer hover:opacity-85"` : ''} />`;
+            const animAttr = sliceAnim(i);
+            const cls = animAttr || (interactive ? `class="cursor-pointer hover:opacity-85"` : '');
+            slicesHtml += `<path d="${d}" fill="${filled ? '#fb7185' : '#fef3c7'}" stroke="#b45309" stroke-width="2.5" ${cls} ${interactive ? `onclick="${clickPrefix}(${i})"` : ''} />`;
         }
     }
 
@@ -86,7 +98,9 @@ export function renderPizzaSVG(den, selectedArr, interactive = false, clickPrefi
     `;
 }
 
-export function renderDecimalNumberLineSVG(minVal, maxVal, step, markerVal, interactive = false, showMarkerLabel = true, highlightJumpTo = null) {
+// opts: { hideMarker } ritar linjen utan markör, { markerCls } lägger en
+// CSS-klass på markörens inre grupp (t.ex. hoppar in i demon).
+export function renderDecimalNumberLineSVG(minVal, maxVal, step, markerVal, interactive = false, showMarkerLabel = true, highlightJumpTo = null, opts = {}) {
     const xStart = 35, xEnd = 365, width = xEnd - xStart;
     const span = maxVal - minVal;
     const totalSteps = Math.round(span / step);
@@ -124,8 +138,9 @@ export function renderDecimalNumberLineSVG(minVal, maxVal, step, markerVal, inte
     }
 
     const mx = xStart + Math.max(0, Math.min(1, (markerVal - minVal) / span)) * width;
-    const markerHtml = `
+    const markerHtml = opts.hideMarker ? '' : `
         <g transform="translate(${mx.toFixed(1)}, 65)" class="${interactive ? 'cursor-grab active:cursor-grabbing' : ''}">
+            <g class="${opts.markerCls || ''}">
             <circle cx="0" cy="0" r="11" fill="#f59e0b" stroke="#78350f" stroke-width="3" />
             ${showMarkerLabel ? `
                 <rect x="-24" y="-42" width="48" height="22" rx="8" fill="#1d4ed8" />
@@ -134,6 +149,7 @@ export function renderDecimalNumberLineSVG(minVal, maxVal, step, markerVal, inte
                 <rect x="-18" y="-42" width="36" height="22" rx="8" fill="#f43f5e" />
                 <text x="0" y="-27" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="#ffffff">?</text>
             `}
+            </g>
         </g>
     `;
 

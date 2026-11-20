@@ -1,5 +1,6 @@
 // js/navigation.js — autogenererad av split.py från original.html
 import { playSound, state } from './core.js';
+import { closeDemo } from './demo.js';
 import { generateAddSubQuestion } from './modules/addsub.js';
 import { generateAlgoQuestion } from './modules/algo.js';
 import { generateAvgQuestion } from './modules/avg.js';
@@ -24,7 +25,7 @@ import { generateWordQuestion } from './modules/word.js';
 export function navigateTo(viewName) {
     playSound('click');
     state.currentView = viewName;
-    if (viewName !== 'algo') state.algoDemo = false;
+    closeDemo();
     if (viewName === 'home' || viewName === 'school' || viewName === 'levelpicker') state.levelStepKey = '';
     const views = ['home', 'levelpicker', 'addsub', 'mult', 'div', 'seq', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
     views.forEach(v => {

@@ -4,6 +4,7 @@
 // först (openModule), och inne i aktiviteten visar en brödsmula modul +
 // vald nivå med en "Byt nivå"-knapp tillbaka.
 import { state } from './core.js';
+import { closeDemo, startModuleDemo } from './demo.js';
 import { navigateTo } from './navigation.js';
 import { setAddSubMode, setAddSubOp } from './modules/addsub.js';
 import { setDivSubMode } from './modules/div.js';
@@ -55,7 +56,7 @@ export const LEVEL_MODULES = {
     mul: {
         title: 'Multiplikation', icon: '✖️',
         steps: [
-            { icon: '🧠', label: 'Huvudräkning', desc: 'Träna tabellerna', apply: () => { setMultMissing(false); return 'mult'; } },
+            { icon: '🧠', label: 'Huvudräkning', desc: 'Träna tabellerna', demo: true, apply: () => { setMultMissing(false); return 'mult'; } },
             { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
             { icon: '🔥', label: 'Uppställning med minnessiffra', desc: 'Öva att växla tiotal', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
@@ -91,7 +92,7 @@ export const LEVEL_MODULES = {
     frac: {
         title: 'Bråk & Procent', icon: '🍕',
         steps: [
-            { icon: '🍕', label: 'Bråkform', desc: 'Läs och skriv bråk', apply: () => { setFracSubMode('frac'); return 'frac'; } },
+            { icon: '🍕', label: 'Bråkform', desc: 'Läs och skriv bråk', demo: true, apply: () => { setFracSubMode('frac'); return 'frac'; } },
             { icon: '🍕🍕', label: 'Blandad form', desc: 'Hela och delar', apply: () => { setFracSubMode('mixed'); return 'frac'; } },
             { icon: '➕', label: 'Bråkräkning', desc: 'Räkna med bråk', apply: () => { setFracSubMode('arith'); return 'frac'; } },
         ],
@@ -121,7 +122,7 @@ export const LEVEL_MODULES = {
     clock: {
         title: 'Klockan', icon: '🕒',
         steps: [
-            { icon: '🕒', label: 'Klockslag', desc: 'Läs av klockan', apply: () => { setClockSubMode('read'); return 'clock'; } },
+            { icon: '🕒', label: 'Klockslag', desc: 'Läs av klockan', demo: true, apply: () => { setClockSubMode('read'); return 'clock'; } },
             { icon: '⏩', label: 'Tidshopp', desc: 'Hur lång tid har gått?', apply: () => { setClockSubMode('jump'); return 'clock'; } },
         ],
         explore: [
@@ -153,7 +154,7 @@ export const LEVEL_MODULES = {
     decimal: {
         title: 'Decimaltal', icon: '🎯',
         steps: [
-            { icon: '🔍', label: 'Läs av tallinjen', desc: 'Vilket tal pekar pilen på?', apply: () => { setDecimalSubMode('read'); return 'decimal'; } },
+            { icon: '🔍', label: 'Läs av tallinjen', desc: 'Vilket tal pekar pilen på?', demo: true, apply: () => { setDecimalSubMode('read'); return 'decimal'; } },
             { icon: '🎯', label: 'Placera på tallinjen', desc: 'Var hör talet hemma?', apply: () => { setDecimalSubMode('place'); return 'decimal'; } },
             { icon: '🔗', label: 'Bråk & %', desc: 'Koppla decimaltal till bråk', apply: () => { setDecimalSubMode('link'); return 'decimal'; } },
             { icon: '🌡️', label: 'Negativa tal', desc: 'Tallinjen under noll', apply: () => { setDecimalSubMode('neg'); return 'decimal'; } },
@@ -271,7 +272,7 @@ export function chooseModuleStep(group, idx) {
     const step = (group === 'steps' ? mod.steps : mod.explore)[idx];
     state.levelStepLabel = `${step.icon} ${step.label}`;
     state.levelStepKey = `${state.levelModule}:${group}:${idx}`;
-    state.algoDemo = false;
+    closeDemo();
     const view = step.apply();
     navigateTo(view);
     updateLevelBreadcrumb();
@@ -284,10 +285,10 @@ export function demoModuleStep(group, idx) {
     const step = (group === 'steps' ? mod.steps : mod.explore)[idx];
     state.levelStepLabel = `${step.icon} ${step.label}`;
     state.levelStepKey = `${state.levelModule}:${group}:${idx}`;
-    state.algoDemo = true;
     const view = step.apply();
     navigateTo(view);
     updateLevelBreadcrumb();
+    startModuleDemo(view);
 }
 
 export function goModuleStep(key, group, idx) {

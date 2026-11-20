@@ -28,14 +28,16 @@ import * as ns_seq from './modules/seq.js';
 import * as ns_scratchpad from './scratchpad.js';
 import * as ns_mult_table from './mult-table.js';
 import * as ns_levels from './levels.js';
+import * as ns_demo from './demo.js';
 
-Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels);
+Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels, ns_demo);
 
 /* =============================================================
    20. GLOBAL ENTER-TANGENT (SVARA / KONTROLLERA / NÄSTA)
 ============================================================== */
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        if (isDemoOpen()) { demoExit(); return; }
         if (!state.currentView || state.currentView === 'home') return;
         if (state.levelModule && LEVEL_MODULES[state.levelModule]
             && state.currentView !== 'levelpicker' && state.currentView !== 'school') backToModulePicker();
@@ -43,12 +45,13 @@ document.addEventListener('keydown', (e) => {
         return;
     }
     // Piltangenter bläddrar i 'Visa mig'-demon.
-    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && state.algoDemo && state.currentView === 'algo') {
+    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && isDemoOpen()) {
         e.preventDefault();
-        algoDemoNav(e.key === 'ArrowRight' ? 1 : -1);
+        demoNav(e.key === 'ArrowRight' ? 1 : -1);
         return;
     }
     if (e.key !== 'Enter') return;
+    if (isDemoOpen()) { e.preventDefault(); demoNav(1); return; }
     const v = state.currentView;
     if (!v || v === 'home' || v === 'school') return;
 
