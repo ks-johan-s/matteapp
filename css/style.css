@@ -77,22 +77,53 @@ body {
 }
 .level-step-card {
     display: flex;
-    align-items: center;
-    gap: 14px;
+    align-items: stretch;
     width: 100%;
     text-align: left;
     background: #f8fafc;
     border: 2px solid #e2e8f0;
     border-radius: 18px;
-    padding: 12px 16px;
     font-family: 'Fredoka', sans-serif;
     transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    overflow: hidden;
 }
 .level-step-card:hover {
     border-color: #818cf8;
     background: #eef2ff;
     transform: translateY(-1px);
 }
+.level-step-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    padding: 12px 16px;
+    font-family: 'Fredoka', sans-serif;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.level-demo-btn {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 0 16px;
+    border: none;
+    border-left: 2px dashed #e2e8f0;
+    background: rgba(139, 92, 246, 0.06);
+    color: #7c3aed;
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-family: 'Fredoka', sans-serif;
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+.level-demo-btn:hover { background: rgba(139, 92, 246, 0.16); }
+.level-demo-btn small { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.02em; }
 .level-step-num {
     flex: none;
     width: 34px;
@@ -465,4 +496,45 @@ body.focus-mode-active .gamification-badge {
 .math-grid-mini .cell-hl {
     box-shadow: inset 0 0 0 2.5px #f59e0b;
     background: rgba(245, 158, 11, 0.14) !important;
+}
+
+/* "Visa mig"-demon: större rutnät + animationer */
+.math-grid-big .math-grid-cell {
+    width: 54px;
+    height: 52px;
+    font-size: 1.55rem;
+}
+.math-grid-big .math-grid-carry { font-size: 1.05rem; }
+.math-grid-big .cell-hl {
+    animation: cellHlPulse 1.3s ease-in-out infinite;
+}
+@keyframes cellHlPulse {
+    0%, 100% { box-shadow: inset 0 0 0 2.5px #f59e0b; background: rgba(245, 158, 11, 0.14) !important; }
+    50% { box-shadow: inset 0 0 0 3.5px #f59e0b; background: rgba(245, 158, 11, 0.32) !important; }
+}
+/* Svarssiffran "skrivs in" med en popp */
+.ans-pop {
+    display: inline-block;
+    animation: ansPop 0.55s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+@keyframes ansPop {
+    0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+    70% { transform: scale(1.28); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+/* Minnessiffran poppar in litet */
+.carry-pop {
+    animation: carryPop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+@keyframes carryPop {
+    0% { transform: scale(0) translateY(6px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+/* Överstrykningen dras som ett streck vid lån */
+div.demo-struck::after {
+    animation: struckDraw 0.45s ease;
+}
+@keyframes struckDraw {
+    0% { transform: translateY(-50%) rotate(-26deg) scaleX(0); }
+    100% { transform: translateY(-50%) rotate(-26deg) scaleX(1); }
 }

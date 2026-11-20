@@ -47,7 +47,8 @@ function divHasRest(a, b) {
     return false;
 }
 
-function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0 } = {}) {
+function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0,
+    freshStruck = [], freshCarry = [], popAns = false, big = false } = {}) {
     const digits = Math.max(String(a).length, String(b).length, String(answer).length);
     const aStr = String(a).padStart(digits, ' ');
     const bStr = String(b).padStart(digits, ' ');
@@ -56,16 +57,18 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     const opSym = op === 'sub' ? '−' : (op === 'add' ? '+' : '×');
     const place = c => Math.pow(10, cols - 1 - c);
     const cell = (content, cls = '') => `<div class="math-grid-cell ${cls}">${content}</div>`;
+    const carryCls = c => `math-grid-carry${freshCarry.includes(c) ? ' carry-pop' : ''}`;
 
-    let h = `<div class="math-grid-paper math-grid-mini mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, 34px);">`;
-    if (op !== 'mul') for (let c = 0; c < cols; c++) h += cell(carries[c] || '', 'math-grid-carry');
+    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 54 : 34}px);">`;
+    if (op !== 'mul') for (let c = 0; c < cols; c++) h += cell(carries[c] || '', carryCls(c));
     for (let c = 0; c < cols; c++) {
-        const cls = [c > 0 ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '', c === highlight ? 'cell-hl' : ''].join(' ');
+        const cls = [c > 0 ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '',
+            freshStruck.includes(c) ? 'demo-struck' : '', c === highlight ? 'cell-hl' : ''].join(' ');
         h += cell(c > 0 ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : '', cls);
     }
     for (let c = 0; c < cols; c++) {
         // Minnessiffran i multiplikation visas litet på multiplikatorns rad.
-        const carry = op === 'mul' && carries[c] ? `<span class="math-grid-carry">${carries[c]}</span>` : null;
+        const carry = op === 'mul' && carries[c] ? `<span class="${carryCls(c)}">${carries[c]}</span>` : null;
         const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>` : (carry || `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>`);
         h += cell(content, `${c > 0 ? `pv-col-${place(c)}` : ''}`);
     }
@@ -75,8 +78,47 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     for (let c = 0; c < cols; c++) {
         const d = c === 0 ? '' : ansStr[c - 1];
         const shown = d.trim() !== '' && digits - c < showAns;
-        h += cell(c === 0 ? '' : `<span class="pv-num pv-${place(c)}">${shown ? d : '<span class="text-slate-300">?</span>'}</span>`,
+        const popCls = popAns && shown && digits - c === showAns - 1 ? ' ans-pop' : '';
+        h += cell(c === 0 ? '' : `<span class="pv-num pv-${place(c)}${popCls}">${shown ? d : '<span class="text-slate-300">?</span>'}</span>`,
             c > 0 ? `pv-col-${place(c)}` : '');
+    }
+    return h + '</div>';
+}
+
+// Trapp-miniatyr för kort division: minnessiffror över täljarsiffrorna,
+// nämnare/=/svar centrerade på streckets höjd. showAns = antal synliga
+// svarssiffror från VÄNSTER (division räknas från vänster!).
+function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1,
+    freshCarry = [], popAnsIdx = -1, big = false } = {}) {
+    const aStr = String(a);
+    const divLen = aStr.length;
+    const ansStr = String(answer);
+    const cols = divLen + 2 + ansStr.length;
+    const span = (col) => `grid-row: 2 / span 3; grid-column: ${col}; height: auto;`;
+    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 54 : 34}px);">`;
+    // Minnessifferrad över täljarsiffror 2..n (rutnätskolumn dIdx + 2).
+    for (let c = 1; c <= cols; c++) {
+        const dIdx = c - 2;
+        const cv = (dIdx >= 1 && dIdx <= divLen - 1 && carries[dIdx]) || '';
+        h += `<div class="math-grid-cell math-grid-carry${freshCarry.includes(dIdx) ? ' carry-pop' : ''}">${cv}</div>`;
+    }
+    h += `<div class="math-grid-cell text-sky-700 font-bold" style="${span(1)}">${b}</div>`;
+    for (let i = 0; i < divLen; i++) {
+        const place = Math.pow(10, divLen - 1 - i);
+        h += `<div class="math-grid-cell pv-col-${place}${i === hlDigit ? ' cell-hl' : ''}"><span class="pv-num pv-${place}">${aStr[i]}</span></div>`;
+    }
+    h += `<div class="math-grid-cell text-slate-900 font-bold" style="${span(divLen + 2)}">=</div>`;
+    for (let i = 0; i < ansStr.length; i++) {
+        const shown = i < showAns;
+        h += `<div class="math-grid-cell" style="${span(divLen + 3 + i)}">
+            <span class="pv-num pv-1${i === popAnsIdx && shown ? ' ans-pop' : ''}">${shown ? ansStr[i] : '<span class="text-slate-300">?</span>'}</span>
+        </div>`;
+    }
+    h += `<div style="grid-row: 3; grid-column: 2 / ${divLen + 2}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
+        <div style="width: 100%; height: 4px; background: #0f172a; border-radius: 2px;"></div>
+    </div>`;
+    for (let c = 0; c < divLen; c++) {
+        h += `<div class="math-grid-cell" style="grid-row: 4; grid-column: ${c + 2};"></div>`;
     }
     return h + '</div>';
 }
@@ -111,7 +153,7 @@ export function generateAlgoQuestion() {
 
     const op = state.algoOp;
     const isHard = state.difficulty === 'hard';
-    let a, b, answer, badge, qText, hints;
+    let a, b, answer, badge, qText, steps;
 
     if (op === 'sub') {
         if (state.algoLevel === 'plain') {
@@ -122,11 +164,9 @@ export function generateAlgoQuestion() {
             } while (a <= b || subNeedsLoan(a, b));
             answer = a - b;
             qText = `Räkna ut ${a} − ${b}!`;
-            hints = [
-                `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} − ${b % 10} = ${(a % 10) - (b % 10)}</strong> och skriv under strecket.</p>` +
-                algoMiniGrid(a, b, op, answer, { showAns: 1 }),
-                `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>` +
-                algoMiniGrid(a, b, op, answer, { showAns: 99 })
+            steps = [
+                { text: `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} − ${b % 10} = ${(a % 10) - (b % 10)}</strong> och skriv under strecket.</p>`, grid: { showAns: 1 } },
+                { text: `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { showAns: 99 } }
             ];
         } else if (isHard) {
             badge = '− Subtraktion med dubbel växling (Låna ×2 🔄)';
@@ -141,13 +181,10 @@ export function generateAlgoQuestion() {
             answer = a - b;
             qText = `Räkna ut ${a} − ${b}!`;
 
-            hints = [
-                `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop}</strong> är mindre än <strong>${eBot}</strong>. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong> ➔ <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>` +
-                algoMiniGrid(a, b, op, answer, { highlight: 2, struck: [2], carries: { 3: '10' }, showAns: 1 }),
-                `<p><strong>Steg 2 (Tiotalen):</strong> Nu finns <strong>${tTop - 1}</strong> kvar i tiotalen, vilket är mindre än <strong>${tBot}</strong>! Tryck på hundratalet <strong>${hTop}</strong> för att låna <strong>10</strong> tiotal ➔ <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>` +
-                algoMiniGrid(a, b, op, answer, { highlight: 1, struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 2 }),
-                `<p><strong>Steg 3 (Hundratalen):</strong> Nu finns <strong>${hTop - 1}</strong> kvar längst till vänster: <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>` +
-                algoMiniGrid(a, b, op, answer, { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 3 })
+            steps = [
+                { text: `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop}</strong> är mindre än <strong>${eBot}</strong>. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong> ➔ <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { highlight: 2, struck: [2], carries: { 3: '10' }, showAns: 1 } },
+                { text: `<p><strong>Steg 2 (Tiotalen):</strong> Nu finns <strong>${tTop - 1}</strong> kvar i tiotalen, vilket är mindre än <strong>${tBot}</strong>! Tryck på hundratalet <strong>${hTop}</strong> för att låna <strong>10</strong> tiotal ➔ <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>`, grid: { highlight: 1, struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 2 } },
+                { text: `<p><strong>Steg 3 (Hundratalen):</strong> Nu finns <strong>${hTop - 1}</strong> kvar längst till vänster: <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 3 } }
             ];
         } else {
             badge = '− Subtraktion med växling (Låna 🔄)';
@@ -160,13 +197,10 @@ export function generateAlgoQuestion() {
             answer = a - b;
             qText = `Räkna ut ${a} − ${b}!`;
 
-            hints = [
-                `<p><strong>Steg 1 (Entalen längst till höger):</strong> Vi ska ta <strong>${eTop} − ${eBot}</strong>, men ${eTop} är mindre än ${eBot}. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>!</p>` +
-                algoMiniGrid(a, b, op, answer, { highlight: 1 }),
-                `<p><strong>Steg 2:</strong> Nu har vi <strong>10 + ${eTop} = ${10 + eTop}</strong> i entalen! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>` +
-                algoMiniGrid(a, b, op, answer, { struck: [1], carries: { 2: '10' }, showAns: 1 }),
-                `<p><strong>Steg 3 (Tiotalen):</strong> Eftersom vi lånade 1 tiotal från ${tTop} finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>` +
-                algoMiniGrid(a, b, op, answer, { struck: [1], carries: { 2: '10' }, showAns: 2 })
+            steps = [
+                { text: `<p><strong>Steg 1 (Entalen längst till höger):</strong> Vi ska ta <strong>${eTop} − ${eBot}</strong>, men ${eTop} är mindre än ${eBot}. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>!</p>`, grid: { highlight: 1 } },
+                { text: `<p><strong>Steg 2:</strong> Nu har vi <strong>10 + ${eTop} = ${10 + eTop}</strong> i entalen! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 1 } },
+                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Eftersom vi lånade 1 tiotal från ${tTop} finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 2 } }
             ];
         }
     } else if (op === 'add') {
@@ -178,11 +212,9 @@ export function generateAlgoQuestion() {
             } while (addNeedsCarry(a, b));
             answer = a + b;
             qText = `Räkna ut ${a} + ${b}!`;
-            hints = [
-                `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} + ${b % 10} = ${(a % 10) + (b % 10)}</strong> och skriv under strecket.</p>` +
-                algoMiniGrid(a, b, op, answer, { showAns: 1 }),
-                `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>` +
-                algoMiniGrid(a, b, op, answer, { showAns: 99 })
+            steps = [
+                { text: `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} + ${b % 10} = ${(a % 10) + (b % 10)}</strong> och skriv under strecket.</p>`, grid: { showAns: 1 } },
+                { text: `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { showAns: 99 } }
             ];
         } else if (isHard) {
             badge = '+ Addition med dubbel minnessiffra';
@@ -199,13 +231,10 @@ export function generateAlgoQuestion() {
 
             const eSum = eTop + eBot;
             const tSum = 1 + tTop + tBot;
-            hints = [
-                `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop} + ${eBot} = ${eSum}</strong>. Skriv <strong>${eSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>` +
-                algoMiniGrid(a, b, op, answer, { carries: { 2: '1' }, showAns: 1 }),
-                `<p><strong>Steg 2 (Tiotalen):</strong> <strong>1 + ${tTop} + ${tBot} = ${tSum}</strong>. Skriv <strong>${tSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över hundratalen.</p>` +
-                algoMiniGrid(a, b, op, answer, { carries: { 1: '1', 2: '1' }, showAns: 2 }),
-                `<p><strong>Steg 3 (Hundratalen):</strong> <strong>1 + ${hTop} + ${hBot} = ${1 + hTop + hBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>` +
-                algoMiniGrid(a, b, op, answer, { carries: { 1: '1', 2: '1' }, showAns: 3 })
+            steps = [
+                { text: `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop} + ${eBot} = ${eSum}</strong>. Skriv <strong>${eSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`, grid: { carries: { 2: '1' }, showAns: 1 } },
+                { text: `<p><strong>Steg 2 (Tiotalen):</strong> <strong>1 + ${tTop} + ${tBot} = ${tSum}</strong>. Skriv <strong>${tSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över hundratalen.</p>`, grid: { carries: { 1: '1', 2: '1' }, showAns: 2 } },
+                { text: `<p><strong>Steg 3 (Hundratalen):</strong> <strong>1 + ${hTop} + ${hBot} = ${1 + hTop + hBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { carries: { 1: '1', 2: '1' }, showAns: 3 } }
             ];
         } else {
             badge = '+ Addition med minnessiffra';
@@ -218,11 +247,9 @@ export function generateAlgoQuestion() {
             answer = a + b;
             qText = `Räkna ut ${a} + ${b}!`;
 
-            hints = [
-                `<p><strong>Steg 1 (Entalen längst till höger):</strong> Räkna <strong>${eTop} + ${eBot} = ${eTop + eBot}</strong>. Skriv entalet <strong>${(eTop + eBot) % 10}</strong> längst ner och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>` +
-                algoMiniGrid(a, b, op, answer, { carries: { 1: '1' }, showAns: 1 }),
-                `<p><strong>Steg 2 (Tiotalen):</strong> Räkna ihop minnessiffran och tiotalen: <strong>1 + ${tTop} + ${tBot} = ${1 + tTop + tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>` +
-                algoMiniGrid(a, b, op, answer, { carries: { 1: '1' }, showAns: 2 })
+            steps = [
+                { text: `<p><strong>Steg 1 (Entalen längst till höger):</strong> Räkna <strong>${eTop} + ${eBot} = ${eTop + eBot}</strong>. Skriv entalet <strong>${(eTop + eBot) % 10}</strong> längst ner och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`, grid: { carries: { 1: '1' }, showAns: 1 } },
+                { text: `<p><strong>Steg 2 (Tiotalen):</strong> Räkna ihop minnessiffran och tiotalen: <strong>1 + ${tTop} + ${tBot} = ${1 + tTop + tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { carries: { 1: '1' }, showAns: 2 } }
             ];
         }
     } else if (op === 'mul') {
@@ -241,11 +268,9 @@ export function generateAlgoQuestion() {
         const eCarry = Math.floor(eProd / 10);
         const mulDigits = Math.max(String(a).length, String(b).length, String(answer).length);
         const mulCarries = eCarry > 0 ? { [mulDigits - 1]: String(eCarry) } : {};
-        hints = [
-            `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>. Skriv <strong>${eProd % 10}</strong> längst ner${eCarry > 0 ? ` och minnessiffran <strong class="text-emerald-600">${eCarry}</strong> litet på multiplikatorns rad` : ''}.</p>` +
-            algoMiniGrid(a, b, op, answer, { highlight: mulDigits, carries: mulCarries, showAns: 1 }),
-            `<p><strong>Steg 2:</strong> Gångra resten${eCarry > 0 ? ' och lägg till minnessiffran' : ''}: <strong>${b} × ${rest} = ${b * rest}</strong>. Tillsammans blir det <strong>${answer}</strong>!</p>` +
-            algoMiniGrid(a, b, op, answer, { carries: mulCarries, showAns: 99 })
+        steps = [
+            { text: `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>. Skriv <strong>${eProd % 10}</strong> längst ner${eCarry > 0 ? ` och minnessiffran <strong class="text-emerald-600">${eCarry}</strong> litet på multiplikatorns rad` : ''}.</p>`, grid: { highlight: mulDigits, carries: mulCarries, showAns: 1 } },
+            { text: `<p><strong>Steg 2:</strong> Gångra resten${eCarry > 0 ? ' och lägg till minnessiffran' : ''}: <strong>${b} × ${rest} = ${b * rest}</strong>. Tillsammans blir det <strong>${answer}</strong>!</p>`, grid: { carries: mulCarries, showAns: 99 } }
         ];
     } else {
         badge = state.algoLevel === 'carry' ? '÷ Kort division med rest' : '÷ Kort division';
@@ -257,13 +282,35 @@ export function generateAlgoQuestion() {
                  (state.algoLevel === 'plain' && divHasRest(a, b)));
         qText = `Räkna ut ${a} ÷ ${b}!`;
 
-        hints = [
-            `<p><strong>Steg 1 (Från vänster i division):</strong> Dela <strong>${a}</strong> talsort för talsort med <strong>${b}</strong>. Blir det rest skriver du den som liten <strong class="text-emerald-600">minnessiffra</strong> ovanför nästa siffra!</p>`,
-            `<p><strong>Steg 2:</strong> Kontrollera med multiplikation: <strong>${b} × ${answer} = ${a}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`
-        ];
+        // Kort division steg för steg: varje täljarsiffra delas från vänster,
+        // resten blir minnessiffra över nästa siffra i trappan.
+        const aStr = String(a);
+        let rem = 0;
+        const acc = {};
+        steps = [];
+        for (let i = 0; i < aStr.length; i++) {
+            const cur = rem * 10 + (+aStr[i]);
+            const q = Math.floor(cur / b);
+            rem = cur % b;
+            if (rem > 0) acc[i + 1] = String(rem); // minnessiffra över NÄSTA siffra
+            steps.push({
+                text: i === 0
+                    ? `<p><strong>Steg ${i + 1} – börja till vänster:</strong> Hur många gånger går <strong>${b}</strong> i <strong>${cur}</strong>? <strong>${q}</strong> gång${q === 1 ? '' : 'er'}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> skrivs litet över nästa siffra!` : ' – jämnt, ingen rest!'}</p>`
+                    : `<p><strong>Steg ${i + 1}:</strong> Minnessiffran + siffran = <strong>${cur}</strong>. <strong>${b}</strong> går i ${cur} <strong>${q}</strong> gång${q === 1 ? '' : 'er'}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> över nästa!` : ' – jämnt!'}</p>`,
+                divGrid: { showAns: i + 1, carries: { ...acc }, hlDigit: i }
+            });
+        }
+        steps.push({
+            text: `<p><strong>Klart!</strong> Kontrollera med multiplikation: <strong>${b} × ${answer} = ${a}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`,
+            divGrid: { showAns: 99, carries: { ...acc } }
+        });
     }
 
-    state.currentAlgo = { a, b, op, answer };
+    state.currentAlgo = { a, b, op, answer, steps };
+    // Ledtrådarna byggs av samma strukturerade steg som "Visa mig"-demon.
+    const hints = (steps || []).map(s => s.text +
+        (s.grid ? algoMiniGrid(a, b, op, answer, s.grid) : '') +
+        (s.divGrid ? algoMiniDivGrid(a, b, answer, s.divGrid) : ''));
     document.getElementById('algo-mode-badge').textContent = badge;
     document.getElementById('algo-question-text').textContent = qText;
     document.getElementById('algo-blank-problem-label').textContent = `${a} ${op === 'sub' ? '−' : (op === 'add' ? '+' : (op === 'mul' ? '×' : '÷'))} ${b}`;
@@ -276,8 +323,111 @@ export function generateAlgoQuestion() {
     document.getElementById('algo-blank-op-tip').textContent = opTips[op];
     setHintSteps('algo', hints);
 
+    // "Visa mig"-demo: visa det animerade genomarbetade exemplet istället
+    // för den interaktiva uppställningen.
+    const demoArea = document.getElementById('algo-demo-area');
+    if (state.algoDemo) {
+        document.getElementById('algo-guided-area').classList.add('hidden');
+        document.getElementById('algo-blank-area').classList.add('hidden');
+        document.getElementById('algo-check-btn').classList.add('hidden');
+        const sheetToggle = document.getElementById('algo-sheet-guided')?.parentElement;
+        if (sheetToggle) sheetToggle.classList.add('hidden');
+        demoArea.classList.remove('hidden');
+        document.getElementById('algo-mode-badge').textContent = '📺 Visa mig – så här gör man!';
+        const sym = op === 'sub' ? '−' : (op === 'add' ? '+' : (op === 'mul' ? '×' : '÷'));
+        document.getElementById('algo-question-text').innerHTML = `${a} ${sym} ${b} = <span class="text-emerald-600">?</span>`;
+        state.algoDemoStep = 0;
+        state.algoDemoPlaying = false;
+        renderAlgoDemo();
+        return;
+    }
+    demoArea.classList.add('hidden');
+    document.getElementById('algo-check-btn').classList.remove('hidden');
+    document.getElementById('algo-guided-area').classList.toggle('hidden', state.algoSheetMode !== 'guided');
+    document.getElementById('algo-blank-area').classList.toggle('hidden', state.algoSheetMode !== 'blank');
+    const sheetToggle = document.getElementById('algo-sheet-guided')?.parentElement;
+    if (sheetToggle) sheetToggle.classList.remove('hidden');
+
     if (state.algoSheetMode === 'guided') renderGuidedAlgoGrid();
     else buildBlankAlgoSheet();
+}
+
+// "Visa mig": stegvis animerad genomgång av exakt samma steg som ledtrådarna.
+// Varje steg renderar om det stora rutnätet – nya siffror, minnessiffror och
+// överstrykningar får pop/draw-animationer via CSS-klasser.
+export function renderAlgoDemo() {
+    const cur = state.currentAlgo;
+    const steps = cur.steps || [];
+    if (!steps.length) return;
+    const idx = Math.max(0, Math.min(steps.length - 1, state.algoDemoStep || 0));
+    state.algoDemoStep = idx;
+    const step = steps[idx];
+    const prevG = idx > 0 ? (steps[idx - 1].grid || steps[idx - 1].divGrid || {}) : {};
+    const g = step.grid || step.divGrid || {};
+    const freshStruck = (g.struck || []).filter(c => !(prevG.struck || []).includes(c));
+    const freshCarry = Object.keys(g.carries || {}).map(Number).filter(c => !(prevG.carries || {})[c]);
+    const gridHtml = cur.op === 'div'
+        ? algoMiniDivGrid(cur.a, cur.b, cur.answer, { ...g, freshCarry, popAnsIdx: (g.showAns || 0) - 1, big: true })
+        : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...g, freshStruck, freshCarry, popAns: true, big: true });
+    const last = idx === steps.length - 1;
+
+    document.getElementById('algo-demo-area').innerHTML = `
+        <div class="bg-violet-50/70 border-2 border-violet-200 rounded-3xl p-4 sm:p-6 text-center">
+            <div class="inline-block px-4 py-1 rounded-full bg-violet-500 text-white text-xs font-extrabold mb-3">
+                📺 VISA MIG · Steg ${idx + 1} av ${steps.length}
+            </div>
+            <div class="demo-step-text text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-2">${step.text}</div>
+            <div class="demo-grid-wrap">${gridHtml}</div>
+            <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
+                <button onclick="algoDemoNav(-1)" ${idx === 0 ? 'disabled' : ''}
+                    class="btn-3d bg-white border-2 border-violet-300 text-violet-900 font-extrabold text-sm px-4 py-2 rounded-xl disabled:opacity-40">◀ Förra</button>
+                <button onclick="algoDemoPlay()"
+                    class="btn-3d ${state.algoDemoPlaying ? 'bg-amber-500 hover:bg-amber-600' : 'bg-violet-500 hover:bg-violet-600'} text-white font-extrabold text-sm px-4 py-2 rounded-xl">
+                    ${state.algoDemoPlaying ? '⏸ Pausa' : '▶ Spela upp'}</button>
+                ${last
+                    ? `<button onclick="endAlgoDemo()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-sm px-5 py-2 rounded-xl">✏️ Öva själv nu!</button>`
+                    : `<button onclick="algoDemoNav(1)" class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-sm px-4 py-2 rounded-xl">Nästa ▶</button>`}
+            </div>
+        </div>`;
+    const wrap = document.getElementById('algo-demo-area');
+    wrap.classList.remove('card-in');
+    void wrap.offsetWidth;
+    wrap.classList.add('card-in');
+}
+
+function stopAlgoDemoTimer() {
+    state.algoDemoPlaying = false;
+    if (state.algoDemoTimer) { clearTimeout(state.algoDemoTimer); state.algoDemoTimer = null; }
+}
+
+export function algoDemoNav(d) {
+    stopAlgoDemoTimer();
+    const steps = state.currentAlgo?.steps || [];
+    state.algoDemoStep = Math.max(0, Math.min(steps.length - 1, (state.algoDemoStep || 0) + d));
+    playSound('click');
+    renderAlgoDemo();
+}
+
+export function algoDemoPlay() {
+    playSound('click');
+    if (state.algoDemoPlaying) { stopAlgoDemoTimer(); renderAlgoDemo(); return; }
+    state.algoDemoPlaying = true;
+    renderAlgoDemo();
+    const tick = () => {
+        const steps = state.currentAlgo?.steps || [];
+        if (!state.algoDemoPlaying || state.algoDemoStep >= steps.length - 1) { stopAlgoDemoTimer(); renderAlgoDemo(); return; }
+        state.algoDemoStep++;
+        renderAlgoDemo();
+        state.algoDemoTimer = setTimeout(tick, 3200);
+    };
+    state.algoDemoTimer = setTimeout(tick, 1400);
+}
+
+export function endAlgoDemo() {
+    stopAlgoDemoTimer();
+    state.algoDemo = false;
+    playSound('click');
+    generateAlgoQuestion();
 }
 
 export function toggleAlgoLoan(colIdx) {

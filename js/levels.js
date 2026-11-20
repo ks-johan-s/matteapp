@@ -28,8 +28,8 @@ export const LEVEL_MODULES = {
         title: 'Addition', icon: '➕',
         steps: [
             { icon: '🧠', label: 'Huvudräkning', desc: 'Räkna i huvudet', apply: () => { setAddSubOp('add'); setAddSubMode('mix'); return 'addsub'; } },
-            { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', apply: () => { setAlgoOp('add'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
-            { icon: '🔥', label: 'Uppställning med minnessiffra', desc: 'Öva att växla tiotal', apply: () => { setAlgoOp('add'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', demo: true, apply: () => { setAlgoOp('add'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '🔥', label: 'Uppställning med minnessiffra', desc: 'Öva att växla tiotal', demo: true, apply: () => { setAlgoOp('add'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
         explore: [
             { icon: '🔢', label: 'Platsvärde', apply: () => { setAddSubOp('add'); setAddSubMode('pv'); return 'addsub'; } },
@@ -42,8 +42,8 @@ export const LEVEL_MODULES = {
         title: 'Subtraktion', icon: '➖',
         steps: [
             { icon: '🧠', label: 'Huvudräkning', desc: 'Räkna i huvudet', apply: () => { setAddSubOp('sub'); setAddSubMode('mix'); return 'addsub'; } },
-            { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', apply: () => { setAlgoOp('sub'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
-            { icon: '🔥', label: 'Uppställning med lån', desc: 'Öva att växla tiotal', apply: () => { setAlgoOp('sub'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', demo: true, apply: () => { setAlgoOp('sub'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '🔥', label: 'Uppställning med lån', desc: 'Öva att växla tiotal', demo: true, apply: () => { setAlgoOp('sub'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
         explore: [
             { icon: '🔢', label: 'Platsvärde', apply: () => { setAddSubOp('sub'); setAddSubMode('pv'); return 'addsub'; } },
@@ -56,8 +56,8 @@ export const LEVEL_MODULES = {
         title: 'Multiplikation', icon: '✖️',
         steps: [
             { icon: '🧠', label: 'Huvudräkning', desc: 'Träna tabellerna', apply: () => { setMultMissing(false); return 'mult'; } },
-            { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', apply: () => { setAlgoOp('mul'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
-            { icon: '🔥', label: 'Uppställning med minnessiffra', desc: 'Öva att växla tiotal', apply: () => { setAlgoOp('mul'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '🔥', label: 'Uppställning med minnessiffra', desc: 'Öva att växla tiotal', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
         explore: [
             { icon: '❓', label: 'Saknat faktor', apply: () => { setMultMissing(true); return 'mult'; } },
@@ -67,8 +67,8 @@ export const LEVEL_MODULES = {
         title: 'Division', icon: '➗',
         steps: [
             { icon: '🧠', label: 'Huvudräkning', desc: 'Dela lika i huvudet', apply: () => { setDivSubMode('share'); return 'div'; } },
-            { icon: '📝', label: 'Uppställning', desc: 'Kort division utan rester', apply: () => { setAlgoOp('div'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
-            { icon: '🔥', label: 'Uppställning med rest', desc: 'Skriv minnessiffror i trappan', apply: () => { setAlgoOp('div'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '📝', label: 'Uppställning', desc: 'Kort division utan rester', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '🔥', label: 'Uppställning med rest', desc: 'Skriv minnessiffror i trappan', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
         explore: [
             { icon: '🤲', label: 'Dela själv', apply: () => { setDivSubMode('hands'); return 'div'; } },
@@ -223,10 +223,10 @@ export const LEVEL_MODULES = {
     algo: {
         title: 'Uppställning', icon: '📝',
         steps: [
-            { icon: '➕', label: 'Addition', desc: 'Minnessiffra', apply: () => { setAlgoOp('add'); state.algoLevel = ''; return 'algo'; } },
-            { icon: '➖', label: 'Subtraktion', desc: 'Växling – låna', apply: () => { setAlgoOp('sub'); state.algoLevel = ''; return 'algo'; } },
-            { icon: '✖️', label: 'Multiplikation', desc: 'Minnessiffra på multiplikatorraden', apply: () => { setAlgoOp('mul'); state.algoLevel = ''; return 'algo'; } },
-            { icon: '➗', label: 'Division', desc: 'Kort division – trappan', apply: () => { setAlgoOp('div'); state.algoLevel = ''; return 'algo'; } },
+            { icon: '➕', label: 'Addition', desc: 'Minnessiffra', demo: true, apply: () => { setAlgoOp('add'); state.algoLevel = ''; return 'algo'; } },
+            { icon: '➖', label: 'Subtraktion', desc: 'Växling – låna', demo: true, apply: () => { setAlgoOp('sub'); state.algoLevel = ''; return 'algo'; } },
+            { icon: '✖️', label: 'Multiplikation', desc: 'Minnessiffra på multiplikatorraden', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = ''; return 'algo'; } },
+            { icon: '➗', label: 'Division', desc: 'Kort division – trappan', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = ''; return 'algo'; } },
         ],
         explore: [],
     },
@@ -250,12 +250,15 @@ export function renderModulePicker(key) {
     if (!mod) return;
     document.getElementById('levelpicker-title').textContent = `${mod.icon} ${mod.title}`;
     document.getElementById('levelpicker-steps').innerHTML = mod.steps.map((s, i) => `
-        <button onclick="chooseModuleStep('steps', ${i})" class="level-step-card">
-            <span class="level-step-num">${i + 1}</span>
-            <span class="level-step-icon">${s.icon}</span>
-            <span class="level-step-text"><strong>${s.label}</strong><small>${s.desc || ''}</small></span>
-            ${stepStarsHtml(`${key}:steps:${i}`)}
-        </button>`).join('');
+        <div class="level-step-card">
+            <button onclick="chooseModuleStep('steps', ${i})" class="level-step-main">
+                <span class="level-step-num">${i + 1}</span>
+                <span class="level-step-icon">${s.icon}</span>
+                <span class="level-step-text"><strong>${s.label}</strong><small>${s.desc || ''}</small></span>
+                ${stepStarsHtml(`${key}:steps:${i}`)}
+            </button>
+            ${s.demo ? `<button onclick="demoModuleStep('steps', ${i})" class="level-demo-btn" title="Se ett genomarbetat exempel steg för steg">▶<small>Visa mig</small></button>` : ''}
+        </div>`).join('');
     const wrap = document.getElementById('levelpicker-explore-wrap');
     wrap.classList.toggle('hidden', !mod.explore.length);
     document.getElementById('levelpicker-explore').innerHTML = mod.explore.map((s, i) =>
@@ -268,6 +271,20 @@ export function chooseModuleStep(group, idx) {
     const step = (group === 'steps' ? mod.steps : mod.explore)[idx];
     state.levelStepLabel = `${step.icon} ${step.label}`;
     state.levelStepKey = `${state.levelModule}:${group}:${idx}`;
+    state.algoDemo = false;
+    const view = step.apply();
+    navigateTo(view);
+    updateLevelBreadcrumb();
+}
+
+// "Visa mig": samma steg men landar i det animerade demon istället.
+export function demoModuleStep(group, idx) {
+    const mod = LEVEL_MODULES[state.levelModule];
+    if (!mod) return navigateTo('home');
+    const step = (group === 'steps' ? mod.steps : mod.explore)[idx];
+    state.levelStepLabel = `${step.icon} ${step.label}`;
+    state.levelStepKey = `${state.levelModule}:${group}:${idx}`;
+    state.algoDemo = true;
     const view = step.apply();
     navigateTo(view);
     updateLevelBreadcrumb();
