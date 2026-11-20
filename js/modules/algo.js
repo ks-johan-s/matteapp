@@ -216,33 +216,30 @@ export function renderGuidedAlgoGrid() {
     const ansStr = String(answer);
 
     if (op === 'div') {
-        // Svensk kort division ("trappan"): nämnaren till vänster på samma rad
-        // som täljaren, minnessiffror ovanför, svar efter likamedtecknet.
+        // Svensk kort division ("trappan"): minnessiffror överst, täljaren
+        // siffra för siffra med ETT sammanhängande streck under, och
+        // nämnaren liten under första täljarsiffran – som i skolboken.
         const aStr = String(a);
         const divLen = aStr.length;
-        const cols = 1 + divLen + 1 + ansStr.length;
+        const cols = divLen + 1 + ansStr.length;
         let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 54px);">`;
-        // Minnessifferrad: tom över nämnaren, carry-rutor över täljarsiffrorna
-        // (utom första), tomt över = och svaret.
+        // Minnessifferrad: carry-rutor över täljarsiffrorna (utom första).
         for (let c = 0; c < cols; c++) {
-            if (c >= 2 && c <= divLen) {
+            if (c >= 1 && c < divLen) {
                 html += `<div class="math-grid-cell"><input maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
             } else {
                 html += `<div class="math-grid-cell"></div>`;
             }
         }
-        // Mittenraden: nämnare | täljarsiffror | = | svarsrutor
+        // Mittenraden: täljarsiffror | = | svarsrutor
         for (let c = 0; c < cols; c++) {
-            if (c === 0) {
-                html += `<div class="math-grid-cell text-sky-600">${b}</div>`;
-            } else if (c <= divLen) {
-                const d = aStr[c - 1];
-                const place = Math.pow(10, divLen - c);
-                html += `<div class="math-grid-cell math-grid-row-line pv-col-${place}"><span class="pv-num pv-${place}">${d}</span></div>`;
-            } else if (c === divLen + 1) {
+            if (c < divLen) {
+                const place = Math.pow(10, divLen - 1 - c);
+                html += `<div class="math-grid-cell pv-col-${place}"><span class="pv-num pv-${place}">${aStr[c]}</span></div>`;
+            } else if (c === divLen) {
                 html += `<div class="math-grid-cell text-slate-900">=</div>`;
             } else {
-                const idx = c - divLen - 2;
+                const idx = c - divLen - 1;
                 const place = Math.pow(10, ansStr.length - 1 - idx);
                 html += `<div class="math-grid-cell pv-col-${place}">
                     <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
@@ -250,6 +247,15 @@ export function renderGuidedAlgoGrid() {
                         class="math-grid-input pv-num pv-${place}" placeholder="?">
                 </div>`;
             }
+        }
+        // Ett sammanhängande streck under bara täljarsiffrorna.
+        const linePct = (divLen / cols) * 100;
+        html += `<div style="grid-column: 1 / -1; height: 4px; margin: -8px 2px 0;">
+            <div style="width: calc(${linePct}% - 6px); height: 4px; background: #0f172a; border-radius: 2px;"></div>
+        </div>`;
+        // Nämnaren liten under första täljarsiffran.
+        for (let c = 0; c < cols; c++) {
+            html += `<div class="math-grid-cell ${c === 0 ? 'text-sky-700' : ''}" style="font-size: 1.15rem;">${c === 0 ? b : ''}</div>`;
         }
         html += `</div>`;
         container.innerHTML = html;
