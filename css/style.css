@@ -208,6 +208,54 @@ body {
 }
 .avg-sort-card { transition: box-shadow 0.15s ease; }
 
+/* Feedback-ugglan: dyker upp precis under arbetsytan vid fel svar */
+.algo-owl {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 10px;
+    margin: 14px auto 0;
+    max-width: 560px;
+    padding: 0 8px;
+}
+.algo-owl-char {
+    font-size: 2.7rem;
+    line-height: 1;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,.18));
+    animation: owlBob 2.4s ease-in-out infinite;
+}
+@keyframes owlBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+.algo-owl-bubble {
+    position: relative;
+    background: #fffbeb;
+    border: 2.5px solid #f59e0b;
+    border-radius: 16px;
+    padding: 10px 14px;
+    font-weight: 800;
+    color: #78350f;
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+}
+.algo-owl-bubble::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 18px;
+    border: 7px solid transparent;
+    border-right-color: #f59e0b;
+    border-left: 0;
+}
+.owl-in { animation: owlPop 0.45s cubic-bezier(0.22, 1.4, 0.36, 1); }
+@keyframes owlPop {
+    0% { transform: scale(0.55) translateY(10px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
 .math-grid-input::placeholder {
     color: #94a3b8;
     opacity: 0.55;

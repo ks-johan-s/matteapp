@@ -42,6 +42,12 @@ document.addEventListener('keydown', (e) => {
         else navigateTo('home');
         return;
     }
+    // Piltangenter bläddrar i 'Visa mig'-demon.
+    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && state.algoDemo && state.currentView === 'algo') {
+        e.preventDefault();
+        algoDemoNav(e.key === 'ArrowRight' ? 1 : -1);
+        return;
+    }
     if (e.key !== 'Enter') return;
     const v = state.currentView;
     if (!v || v === 'home' || v === 'school') return;

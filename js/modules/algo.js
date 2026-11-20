@@ -149,6 +149,7 @@ export function setAlgoSheetMode(mode) {
 export function generateAlgoQuestion() {
     document.getElementById('algo-feedback').classList.add('hidden');
     document.getElementById('algo-next-wrap').classList.add('hidden');
+    document.getElementById('algo-owl')?.classList.add('hidden');
     state.algoLoans = {};
 
     const op = state.algoOp;
@@ -393,8 +394,11 @@ export function renderAlgoDemo() {
 
     document.getElementById('algo-demo-area').innerHTML = `
         <div class="bg-violet-50/70 border-2 border-violet-200 rounded-3xl p-4 sm:p-6 text-center">
-            <div class="inline-block px-4 py-1 rounded-full bg-violet-500 text-white text-xs font-extrabold mb-3">
+            <div class="inline-block px-4 py-1 rounded-full bg-violet-500 text-white text-xs font-extrabold mb-2">
                 📺 VISA MIG · Steg ${idx + 1} av ${steps.length}
+            </div>
+            <div class="flex items-center justify-center gap-1.5 mb-3">
+                ${steps.map((_, i) => `<span class="inline-block w-2 h-2 rounded-full ${i === idx ? 'bg-violet-500 scale-125' : i < idx ? 'bg-violet-300' : 'bg-violet-200'}"></span>`).join('')}
             </div>
             <div class="demo-step-text text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-2">${text}</div>
             <div class="demo-grid-wrap">${gridHtml}</div>
@@ -699,6 +703,18 @@ export function diagnoseAlgoMistake(userVal, a, b, op, answer) {
     return null;
 }
 
+// Ugglan ger fel-feedback direkt under arbetsytan i stället för längst ner.
+function showAlgoOwl(html) {
+    const owl = document.getElementById('algo-owl');
+    const box = document.getElementById('algo-feedback');
+    if (!owl) { showFeedback('algo-feedback', false, html); return; }
+    if (box) box.classList.add('hidden');
+    document.getElementById('algo-owl-text').innerHTML = html;
+    owl.classList.remove('hidden', 'owl-in');
+    void owl.offsetWidth;
+    owl.classList.add('owl-in');
+}
+
 export function checkAlgoAnswer() {
     if (!document.getElementById('algo-next-wrap').classList.contains('hidden')) return;
     const { a, b, op, answer } = state.currentAlgo;
@@ -711,7 +727,7 @@ export function checkAlgoAnswer() {
             userStr += inp ? inp.value.trim() : '';
         }
         if (userStr.length < ansStr.length) {
-            showFeedback('algo-feedback', false, '✏️ Fyll i alla rutor under strecket först!');
+            showAlgoOwl('✏️ Fyll i alla rutor under strecket först!');
             return;
         }
         const userVal = parseInt(userStr, 10);
@@ -737,7 +753,7 @@ export function checkAlgoAnswer() {
                 ? ` Felet sitter i <strong>${placeNames[wrongPos[0]]}</strong> – den röda rutan!`
                 : ' De röda rutorna visar exakt var det blev fel!';
             const ahaTip = diagnoseAlgoMistake(userVal, a, b, op, answer);
-            showFeedback('algo-feedback', false, ahaTip
+            showAlgoOwl(ahaTip
                 ? ahaTip + placeMsg
                 : `🤔 Det blev ${userStr}, men rätt svar är ${answer}.${placeMsg} Kika på talsorterna och försök igen!`);
         }
@@ -774,7 +790,7 @@ export function checkAlgoAnswer() {
             }
         }
         if (foundRowVal === null) {
-            showFeedback('algo-feedback', false, '✏️ Skriv upp talen och ditt svar längst ner på rutpappret!');
+            showAlgoOwl('✏️ Skriv upp talen och ditt svar längst ner på rutpappret!');
             return;
         }
         if (foundRowVal === answer) {
@@ -784,7 +800,7 @@ export function checkAlgoAnswer() {
         } else {
             resetStreak();
             const ahaTip = diagnoseAlgoMistake(foundRowVal, a, b, op, answer);
-            showFeedback('algo-feedback', false, ahaTip || `🤔 ${op === 'div' ? 'Svaret efter =' : 'Nedersta raden'} visar ${foundRowVal}, men rätt svar är ${answer}. Kolla raderna och försök igen!`);
+            showAlgoOwl(ahaTip || `🤔 ${op === 'div' ? 'Svaret efter =' : 'Nedersta raden'} visar ${foundRowVal}, men rätt svar är ${answer}. Kolla raderna och försök igen!`);
         }
     }
 }
