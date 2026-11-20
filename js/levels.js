@@ -3,7 +3,7 @@
 // "Utforska"-grupp med fristående aktiviteter. Hemkorten öppnar väljaren
 // först (openModule), och inne i aktiviteten visar en brödsmula modul +
 // vald nivå med en "Byt nivå"-knapp tillbaka.
-import { state } from './core.js';
+import { playSound, state } from './core.js';
 import { closeDemo, startModuleDemo } from './demo.js';
 import { navigateTo } from './navigation.js';
 import { setAddSubMode, setAddSubOp } from './modules/addsub.js';
@@ -272,6 +272,7 @@ export function chooseModuleStep(group, idx) {
     const step = (group === 'steps' ? mod.steps : mod.explore)[idx];
     state.levelStepLabel = `${step.icon} ${step.label}`;
     state.levelStepKey = `${state.levelModule}:${group}:${idx}`;
+    state.resumeStep = { key: state.levelModule, group, idx, label: state.levelStepLabel };
     closeDemo();
     const view = step.apply();
     navigateTo(view);
@@ -285,6 +286,7 @@ export function demoModuleStep(group, idx) {
     const step = (group === 'steps' ? mod.steps : mod.explore)[idx];
     state.levelStepLabel = `${step.icon} ${step.label}`;
     state.levelStepKey = `${state.levelModule}:${group}:${idx}`;
+    state.resumeStep = { key: state.levelModule, group, idx, label: state.levelStepLabel };
     const view = step.apply();
     navigateTo(view);
     updateLevelBreadcrumb();
@@ -294,6 +296,36 @@ export function demoModuleStep(group, idx) {
 export function goModuleStep(key, group, idx) {
     state.levelModule = key;
     chooseModuleStep(group, idx);
+}
+
+// "Fortsätt där du slutade"-kortet på hemskärmen. resumeStep är en
+// egen snapshot – levelStepKey nollställs nämligen när man går hem.
+export function resumeLastStep() {
+    const r = state.resumeStep;
+    if (!r || !LEVEL_MODULES[r.key]) return;
+    playSound('click');
+    goModuleStep(r.key, r.group, r.idx);
+}
+
+export function renderResumeCard() {
+    const wrap = document.getElementById('home-resume-wrap');
+    if (!wrap) return;
+    const r = state.resumeStep;
+    const mod = r && LEVEL_MODULES[r.key];
+    if (!mod) {
+        wrap.classList.add('hidden');
+        return;
+    }
+    wrap.classList.remove('hidden');
+    wrap.innerHTML = `
+        <button onclick="resumeLastStep()" class="btn-3d w-full text-left bg-gradient-to-r from-sky-50 to-indigo-50 hover:from-sky-100 hover:to-indigo-100 rounded-3xl p-4 sm:p-5 border-3 border-sky-300 flex items-center gap-4 group">
+            <span class="w-11 h-11 rounded-2xl bg-sky-500 text-white flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition">▶</span>
+            <span class="min-w-0">
+                <span class="block text-[11px] font-extrabold uppercase tracking-wider text-sky-700">Fortsätt där du slutade</span>
+                <span class="block font-display font-bold text-base sm:text-lg text-slate-900 truncate">${mod.icon} ${mod.title} · ${r.label || 'Nivå'} ${stepStarsHtml(`${r.key}:${r.group}:${r.idx}`)}</span>
+            </span>
+            <span class="ml-auto text-sky-600 font-extrabold text-xl shrink-0">➔</span>
+        </button>`;
 }
 
 export function backToModulePicker() {

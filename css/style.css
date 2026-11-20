@@ -482,6 +482,29 @@ body.focus-mode-active .gamification-badge {
     80% { transform: translateX(2px); }
 }
 .card-wrong { animation: cardWrong 0.4s ease-out both; }
+/* Mjuk vyväxling mellan hem, nivåväljare och övningsvyer */
+@keyframes viewEnter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+}
+.view-enter { animation: viewEnter 0.28s ease-out both; }
+
+/* Flygande stjärna vid rätt svar + pop på räknaren */
+.flying-star {
+    position: fixed;
+    z-index: 300;
+    font-size: 30px;
+    line-height: 1;
+    pointer-events: none;
+    transform: translate(0, 0) scale(1);
+    transition: transform 0.65s cubic-bezier(0.45, 0.05, 0.35, 1), opacity 0.65s ease-in;
+}
+@keyframes starPop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+.star-pop { display: inline-block; animation: starPop 0.45s cubic-bezier(0.3, 1.6, 0.4, 1); }
 
 /* Svarsknappar: grön pulse vid rätt, skak + urgråning vid fel */
 @keyframes optCorrectPulse {

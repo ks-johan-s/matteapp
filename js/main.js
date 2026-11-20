@@ -32,6 +32,20 @@ import * as ns_demo from './demo.js';
 
 Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels, ns_demo);
 
+// Autofokus i svarsrutan: wrappa alla generate*Question så att fokus
+// flyttas även när frågan genereras via inline-onclick ("Nästa uppgift").
+for (const name of Object.keys(window)) {
+    if (/^generate\w+Question$/.test(name) && typeof window[name] === 'function') {
+        const orig = window[name];
+        window[name] = function (...args) {
+            const r = orig.apply(this, args);
+            ns_core.focusAnswerInput();
+            return r;
+        };
+    }
+}
+ns_core.focusAnswerInput();
+
 /* =============================================================
    20. GLOBAL ENTER-TANGENT (SVARA / KONTROLLERA / NÄSTA)
 ============================================================== */

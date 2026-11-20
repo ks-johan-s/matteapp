@@ -48,6 +48,7 @@ export const state = {
     levelModule: null,
     levelStepLabel: '',
     levelStepKey: '',
+    resumeStep: null,
     stepProgress: {},
     algoLevel: '',
     currentAddSub: null,
@@ -202,10 +203,58 @@ export function addReward(points = 1) {
         if (!state.stepProgress) state.stepProgress = {};
         state.stepProgress[state.levelStepKey] = Math.min((state.stepProgress[state.levelStepKey] || 0) + 1, 9);
         if (window.updateLevelBreadcrumb) window.updateLevelBreadcrumb();
+        if (window.renderResumeCard) window.renderResumeCard();
     }
+    flyStarsToCounter(Math.min(points, 3));
     document.getElementById('star-count').textContent = state.stars;
     document.getElementById('streak-count').textContent = state.streak;
     saveState();
+}
+
+// ⭐ Stjärnor flyger från det rätta svaret upp till räknaren i headern.
+function flyStarsToCounter(count) {
+    const badge = document.getElementById('star-count')?.parentElement;
+    if (!badge) return;
+    const t = badge.getBoundingClientRect();
+    const view = document.getElementById(`view-${state.currentView}`);
+    const origin = view?.querySelector('.opt-correct')
+        || view?.querySelector('[id$="-feedback"]:not(.hidden)')
+        || view?.querySelector('.rounded-3xl');
+    const o = origin ? origin.getBoundingClientRect()
+        : { left: innerWidth / 2 - 16, top: innerHeight / 2, width: 32, height: 32 };
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            const star = document.createElement('span');
+            star.className = 'flying-star';
+            star.textContent = '⭐';
+            star.style.left = `${o.left + o.width / 2 - 16}px`;
+            star.style.top = `${o.top - 6}px`;
+            document.body.appendChild(star);
+            requestAnimationFrame(() => {
+                const dx = t.left + t.width / 2 - (o.left + o.width / 2);
+                const dy = t.top + t.height / 2 - (o.top + 8);
+                star.style.transform = `translate(${dx}px, ${dy}px) scale(0.4) rotate(${Math.round(Math.random() * 30 - 15)}deg)`;
+            });
+            star.addEventListener('transitionend', () => {
+                star.remove();
+                badge.classList.remove('star-pop');
+                void badge.offsetWidth;
+                badge.classList.add('star-pop');
+            }, { once: true });
+        }, i * 150);
+    }
+}
+
+// Flyttar fokus till den första synliga svarsrutan i den aktiva vyn
+// (skriv-läget). Körs efter varje genererad fråga – se main.js.
+export function focusAnswerInput() {
+    setTimeout(() => {
+        if (!document.getElementById('demo-overlay')?.classList.contains('hidden')) return;
+        const view = document.getElementById(`view-${state.currentView}`);
+        if (!view) return;
+        const inp = view.querySelector('input[id$="-type-input"], input#word-final-input, input[id^="frac-input-"], input[id^="algo-ans-"]');
+        if (inp && inp.offsetParent !== null) inp.focus({ preventScroll: true });
+    }, 90);
 }
 
 export function resetStreak() {

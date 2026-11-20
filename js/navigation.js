@@ -1,5 +1,5 @@
 // js/navigation.js — autogenererad av split.py från original.html
-import { playSound, state } from './core.js';
+import { focusAnswerInput, playSound, state } from './core.js';
 import { closeDemo } from './demo.js';
 import { generateAddSubQuestion } from './modules/addsub.js';
 import { generateAlgoQuestion } from './modules/algo.js';
@@ -30,8 +30,15 @@ export function navigateTo(viewName) {
     const views = ['home', 'levelpicker', 'addsub', 'mult', 'div', 'seq', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
     views.forEach(v => {
         const sec = document.getElementById(`view-${v}`);
-        if (sec) sec.classList.toggle('hidden', v !== viewName);
+        if (!sec) return;
+        sec.classList.toggle('hidden', v !== viewName);
+        if (v === viewName) {
+            sec.classList.remove('view-enter');
+            void sec.offsetWidth;
+            sec.classList.add('view-enter');
+        }
     });
+    if (viewName === 'home' && window.renderResumeCard) window.renderResumeCard();
 
     if (viewName === 'addsub') generateAddSubQuestion();
     if (viewName === 'mult') generateMultQuestion();
@@ -55,6 +62,7 @@ export function navigateTo(viewName) {
     if (viewName === 'avg') generateAvgQuestion();
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    focusAnswerInput();
 }
 
 export function setDifficulty(level) {
