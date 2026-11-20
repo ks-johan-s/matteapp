@@ -286,7 +286,7 @@ export function buildDivDemoSteps() {
             ${Array.from({ length: divisor }, (_, p) => `
                 <div class="px-3 py-2 rounded-2xl border-2 ${count ? 'bg-teal-50 border-teal-300' : 'border-dashed bg-white border-teal-300'} min-w-[64px]">
                     <div class="text-base sm:text-lg min-h-[28px]">${count
-                        ? Array.from({ length: count }, (_, i) => `<span class="${popLast && i === count - 1 ? 'demo-pop' : ''}">${item}</span>`).join('')
+                        ? Array.from({ length: count }, (_, i) => `<span class="${popLast && i === count - 1 ? 'demo-pop demo-spot' : ''}">${item}</span>`).join('')
                         : '<span class="text-teal-400 font-display font-bold">?</span>'}</div>
                     <div class="text-[11px] font-extrabold text-teal-900">Barn ${p + 1}</div>
                 </div>`).join('')}

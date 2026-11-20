@@ -291,7 +291,7 @@ export function buildDecimalDemoSteps() {
           warn: true,
           html: line({ hideMarker: true }) },
         { text: `<p><strong>Din tur!</strong> Vilket tal visar markören? Räkna strecken: 0,1 – 0,2 – 0,3 …</p>`,
-          html: line({ label: false, markerCls: 'demo-marker-hop' }),
+          html: line({ label: false, markerCls: 'demo-marker-hop demo-spot-svg' }),
           guess: { options: [
               { label: '7', ok: false },
               { label: formatNumSv(val), ok: true },

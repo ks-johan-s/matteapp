@@ -629,3 +629,20 @@ div.demo-struck::after {
 
 /* Felgissat svarschip i 'Din tur!' skakar */
 .demo-shake { animation: cellShake .4s ease; }
+
+/* Spotlight: mjuk pulserande glöd runt det som ändras i steget */
+.demo-spot {
+    animation: demoSpot 1.5s ease-in-out infinite;
+}
+@keyframes demoSpot {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35), 0 0 10px rgba(245, 158, 11, 0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.6), 0 0 22px rgba(245, 158, 11, 0.45); }
+}
+/* Samma glöd för SVG-element (drop-shadow i stället för box-shadow) */
+.demo-spot-svg {
+    animation: demoSpotSvg 1.5s ease-in-out infinite;
+}
+@keyframes demoSpotSvg {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7)); }
+    50% { filter: drop-shadow(0 0 9px rgba(245, 158, 11, 1)); }
+}

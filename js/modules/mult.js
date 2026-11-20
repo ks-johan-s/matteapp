@@ -134,7 +134,7 @@ export function buildMultDemoSteps() {
             </div>
             <div class="flex flex-col gap-2">
                 ${Array.from({ length: rows }, (_, r) => `
-                    <div class="${popLast && r === rows - 1 ? 'pile-pop' : ''} flex gap-2">
+                    <div class="${popLast && r === rows - 1 ? 'pile-pop demo-spot rounded-lg' : ''} flex gap-2">
                         ${Array.from({ length: f }, () => '<span class="w-4 h-4 rounded-full bg-orange-500"></span>').join('')}
                     </div>`).join('')}
             </div>

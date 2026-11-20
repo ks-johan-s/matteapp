@@ -497,9 +497,9 @@ export function buildFracDemoSteps() {
         { text: `<p>Vi <strong>delar</strong> pizzan i <strong>${den} lika stora bitar</strong>.</p>`,
           html: pizza([], { popAll: true }) },
         { text: `<p>Varje bit är <strong>en fjärdedel</strong> – det skriver vi ${formatFractionHTML(1, den)}.</p>`,
-          html: pizza([0], { popIdx: 0 }) },
+          html: pizza([0], { popIdx: 0, spotIdx: 0 }) },
         { text: `<p>Nu tar vi <strong>${num} bitar</strong> – räkna med: en… två… tre!</p>`,
-          html: pizza(sel(num), { staggerFrom: 0 }) },
+          html: pizza(sel(num), { staggerFrom: 0, spotIdx: num - 1 }) },
         { text: `<p>Många skriver bråket <strong>baklänges</strong>! Nämnaren står <strong>under</strong> strecket: ${formatFractionHTML(num, den)} betyder ${num} av ${den} delar – <strong>inte</strong> ${formatFractionHTML(den, num)}!</p>`,
           warn: true,
           html: `<div class="flex items-center justify-center gap-8 font-display font-bold text-4xl">

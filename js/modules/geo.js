@@ -380,9 +380,9 @@ export function buildGeoDemoSteps() {
             if (mode === 'empty')
                 cells.push(`<div class="w-10 h-10 rounded-lg border-2 border-dashed border-fuchsia-300 bg-white"></div>`);
             else if (mode === 'count')
-                cells.push(`<div class="demo-slice w-10 h-10 rounded-lg bg-fuchsia-300 border-2 border-fuchsia-500 flex items-center justify-center font-display font-bold text-fuchsia-800 text-sm" style="animation-delay:${i * 110}ms">${i + 1}</div>`);
+                cells.push(`<div class="demo-slice${i === h * w - 1 ? ' demo-spot' : ''} w-10 h-10 rounded-lg bg-fuchsia-300 border-2 border-fuchsia-500 flex items-center justify-center font-display font-bold text-fuchsia-800 text-sm" style="animation-delay:${i * 110}ms">${i + 1}</div>`);
             else
-                cells.push(`<div class="${r === h - 1 ? 'demo-slice' : ''} w-10 h-10 rounded-lg border-2 ${['bg-fuchsia-200 border-fuchsia-400', 'bg-purple-300 border-purple-500', 'bg-fuchsia-400 border-fuchsia-600'][r]} flex items-center justify-center font-display font-bold text-white text-sm">${c + 1}</div>`);
+                cells.push(`<div class="${r === h - 1 ? 'demo-slice demo-spot' : ''} w-10 h-10 rounded-lg border-2 ${['bg-fuchsia-200 border-fuchsia-400', 'bg-purple-300 border-purple-500', 'bg-fuchsia-400 border-fuchsia-600'][r]} flex items-center justify-center font-display font-bold text-white text-sm">${c + 1}</div>`);
         }
         return `<div class="inline-grid gap-1.5 p-3 rounded-2xl bg-fuchsia-50 border-2 border-fuchsia-200" style="grid-template-columns:repeat(${w},minmax(0,1fr))">${cells.join('')}</div>`;
     };

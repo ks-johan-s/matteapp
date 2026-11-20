@@ -36,9 +36,31 @@ export function startModuleDemo(key) {
     const built = def.build();
     if (!built || !built.steps || !built.steps.length) return false;
     closeDemo();
-    demo = { steps: built.steps, idx: 0, playing: false, timer: null, onExit: def.onExit || null };
+    demo = { steps: built.steps, idx: 0, playing: false, timer: null, onExit: def.onExit || null, solved: false };
     document.getElementById('demo-overlay').classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
+    // Skelettet byggs en gång – stegbyten uppdaterar bara innehållet,
+    // så inget "blinkar" mellan stegen.
+    document.getElementById('demo-card').innerHTML = `
+        <div class="bg-violet-50 border-2 border-violet-200 rounded-3xl p-4 sm:p-6 text-center shadow-2xl">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <span id="demo-badge" class="inline-block px-4 py-1 rounded-full bg-violet-500 text-white text-xs font-extrabold"></span>
+                <button onclick="demoExit()" title="Stäng"
+                    class="w-7 h-7 rounded-full bg-violet-200 hover:bg-violet-300 text-violet-800 font-extrabold text-sm">✕</button>
+            </div>
+            <div id="demo-dots" class="flex items-center justify-center gap-1.5 mb-3"></div>
+            <div id="demo-text" class="text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-3"></div>
+            <div id="demo-visual" class="demo-grid-wrap"></div>
+            <div id="demo-guess"></div>
+            <div id="demo-done"></div>
+            <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
+                <button id="demo-btn-prev" onclick="demoNav(-1)"
+                    class="btn-3d bg-white border-2 border-violet-300 text-violet-900 font-extrabold text-sm px-4 py-2 rounded-xl disabled:opacity-40">◀ Förra</button>
+                <button id="demo-btn-play" onclick="demoTogglePlay()"
+                    class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-sm px-4 py-2 rounded-xl">▶ Spela upp</button>
+                <span id="demo-btn-next"></span>
+            </div>
+        </div>`;
     renderDemoStep();
     return true;
 }
@@ -101,41 +123,43 @@ export function demoTogglePlay() {
     demo.timer = setTimeout(tick, 1400);
 }
 
+// Uppdaterar bara delarna av skelettet – texten fadar mjukt om,
+// visualen swappas direkt så likadana SVG:er ser ut att "förändras"
+// snarare än att blinka till.
 function renderDemoStep() {
     if (!demo) return;
     const { steps, idx } = demo;
     const step = steps[idx];
     const last = idx === steps.length - 1;
-    document.getElementById('demo-card').innerHTML = `
-        <div class="bg-violet-50 border-2 border-violet-200 rounded-3xl p-4 sm:p-6 text-center shadow-2xl">
-            <div class="flex items-center justify-center gap-2 mb-2">
-                <span class="inline-block px-4 py-1 rounded-full bg-violet-500 text-white text-xs font-extrabold">
-                    📺 VISA MIG · Steg ${idx + 1} av ${steps.length}
-                </span>
-                <button onclick="demoExit()" title="Stäng"
-                    class="w-7 h-7 rounded-full bg-violet-200 hover:bg-violet-300 text-violet-800 font-extrabold text-sm">✕</button>
-            </div>
-            <div class="flex items-center justify-center gap-1.5 mb-3">
-                ${steps.map((_, i) => `<span class="inline-block w-2 h-2 rounded-full ${i === idx ? 'bg-violet-500 scale-125' : i < idx ? 'bg-violet-300' : 'bg-violet-200'}"></span>`).join('')}
-            </div>
-            <div class="demo-fade text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-3 ${step.warn ? 'bg-amber-100 border-2 border-amber-400 rounded-2xl px-4 py-2.5' : ''}">
-                ${step.warn ? '<span class="inline-block px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[11px] font-extrabold mb-1">⚠️ SE UPP!</span><br>' : ''}${step.text}</div>
-            <div class="demo-fade demo-grid-wrap">${step.html}</div>
-            ${step.guess ? `<div class="demo-fade flex flex-wrap items-center justify-center gap-2 mt-3">
-                ${step.guess.options.map((o, i) => `<button onclick="demoGuess(this, ${o.ok ? 'true' : 'false'})"
-                    class="demo-guess-chip btn-3d bg-white border-2 border-violet-300 text-violet-900 font-display font-bold text-lg px-5 py-2 rounded-xl">${o.label}</button>`).join('')}
-            </div>
-            ${demo.solved && step.doneText ? `<div class="demo-pop text-emerald-700 font-extrabold mt-3">${step.doneText}</div>` : ''}` : ''}
-            <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
-                <button onclick="demoNav(-1)" ${idx === 0 ? 'disabled' : ''}
-                    class="btn-3d bg-white border-2 border-violet-300 text-violet-900 font-extrabold text-sm px-4 py-2 rounded-xl disabled:opacity-40">◀ Förra</button>
-                <button onclick="demoTogglePlay()"
-                    class="btn-3d ${demo.playing ? 'bg-amber-500 hover:bg-amber-600' : 'bg-violet-500 hover:bg-violet-600'} text-white font-extrabold text-sm px-4 py-2 rounded-xl">
-                    ${demo.playing ? '⏸ Pausa' : '▶ Spela upp'}</button>
-                ${last
-                    ? `<button onclick="demoExit()" ${step.guess && !demo.solved ? 'disabled title="Svara på frågan först!"' : ''}
-                        class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-sm px-5 py-2 rounded-xl ${step.guess && !demo.solved ? 'opacity-40' : ''}">✏️ Öva själv nu!</button>`
-                    : `<button onclick="demoNav(1)" class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-sm px-4 py-2 rounded-xl">Nästa ▶</button>`}
-            </div>
-        </div>`;
+
+    document.getElementById('demo-badge').textContent = `📺 VISA MIG · Steg ${idx + 1} av ${steps.length}`;
+    document.getElementById('demo-dots').innerHTML = steps.map((_, i) =>
+        `<span class="inline-block w-2 h-2 rounded-full ${i === idx ? 'bg-violet-500 scale-125' : i < idx ? 'bg-violet-300' : 'bg-violet-200'}"></span>`).join('');
+
+    document.getElementById('demo-text').className =
+        `text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-3 ${step.warn ? 'bg-amber-100 border-2 border-amber-400 rounded-2xl px-4 py-2.5' : ''}`;
+    document.getElementById('demo-text').innerHTML =
+        `<div class="demo-fade">${step.warn ? '<span class="inline-block px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[11px] font-extrabold mb-1">⚠️ SE UPP!</span><br>' : ''}${step.text}</div>`;
+
+    document.getElementById('demo-visual').innerHTML = step.html || '';
+
+    document.getElementById('demo-guess').innerHTML = step.guess
+        ? `<div class="flex flex-wrap items-center justify-center gap-2 mt-3">
+            ${step.guess.options.map(o => `<button onclick="demoGuess(this, ${o.ok ? 'true' : 'false'})"
+                class="demo-guess-chip btn-3d border-2 font-display font-bold text-lg px-5 py-2 rounded-xl ${demo.solved && o.ok
+                    ? 'bg-emerald-500 border-emerald-600 text-white'
+                    : 'bg-white border-violet-300 text-violet-900'}">${o.label}</button>`).join('')}
+        </div>` : '';
+    document.getElementById('demo-done').innerHTML =
+        demo.solved && step.doneText ? `<div class="demo-pop text-emerald-700 font-extrabold mt-3">${step.doneText}</div>` : '';
+
+    document.getElementById('demo-btn-prev').disabled = idx === 0;
+    const playBtn = document.getElementById('demo-btn-play');
+    playBtn.textContent = demo.playing ? '⏸ Pausa' : '▶ Spela upp';
+    playBtn.className = `btn-3d ${demo.playing ? 'bg-amber-500 hover:bg-amber-600' : 'bg-violet-500 hover:bg-violet-600'} text-white font-extrabold text-sm px-4 py-2 rounded-xl`;
+    const gate = last && step.guess && !demo.solved;
+    document.getElementById('demo-btn-next').innerHTML = last
+        ? `<button onclick="demoExit()" ${gate ? 'disabled title="Svara på frågan först!"' : ''}
+            class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-sm px-5 py-2 rounded-xl ${gate ? 'opacity-40' : ''}">✏️ Öva själv nu!</button>`
+        : `<button onclick="demoNav(1)" class="btn-3d bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-sm px-4 py-2 rounded-xl">Nästa ▶</button>`;
 }
