@@ -27,8 +27,9 @@ import * as ns_word from './modules/word.js';
 import * as ns_seq from './modules/seq.js';
 import * as ns_scratchpad from './scratchpad.js';
 import * as ns_mult_table from './mult-table.js';
+import * as ns_levels from './levels.js';
 
-Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table);
+Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels);
 
 /* =============================================================
    20. GLOBAL ENTER-TANGENT (SVARA / KONTROLLERA / NÄSTA)

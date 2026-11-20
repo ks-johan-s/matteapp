@@ -10,6 +10,43 @@ import { randInt, showFeedback } from '../utils.js';
 // Miniatyr-uppställning i ledtråden: visar konkret vad steget gör.
 // highlight = kolumn att markera (bärnstensram), struck = överstrukna
 // siffror, carries = {kolumn: '10'/'1'}, showAns = antal ifyllda svartal från höger.
+// Nivåkontroller för trappan: 'plain' = utan växling/minne/rest,
+// 'carry' = garanterat med. Hjälpfunktionerna simulerar metoden.
+function addNeedsCarry(a, b) {
+    let c = 0;
+    while (a > 0 || b > 0) {
+        const s = (a % 10) + (b % 10) + c;
+        if (s >= 10) return true;
+        c = s >= 10 ? 1 : 0;
+        a = Math.floor(a / 10); b = Math.floor(b / 10);
+    }
+    return false;
+}
+function subNeedsLoan(a, b) {
+    while (a > 0 || b > 0) {
+        if (a % 10 < b % 10) return true;
+        a = Math.floor(a / 10); b = Math.floor(b / 10);
+    }
+    return false;
+}
+function mulNeedsCarry(a, b) {
+    let rem = 0;
+    for (const ch of String(a).split('').reverse()) {
+        const p = (+ch) * b + rem;
+        if (p >= 10) return true;
+        rem = Math.floor(p / 10);
+    }
+    return false;
+}
+function divHasRest(a, b) {
+    let rem = 0;
+    for (const ch of String(a)) {
+        rem = (rem * 10 + (+ch)) % b;
+        if (rem > 0) return true;
+    }
+    return false;
+}
+
 function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0 } = {}) {
     const digits = Math.max(String(a).length, String(b).length, String(answer).length);
     const aStr = String(a).padStart(digits, ' ');
@@ -77,7 +114,21 @@ export function generateAlgoQuestion() {
     let a, b, answer, badge, qText, hints;
 
     if (op === 'sub') {
-        if (isHard) {
+        if (state.algoLevel === 'plain') {
+            badge = '− Uppställning';
+            do {
+                a = isHard ? randInt(120, 940) : randInt(34, 99);
+                b = isHard ? randInt(110, 899) : randInt(12, 33);
+            } while (a <= b || subNeedsLoan(a, b));
+            answer = a - b;
+            qText = `Räkna ut ${a} − ${b}!`;
+            hints = [
+                `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} − ${b % 10} = ${(a % 10) - (b % 10)}</strong> och skriv under strecket.</p>` +
+                algoMiniGrid(a, b, op, answer, { showAns: 1 }),
+                `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>` +
+                algoMiniGrid(a, b, op, answer, { showAns: 99 })
+            ];
+        } else if (isHard) {
             badge = '− Subtraktion med dubbel växling (Låna ×2 🔄)';
             const hTop = randInt(4, 9);
             const tTop = randInt(1, 5);
@@ -119,7 +170,21 @@ export function generateAlgoQuestion() {
             ];
         }
     } else if (op === 'add') {
-        if (isHard) {
+        if (state.algoLevel === 'plain') {
+            badge = '+ Uppställning';
+            do {
+                a = isHard ? randInt(101, 499) : randInt(12, 88);
+                b = isHard ? randInt(101, 499) : randInt(11, 87);
+            } while (addNeedsCarry(a, b));
+            answer = a + b;
+            qText = `Räkna ut ${a} + ${b}!`;
+            hints = [
+                `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} + ${b % 10} = ${(a % 10) + (b % 10)}</strong> och skriv under strecket.</p>` +
+                algoMiniGrid(a, b, op, answer, { showAns: 1 }),
+                `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>` +
+                algoMiniGrid(a, b, op, answer, { showAns: 99 })
+            ];
+        } else if (isHard) {
             badge = '+ Addition med dubbel minnessiffra';
             const hTop = randInt(2, 5);
             const tTop = randInt(5, 8);
@@ -161,9 +226,12 @@ export function generateAlgoQuestion() {
             ];
         }
     } else if (op === 'mul') {
-        badge = '× Multiplikation i uppställning';
-        a = isHard ? randInt(124, 348) : randInt(14, state.difficulty === 'easy' ? 29 : 48);
-        b = isHard ? randInt(4, 8) : randInt(2, state.difficulty === 'easy' ? 4 : 6);
+        badge = state.algoLevel === 'carry' ? '× Uppställning med minnessiffra' : '× Uppställning';
+        do {
+            a = isHard ? randInt(124, 348) : randInt(14, state.difficulty === 'easy' ? 29 : 48);
+            b = isHard ? randInt(4, 8) : randInt(2, state.difficulty === 'easy' ? 4 : 6);
+        } while ((state.algoLevel === 'carry' && !mulNeedsCarry(a, b)) ||
+                 (state.algoLevel === 'plain' && mulNeedsCarry(a, b)));
         answer = a * b;
         qText = `Räkna ut ${a} × ${b}!`;
 
@@ -180,10 +248,13 @@ export function generateAlgoQuestion() {
             algoMiniGrid(a, b, op, answer, { carries: mulCarries, showAns: 99 })
         ];
     } else {
-        badge = '÷ Kort division';
-        b = isHard ? randInt(4, 9) : randInt(2, 5);
-        answer = isHard ? randInt(42, 128) : randInt(12, state.difficulty === 'easy' ? 24 : 36);
-        a = answer * b;
+        badge = state.algoLevel === 'carry' ? '÷ Kort division med rest' : '÷ Kort division';
+        do {
+            b = isHard ? randInt(4, 9) : randInt(2, 5);
+            answer = isHard ? randInt(42, 128) : randInt(12, state.difficulty === 'easy' ? 24 : 36);
+            a = answer * b;
+        } while ((state.algoLevel === 'carry' && !divHasRest(a, b)) ||
+                 (state.algoLevel === 'plain' && divHasRest(a, b)));
         qText = `Räkna ut ${a} ÷ ${b}!`;
 
         hints = [

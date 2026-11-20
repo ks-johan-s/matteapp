@@ -24,7 +24,7 @@ import { generateWordQuestion } from './modules/word.js';
 export function navigateTo(viewName) {
     playSound('click');
     state.currentView = viewName;
-    const views = ['home', 'addsub', 'mult', 'div', 'seq', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
+    const views = ['home', 'levelpicker', 'addsub', 'mult', 'div', 'seq', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
     views.forEach(v => {
         const sec = document.getElementById(`view-${v}`);
         if (sec) sec.classList.toggle('hidden', v !== viewName);

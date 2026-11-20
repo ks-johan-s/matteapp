@@ -75,6 +75,53 @@ body {
     color: #0f172a;
     caret-color: #0284c7;
 }
+.level-step-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 12px 16px;
+    font-family: 'Fredoka', sans-serif;
+    transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.level-step-card:hover {
+    border-color: #818cf8;
+    background: #eef2ff;
+    transform: translateY(-1px);
+}
+.level-step-num {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #6366f1;
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.05rem;
+}
+.level-step-icon { font-size: 1.5rem; flex: none; }
+.level-step-text { display: flex; flex-direction: column; }
+.level-step-text strong { font-weight: 800; color: #1e293b; }
+.level-step-text small { font-weight: 700; color: #94a3b8; font-size: 0.75rem; }
+.level-explore-chip {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid #c7d2fe;
+    color: #4338ca;
+    font-weight: 800;
+    font-size: 0.85rem;
+    transition: background 0.12s ease, transform 0.12s ease;
+}
+.level-explore-chip:hover { background: #e0e7ff; transform: translateY(-1px); }
+
 .math-grid-input::placeholder {
     color: #94a3b8;
     opacity: 0.55;
