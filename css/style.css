@@ -675,3 +675,71 @@ div.demo-struck::after {
 #demo-text { min-height: 132px; display: flex; align-items: center; justify-content: center; }
 #demo-visual { min-height: 330px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 #demo-guess { min-height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* Föremål som glider ner från en "korg"/källa till sin plats (division m.m.) */
+.demo-fly-down {
+    display: inline-block;
+    animation: demoFlyDown 0.6s cubic-bezier(0.3, 1.2, 0.4, 1) both;
+}
+@keyframes demoFlyDown {
+    from { transform: translateY(-56px) scale(0.7); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Liten etikett-tagg i demon (+4, timmar, minuter…) */
+.demo-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    animation: demoPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Stegtyps-chip i toppen av demostegen */
+.demo-kind {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.demo-kind-look { background: #ede9fe; color: #5b21b6; }
+.demo-kind-count { background: #e0f2fe; color: #075985; }
+.demo-kind-you { background: #d1fae5; color: #065f46; }
+
+/* Tallinjestreck som "räknas" – lyser ett i taget */
+.demo-tick-count {
+    animation: demoTickPop 0.4s ease both;
+}
+@keyframes demoTickPop {
+    from { opacity: 0.2; }
+    to { opacity: 1; }
+}
+
+/* Flygande föremål som också spotlightas: båda animationerna kombineras */
+.demo-fly-down.demo-spot {
+    animation:
+        demoFlyDown 0.6s cubic-bezier(0.3, 1.2, 0.4, 1) both,
+        demoSpot 1.5s ease-in-out 0.75s infinite;
+}
+
+/* Platsvärdes-tagg i hörnet av den markerade uppställningskolumnen */
+.demo-col-tag {
+    position: absolute;
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: #b45309;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    pointer-events: none;
+}

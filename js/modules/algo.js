@@ -47,6 +47,8 @@ function divHasRest(a, b) {
     return false;
 }
 
+const PV_NAMES = { 1: 'ental', 10: 'tiotal', 100: 'hundratal', 1000: 'tusental' };
+
 function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0,
     freshStruck = [], freshCarry = [], popAns = false, big = false } = {}) {
     const digits = Math.max(String(a).length, String(b).length, String(answer).length);
@@ -64,7 +66,9 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     for (let c = 0; c < cols; c++) {
         const cls = [c > 0 ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '',
             freshStruck.includes(c) ? 'demo-struck' : '', c === highlight ? 'cell-hl' : ''].join(' ');
-        h += cell(c > 0 ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : '', cls);
+        const colTag = big && c === highlight && PV_NAMES[place(c)]
+            ? `<span class="demo-col-tag">▾ ${PV_NAMES[place(c)]}</span>` : '';
+        h += cell(colTag + (c > 0 ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : ''), cls);
     }
     for (let c = 0; c < cols; c++) {
         // Minnessiffran i multiplikation visas litet på multiplikatorns rad.
@@ -105,7 +109,9 @@ function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1
     h += `<div class="math-grid-cell text-sky-700 font-bold" style="${span(1)}">${b}</div>`;
     for (let i = 0; i < divLen; i++) {
         const place = Math.pow(10, divLen - 1 - i);
-        h += `<div class="math-grid-cell pv-col-${place}${i === hlDigit ? ' cell-hl' : ''}"><span class="pv-num pv-${place}">${aStr[i]}</span></div>`;
+        const colTag = big && i === hlDigit && PV_NAMES[place]
+            ? `<span class="demo-col-tag">▾ ${PV_NAMES[place]}</span>` : '';
+        h += `<div class="math-grid-cell pv-col-${place}${i === hlDigit ? ' cell-hl' : ''}">${colTag}<span class="pv-num pv-${place}">${aStr[i]}</span></div>`;
     }
     h += `<div class="math-grid-cell text-slate-900 font-bold" style="${span(divLen + 2)}">=</div>`;
     for (let i = 0; i < ansStr.length; i++) {

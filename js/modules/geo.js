@@ -384,7 +384,12 @@ export function buildGeoDemoSteps() {
             else
                 cells.push(`<div class="${r === h - 1 ? 'demo-slice demo-spot' : ''} w-10 h-10 rounded-lg border-2 ${['bg-fuchsia-200 border-fuchsia-400', 'bg-purple-300 border-purple-500', 'bg-fuchsia-400 border-fuchsia-600'][r]} flex items-center justify-center font-display font-bold text-white text-sm">${c + 1}</div>`);
         }
-        return `<div class="inline-grid gap-1.5 p-3 rounded-2xl bg-fuchsia-50 border-2 border-fuchsia-200" style="grid-template-columns:repeat(${w},minmax(0,1fr))">${cells.join('')}</div>`;
+        return `<div class="inline-grid gap-1.5 p-3 rounded-2xl bg-fuchsia-50 border-2 border-fuchsia-200" style="grid-template-columns:repeat(${w},minmax(0,1fr))">${cells.join('')}</div>`
+            + (mode === 'rows' ? `<div class="mt-2 flex items-center justify-center gap-2">
+                <span class="demo-tag" style="background:#fce7f3;color:#be185d">${w} i varje rad</span>
+                <span class="font-display font-bold text-fuchsia-700">×</span>
+                <span class="demo-tag" style="background:#f3e8ff;color:#7e22ce">${h} rader</span>
+            </div>` : '');
     };
     return { steps: [
         { text: `<p>Här är en rektangel som är <strong>${w} rutor bred</strong> och <strong>${h} rutor hög</strong>. Hur stor är <strong>arean</strong>?</p>`,

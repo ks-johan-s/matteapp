@@ -280,23 +280,25 @@ export function checkDecimalTyped() {
 // "Visa mig": markören hoppar ut på tallinjen – tiondelarna räknas
 // streck för streck.
 export function buildDecimalDemoSteps() {
-    const val = 0.7;
-    const line = (opts) => `<div class="max-w-lg mx-auto">${renderDecimalNumberLineSVG(0, 1, 0.1, val, false, opts.label !== false, null, opts)}</div>`;
+    const val = 0.7, guessVal = 0.4;
+    const line = (marker, opts) => `<div class="max-w-lg mx-auto">${renderDecimalNumberLineSVG(0, 1, 0.1, marker, false, opts.label !== false, opts.jump !== undefined ? opts.jump : null, opts)}</div>`;
     return { steps: [
         { text: `<p>Den här tallinjen går från <strong>0</strong> till <strong>1</strong>.</p>`,
-          html: line({ hideMarker: true }) },
-        { text: `<p>Den är delad i <strong>10 lika stora delar</strong> – varje litet streck är <strong>en tiondel (0,1)</strong>!</p>`,
-          html: line({ hideMarker: true }) },
+          html: line(0, { hideMarker: true }) },
+        { text: `<p>Den är delad i <strong>10 lika stora delar</strong> – räkna märkena som tänds: varje litet streck är <strong>en tiondel (0,1)</strong>!</p>`,
+          html: line(0, { hideMarker: true, countTicks: 10 }) },
         { text: `<p>Räkna inte strecken från 1 – börja vid <strong>nollan</strong>! Första strecket efter 0 är ${formatNumSv(0.1)}, andra är ${formatNumSv(0.2)} …</p>`,
           warn: true,
-          html: line({ hideMarker: true }) },
-        { text: `<p><strong>Din tur!</strong> Vilket tal visar markören? Räkna strecken: 0,1 – 0,2 – 0,3 …</p>`,
-          html: line({ label: false, markerCls: 'demo-marker-hop demo-spot-svg' }),
+          html: line(0.1, { countTicks: 1 }) },
+        { text: `<p>Markören <strong>hoppar ut</strong> på linjen! Följ bågen: 0,1 – 0,2 – … – <strong>${formatNumSv(val)}</strong>. Sju streck = sju tiondelar!</p>`,
+          html: line(val, { countTicks: 7, jump: val, markerCls: 'demo-marker-hop' }) },
+        { text: `<p><strong>Din tur!</strong> Vilket tal visar markören? Räkna strecken från nollan: 0,1 – 0,2 – 0,3 …</p>`,
+          html: line(guessVal, { label: false, markerCls: 'demo-marker-hop demo-spot-svg' }),
           guess: { options: [
-              { label: '7', ok: false },
-              { label: formatNumSv(val), ok: true },
-              { label: formatNumSv(0.07), ok: false },
+              { label: '4', ok: false },
+              { label: formatNumSv(guessVal), ok: true },
+              { label: formatNumSv(0.04), ok: false },
           ] },
-          doneText: `${formatNumSv(val)} – sju tiondelar! 🎉` },
+          doneText: `${formatNumSv(guessVal)} – fyra tiondelar! 🎉` },
     ] };
 }

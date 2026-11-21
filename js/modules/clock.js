@@ -218,14 +218,14 @@ export function checkSandboxTarget() {
 // befintliga clock-hand-animationen och focus-dimningen.
 export function buildClockDemoSteps() {
     const h = 4, m = 15;
-    const clock = (focus) => `<div class="flex justify-center">${renderClockSVG(h, m, 215, false, focus)}</div>`;
+    const clock = (focus, opts = {}) => `<div class="flex justify-center">${renderClockSVG(h, m, 215, false, focus, opts)}</div>`;
     return { steps: [
         { text: `<p>En klocka har <strong>två visare</strong>! Den <span class="text-rose-600 font-bold">korta</span> visar <strong>timmar</strong> och den <span class="text-sky-600 font-bold">långa</span> visar <strong>minuter</strong>.</p>`,
           html: clock(null) },
-        { text: `<p>Titta på den <span class="text-rose-600 font-bold">korta timvisaren</span>: den har passerat <strong>${h}</strong> – det är ${h} i timmen!</p>`,
-          html: clock('hour') },
-        { text: `<p>Nu den <span class="text-sky-600 font-bold">långa minutvisaren</span>: varje siffra på urtavlan betyder <strong>5 minuter</strong>. Räkna: 5, 10, <strong>${m}</strong> – ${m} minuter kallas <strong>en kvart</strong>!</p>`,
-          html: clock('min') },
+        { text: `<p>Titta på den <span class="text-rose-600 font-bold">korta timvisaren</span> <span class="demo-tag" style="background:#ffe4e6;color:#be123c">timmar</span>: den har passerat <strong>${h}</strong> – det är ${h} i timmen!</p>`,
+          html: clock('hour', { handLabels: true }) },
+        { text: `<p>Nu den <span class="text-sky-600 font-bold">långa minutvisaren</span> <span class="demo-tag" style="background:#e0f2fe;color:#075985">minuter</span>: varje siffra betyder <strong>5 minuter</strong>. Räkna märkena: 5, 10, <strong>${m}</strong> – det är <strong>en kvart</strong>!</p>`,
+          html: clock('min', { handLabels: true, minCounts: true }) },
         { text: `<p>Många blandar ihop visarna! Den <span class="text-rose-600 font-bold">korta</span> är timmar och den <span class="text-sky-600 font-bold">långa</span> är minuter – inte tvärtom!</p>`,
           warn: true,
           html: clock(null) },

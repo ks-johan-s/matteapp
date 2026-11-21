@@ -136,10 +136,18 @@ function renderDemoStep() {
     document.getElementById('demo-dots').innerHTML = steps.map((_, i) =>
         `<span class="inline-block w-2 h-2 rounded-full ${i === idx ? 'bg-violet-500 scale-125' : i < idx ? 'bg-violet-300' : 'bg-violet-200'}"></span>`).join('');
 
+    // Stegtyps-etikett ger varje genomgång samma rytm:
+    // TITTA → RÄKNA MED → SE UPP! → DIN TUR.
+    const kind = step.warn
+        ? '<span class="demo-kind" style="background:#fcd34d;color:#78350f">⚠️ SE UPP!</span><br>'
+        : step.guess
+            ? '<span class="demo-kind demo-kind-you">✏️ DIN TUR</span><br>'
+            : `<span class="demo-kind ${idx === 0 ? 'demo-kind-look' : 'demo-kind-count'}">${idx === 0 ? '👀 TITTA' : '🧮 RÄKNA MED'}</span><br>`;
+
     document.getElementById('demo-text').className =
         `text-base sm:text-lg text-slate-800 max-w-xl mx-auto mb-3 ${step.warn ? 'bg-amber-100 border-2 border-amber-400 rounded-2xl px-4 py-2.5' : ''}`;
     document.getElementById('demo-text').innerHTML =
-        `<div class="demo-fade">${step.warn ? '<span class="inline-block px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[11px] font-extrabold mb-1">⚠️ SE UPP!</span><br>' : ''}${step.text}</div>`;
+        `<div class="demo-fade">${kind}${step.text}</div>`;
 
     document.getElementById('demo-visual').innerHTML = step.html || '';
 

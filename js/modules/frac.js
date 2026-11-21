@@ -491,6 +491,19 @@ export function buildFracDemoSteps() {
     const den = 4, num = 3;
     const sel = (n) => Array.from({ length: n }, (_, i) => i);
     const pizza = (selArr, anim) => `<div class="flex justify-center">${renderPizzaSVG(den, selArr, false, '', 195, anim)}</div>`;
+    // Bråket med färgkodade etiketter: rosa = fyllda bitar, amber = alla delar.
+    const fracCard = (n, d, nLbl, dLbl) => `
+        <div class="inline-flex items-center gap-4 bg-white border-2 border-pink-200 rounded-3xl px-5 py-2">
+            <div class="flex flex-col items-center font-display font-bold leading-none">
+                <span class="text-4xl text-rose-500">${n}</span>
+                <span class="w-12 h-1 bg-slate-800 rounded my-1"></span>
+                <span class="text-4xl text-amber-600">${d}</span>
+            </div>
+            <div class="flex flex-col justify-between self-stretch py-0.5 text-left">
+                <span class="demo-tag" style="background:#ffe4e6;color:#be123c">⬅ täljare: bitarna vi tar</span>
+                <span class="demo-tag" style="background:#fef3c7;color:#92400e">⬅ nämnare: alla delar</span>
+            </div>
+        </div>`;
     return { steps: [
         { text: `<p>En hel pizza! 🍕 Ingen bit saknas – den är <strong>en hel</strong>.</p>`,
           html: `<div class="demo-pop flex justify-center">${renderPizzaSVG(1, [0], false, '', 195)}</div>` },
@@ -498,16 +511,17 @@ export function buildFracDemoSteps() {
           html: pizza([], { popAll: true }) },
         { text: `<p>Varje bit är <strong>en fjärdedel</strong> – det skriver vi ${formatFractionHTML(1, den)}.</p>`,
           html: pizza([0], { popIdx: 0, spotIdx: 0 }) },
-        { text: `<p>Nu tar vi <strong>${num} bitar</strong> – räkna med: en… två… tre!</p>`,
-          html: pizza(sel(num), { staggerFrom: 0, spotIdx: num - 1 }) },
+        { text: `<p>Nu tar vi <strong>${num} bitar</strong> – räkna med: en… två… tre! <strong>Tre av fyra delar.</strong></p>`,
+          html: pizza(sel(num), { staggerFrom: 0, spotIdx: num - 1 }) + fracCard(num, den, 'täljare: bitarna vi tar', 'nämnare: alla delar') },
         { text: `<p>Många skriver bråket <strong>baklänges</strong>! Nämnaren står <strong>under</strong> strecket: ${formatFractionHTML(num, den)} betyder ${num} av ${den} delar – <strong>inte</strong> ${formatFractionHTML(den, num)}!</p>`,
           warn: true,
           html: `<div class="flex items-center justify-center gap-8 font-display font-bold text-4xl">
               <span class="text-emerald-600">${formatFractionHTML(num, den)} ✓</span>
               <span class="text-red-400 line-through opacity-70">${formatFractionHTML(den, num)} ✗</span>
           </div>` },
-        { text: `<p><strong>Din tur!</strong> Vilket bråk visar pizzan? Kom ihåg: täljaren räknar bitarna, nämnaren säger hur många delar pizzan delades i.</p>`,
-          html: `<div class="flex justify-center">${renderPizzaSVG(den, sel(num), false, '', 185)}</div>`,
+        { text: `<p><strong>Din tur!</strong> Vilket bråk visar pizzan? <span class="demo-tag" style="background:#ffe4e6;color:#be123c">räkna fyllda bitar ↑</span> <span class="demo-tag" style="background:#fef3c7;color:#92400e">alla delar ↓</span></p>`,
+          html: `<div class="flex justify-center">${renderPizzaSVG(den, sel(num), false, '', 185)}</div>` +
+                fracCard('?', '?', 'fyllda bitar', 'alla delar'),
           guess: { options: [
               { label: formatFractionHTML(den, num), ok: false },
               { label: formatFractionHTML(num, den), ok: true },

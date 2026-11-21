@@ -118,9 +118,11 @@ export function renderDecimalNumberLineSVG(minVal, maxVal, step, markerVal, inte
         const x = xStart + (i / totalSteps) * width;
         const major = isLabel(val);
         const isZero = Math.abs(val) < step / 2 && minVal < 0;
+        const counted = opts.countTicks && i >= 1 && i <= opts.countTicks;
         const tickH = major ? 18 : 8;
-        const col = isZero ? '#0f766e' : (major ? '#1e3a8a' : '#64748b');
-        ticksHtml += `<line x1="${x.toFixed(1)}" y1="${65 - tickH}" x2="${x.toFixed(1)}" y2="${65 + tickH}" stroke="${col}" stroke-width="${major || isZero ? 3 : 1.8}" />`;
+        const col = counted ? '#f59e0b' : (isZero ? '#0f766e' : (major ? '#1e3a8a' : '#64748b'));
+        const anim = counted ? ` class="demo-tick-count" style="animation-delay:${i * 0.28}s"` : '';
+        ticksHtml += `<line x1="${x.toFixed(1)}" y1="${65 - tickH}" x2="${x.toFixed(1)}" y2="${65 + tickH}" stroke="${col}" stroke-width="${major || isZero || counted ? 3 : 1.8}"${anim} />`;
         if (major) {
             ticksHtml += `<text x="${x.toFixed(1)}" y="102" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#1e293b">${formatNumSv(val)}</text>`;
         }
@@ -233,7 +235,7 @@ export function buildUnitLadderSVGHTML(units, stepMuls, stepDivs, fromUnit, toUn
 /* =============================================================
    13. MODUL 10: KLOCKAN & TID + ÖVNINGSKLOCKA
 ============================================================== */
-export function renderClockSVG(hours, minutes, size = 190, interactive = false, focus = null) {
+export function renderClockSVG(hours, minutes, size = 190, interactive = false, focus = null, opts = {}) {
     const cx = size / 2, cy = size / 2, r = size * 0.43;
     let ticksHtml = '';
     for (let t = 0; t < 60; t++) {
@@ -263,12 +265,43 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
     const mx = cx + (r * 0.74) * Math.cos(minAngle);
     const my = cy + (r * 0.74) * Math.sin(minAngle);
 
+    // "Räkna fem i taget"-märken utanför siffrorna (5, 10, 15 … upp till
+    // aktuell minut) – visas i demon där minutvisaren förklaras.
+    let minCountsHtml = '';
+    if (opts.minCounts) {
+        for (let t = 5; t <= minutes; t += 5) {
+            const ang = (t / 60) * Math.PI * 2 - Math.PI / 2;
+            const lx = cx + (r * 1.02) * Math.cos(ang);
+            const ly = cy + (r * 1.02) * Math.sin(ang) + size * 0.018;
+            minCountsHtml += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="${size * 0.062}" fill="#0284c7" class="demo-tick-count" style="animation-delay:${t * 0.055}s">${t}</text>`;
+        }
+    }
+
+    // Etikett-taggar vid visartippen ("timmar"/"minuter") i demon.
+    const handLabel = (x, y, text, color, w) => `
+        <g class="demo-pop">
+            <rect x="${(x - w / 2).toFixed(1)}" y="${(y - size * 0.042).toFixed(1)}" width="${w}" height="${size * 0.084}" rx="${size * 0.04}" fill="#ffffff" stroke="${color}" stroke-width="2" opacity="0.95" />
+            <text x="${x.toFixed(1)}" y="${(y + size * 0.02).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="${size * 0.052}" fill="${color}">${text}</text>
+        </g>`;
+    // Etiketten placeras lite vinkelrätt ut från visaren så den inte
+    // täcker den: pos = 0.6·r längs visaren + 0.22·r i sidled.
+    const labelAt = (angle, text, color, w) => {
+        const px = Math.cos(angle) * r * 0.60 - Math.sin(angle) * r * 0.22;
+        const py = Math.sin(angle) * r * 0.60 + Math.cos(angle) * r * 0.22;
+        return handLabel(cx + px, cy + py, text, color, w);
+    };
+    const handLabelsHtml = !interactive && opts.handLabels
+        ? (focus === 'hour' ? labelAt(hourAngle, 'timmar', '#e11d48', size * 0.27) : '') +
+          (focus === 'min' ? labelAt(minAngle, 'minuter', '#0284c7', size * 0.30) : '')
+        : '';
+
     return `
         <svg id="${interactive ? 'sandbox-clock-svg' : ''}" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="drop-shadow-sm ${interactive ? 'cursor-pointer' : ''}">
             <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="#7c3aed" />
             <circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff" />
             ${ticksHtml}
             ${numsHtml}
+            ${minCountsHtml}
             ${interactive ? `
             <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#e11d48" stroke-width="${size * 0.036}" stroke-linecap="round" opacity="${focus === 'min' ? 0.25 : 1}" />
             <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="10" fill="#e11d48" fill-opacity="0.35" />
@@ -283,6 +316,7 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
             </g>
             `}
             <circle cx="${cx}" cy="${cy}" r="${size * 0.032}" fill="#0f172a" />
+            ${handLabelsHtml}
         </svg>
     `;
 }
