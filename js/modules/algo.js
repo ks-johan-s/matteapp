@@ -50,7 +50,7 @@ function divHasRest(a, b) {
 const PV_NAMES = { 1: 'ental', 10: 'tiotal', 100: 'hundratal', 1000: 'tusental' };
 
 function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0,
-    freshStruck = [], freshCarry = [], popAns = false, big = false } = {}) {
+    freshStruck = [], freshCarry = [], popAns = false, big = false, glowBlank = false } = {}) {
     const digits = Math.max(String(a).length, String(b).length, String(answer).length);
     const aStr = String(a).padStart(digits, ' ');
     const bStr = String(b).padStart(digits, ' ');
@@ -59,13 +59,15 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     const opSym = op === 'sub' ? '−' : (op === 'add' ? '+' : '×');
     const place = c => Math.pow(10, cols - 1 - c);
     const cell = (content, cls = '') => `<div class="math-grid-cell ${cls}">${content}</div>`;
-    const carryCls = c => `math-grid-carry${freshCarry.includes(c) ? ' carry-pop' : ''}`;
+    const carryCls = c => `math-grid-carry${freshCarry.includes(c) ? ' carry-pop cell-soft-glow' : ''}`;
 
     let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 62 : 34}px);">`;
     if (op !== 'mul') for (let c = 0; c < cols; c++) h += cell(carries[c] || '', carryCls(c));
     for (let c = 0; c < cols; c++) {
         const cls = [c > 0 ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '',
-            freshStruck.includes(c) ? 'demo-struck' : '', c === highlight ? 'cell-hl' : ''].join(' ');
+            freshStruck.includes(c) ? 'demo-struck' : '',
+            freshStruck.includes(c) && c !== highlight ? 'cell-soft-glow' : '',
+            c === highlight ? 'cell-hl' : ''].join(' ');
         const colTag = big && c === highlight && PV_NAMES[place(c)]
             ? `<span class="demo-col-tag">▾ ${PV_NAMES[place(c)]}</span>` : '';
         h += cell(colTag + (c > 0 ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : ''), cls);
@@ -82,9 +84,10 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     for (let c = 0; c < cols; c++) {
         const d = c === 0 ? '' : ansStr[c - 1];
         const shown = d.trim() !== '' && digits - c < showAns;
-        const popCls = popAns && shown && digits - c === showAns - 1 ? ' ans-pop' : '';
-        h += cell(c === 0 ? '' : `<span class="pv-num pv-${place(c)}${popCls}">${shown ? d : '<span class="text-slate-300">?</span>'}</span>`,
-            c > 0 ? `pv-col-${place(c)}` : '');
+        const isNew = popAns && shown && digits - c === showAns - 1;
+        const isBlank = glowBlank && c > 0 && !shown && digits - c === showAns;
+        h += cell(c === 0 ? '' : `<span class="pv-num pv-${place(c)}${isNew ? ' ans-pop' : ''}">${shown ? d : '<span class="text-slate-300">?</span>'}</span>`,
+            `${c > 0 ? `pv-col-${place(c)}` : ''}${isNew || isBlank ? ' cell-soft-glow' : ''}`);
     }
     return h + '</div>';
 }
@@ -93,7 +96,7 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
 // nämnare/=/svar centrerade på streckets höjd. showAns = antal synliga
 // svarssiffror från VÄNSTER (division räknas från vänster!).
 function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1,
-    freshCarry = [], popAnsIdx = -1, big = false } = {}) {
+    freshCarry = [], popAnsIdx = -1, big = false, glowBlank = false } = {}) {
     const aStr = String(a);
     const divLen = aStr.length;
     const ansStr = String(answer);
@@ -104,7 +107,7 @@ function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1
     for (let c = 1; c <= cols; c++) {
         const dIdx = c - 2;
         const cv = (dIdx >= 1 && dIdx <= divLen - 1 && carries[dIdx]) || '';
-        h += `<div class="math-grid-cell math-grid-carry${freshCarry.includes(dIdx) ? ' carry-pop' : ''}">${cv}</div>`;
+        h += `<div class="math-grid-cell math-grid-carry${freshCarry.includes(dIdx) ? ' carry-pop cell-soft-glow' : ''}">${cv}</div>`;
     }
     h += `<div class="math-grid-cell text-sky-700 font-bold" style="${span(1)}">${b}</div>`;
     for (let i = 0; i < divLen; i++) {
@@ -116,8 +119,10 @@ function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1
     h += `<div class="math-grid-cell text-slate-900 font-bold" style="${span(divLen + 2)}">=</div>`;
     for (let i = 0; i < ansStr.length; i++) {
         const shown = i < showAns;
-        h += `<div class="math-grid-cell" style="${span(divLen + 3 + i)}">
-            <span class="pv-num pv-1${i === popAnsIdx && shown ? ' ans-pop' : ''}">${shown ? ansStr[i] : '<span class="text-slate-300">?</span>'}</span>
+        const isNew = i === popAnsIdx && shown;
+        const isBlank = glowBlank && !shown && i === showAns;
+        h += `<div class="math-grid-cell${isNew || isBlank ? ' cell-soft-glow' : ''}" style="${span(divLen + 3 + i)}">
+            <span class="pv-num pv-1${isNew ? ' ans-pop' : ''}">${shown ? ansStr[i] : '<span class="text-slate-300">?</span>'}</span>
         </div>`;
     }
     h += `<div style="grid-row: 3; grid-column: 2 / ${divLen + 2}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
@@ -402,7 +407,7 @@ export function buildAlgoDemoSteps() {
     ]);
     const lastRaw = raw[raw.length - 1];
     const lg = lastRaw.grid || lastRaw.divGrid || {};
-    const guessGrid = { ...lg, showAns: ansStr.length - 1 };
+    const guessGrid = { ...lg, showAns: ansStr.length - 1, glowBlank: true };
     if (cur.op !== 'div') guessGrid.highlight = 1;
     else guessGrid.hlDigit = -1;
     const sym = cur.op === 'sub' ? '−' : (cur.op === 'add' ? '+' : (cur.op === 'mul' ? '×' : '÷'));
