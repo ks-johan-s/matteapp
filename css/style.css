@@ -554,6 +554,43 @@ body.focus-mode-active .gamification-badge {
     height: 32px;
     font-size: 1.05rem;
 }
+/* Minnessiffran i multiplikation står litet nedtill till vänster i den
+   svarsruta där den ska adderas – "vid sidan", inte under operanden. */
+.mul-carry-side {
+    position: absolute;
+    left: 4px;
+    bottom: 3px;
+    font-family: 'Edu SA Hand', cursive;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #059669;
+    line-height: 1;
+    pointer-events: none;
+}
+.math-grid-mini .mul-carry-side { font-size: 0.62rem; left: 2px; bottom: 2px; }
+.math-grid-mid .mul-carry-side { font-size: 0.72rem; left: 3px; }
+.math-grid-carry-side-input {
+    position: absolute;
+    left: 2px;
+    bottom: 2px;
+    width: 20px;
+    height: 22px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Edu SA Hand', cursive;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #059669;
+    caret-color: #0284c7;
+    z-index: 2;
+}
+.math-grid-carry-side-input::placeholder { color: #a7f3d0; }
+/* Mellanstorleken används av demon med fler rader (t.ex. ×2-uppställning). */
+.math-grid-mid .math-grid-cell { width: 44px; height: 42px; font-size: 1.3rem; }
+.math-grid-mid .math-grid-carry { font-size: 0.9rem; }
+.math-grid-mid .cell-hl { animation: cellHlPulse 1.3s ease-in-out infinite; }
 .math-grid-mini .math-grid-carry {
     font-family: 'Edu SA Hand', cursive;
     font-size: 0.8rem;

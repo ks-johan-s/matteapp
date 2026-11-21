@@ -59,6 +59,7 @@ export const LEVEL_MODULES = {
             { icon: '🧠', label: 'Huvudräkning', desc: 'Träna tabellerna', demo: true, apply: () => { setMultMissing(false); return 'mult'; } },
             { icon: '📝', label: 'Uppställning', desc: 'Skriv siffrorna i rutor', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
             { icon: '🔥', label: 'Uppställning med minnessiffra', desc: 'Öva att växla tiotal', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '🧮', label: 'Uppställning × 2 siffror', desc: 'Delresultat + addition', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'mul2'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
         explore: [
             { icon: '❓', label: 'Saknat faktor', apply: () => { setMultMissing(true); return 'mult'; } },
@@ -226,7 +227,8 @@ export const LEVEL_MODULES = {
         steps: [
             { icon: '➕', label: 'Addition', desc: 'Minnessiffra', demo: true, apply: () => { setAlgoOp('add'); state.algoLevel = ''; return 'algo'; } },
             { icon: '➖', label: 'Subtraktion', desc: 'Växling – låna', demo: true, apply: () => { setAlgoOp('sub'); state.algoLevel = ''; return 'algo'; } },
-            { icon: '✖️', label: 'Multiplikation', desc: 'Minnessiffra på multiplikatorraden', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = ''; return 'algo'; } },
+            { icon: '✖️', label: 'Multiplikation', desc: 'Minnessiffra vid sidan', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = ''; return 'algo'; } },
+            { icon: '🧮', label: 'Multiplikation ×2', desc: 'Två delresultat', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'mul2'; return 'algo'; } },
             { icon: '➗', label: 'Division', desc: 'Kort division – trappan', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = ''; return 'algo'; } },
         ],
         explore: [],
