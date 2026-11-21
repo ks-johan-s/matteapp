@@ -70,7 +70,7 @@ export const LEVEL_MODULES = {
         steps: [
             { icon: '🧠', label: 'Huvudräkning', desc: 'Dela lika i huvudet', demo: true, apply: () => { setDivSubMode('share'); return 'div'; } },
             { icon: '📝', label: 'Uppställning', desc: 'Kort division utan rester', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = 'plain'; setAlgoSheetMode('guided'); return 'algo'; } },
-            { icon: '🔥', label: 'Uppställning med rest', desc: 'Skriv minnessiffror i trappan', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
+            { icon: '🔥', label: 'Uppställning med rest', desc: 'Skriv resten litet i uppställningen', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = 'carry'; setAlgoSheetMode('guided'); return 'algo'; } },
         ],
         explore: [
             { icon: '🤲', label: 'Dela själv', apply: () => { setDivSubMode('hands'); return 'div'; } },
@@ -229,7 +229,7 @@ export const LEVEL_MODULES = {
             { icon: '➖', label: 'Subtraktion', desc: 'Växling – låna', demo: true, apply: () => { setAlgoOp('sub'); state.algoLevel = ''; return 'algo'; } },
             { icon: '✖️', label: 'Multiplikation', desc: 'Minnessiffra vid sidan', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = ''; return 'algo'; } },
             { icon: '🧮', label: 'Multiplikation ×2', desc: 'Två delresultat', demo: true, apply: () => { setAlgoOp('mul'); state.algoLevel = 'mul2'; return 'algo'; } },
-            { icon: '➗', label: 'Division', desc: 'Kort division – trappan', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = ''; return 'algo'; } },
+            { icon: '➗', label: 'Division', desc: 'Kort division i bråkform', demo: true, apply: () => { setAlgoOp('div'); state.algoLevel = ''; return 'algo'; } },
         ],
         explore: [],
     },

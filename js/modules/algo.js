@@ -95,44 +95,46 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     return h + '</div>';
 }
 
-// Trapp-miniatyr för kort division: minnessiffror över täljarsiffrorna,
-// nämnare/=/svar centrerade på streckets höjd. showAns = antal synliga
-// svarssiffror från VÄNSTER (division räknas från vänster!).
+// Bråk-miniatyr för kort division (svensk skolkonvention à la Zcooly):
+// minnessiffror över täljarsiffrorna, täljaren ovanför strecket, nämnaren
+// centrerad UNDER strecket – = och svar vertikalt centrerade på streckets
+// höjd. showAns = antal synliga svarssiffror från VÄNSTER.
 function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1,
     freshCarry = [], popAnsIdx = -1, big = false, glowBlank = false } = {}) {
     const aStr = String(a);
     const divLen = aStr.length;
     const ansStr = String(answer);
-    const cols = divLen + 2 + ansStr.length;
+    const cols = divLen + 1 + ansStr.length;
     const span = (col) => `grid-row: 2 / span 3; grid-column: ${col}; height: auto;`;
     let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 62 : 34}px);">`;
-    // Minnessifferrad över täljarsiffror 2..n (rutnätskolumn dIdx + 2).
+    // Minnessifferrad över täljarsiffror 2..n (rutnätskolumn dIdx + 1).
     for (let c = 1; c <= cols; c++) {
-        const dIdx = c - 2;
+        const dIdx = c - 1;
         const cv = (dIdx >= 1 && dIdx <= divLen - 1 && carries[dIdx]) || '';
         h += `<div class="math-grid-cell math-grid-carry${freshCarry.includes(dIdx) ? ' carry-pop cell-soft-glow' : ''}">${cv}</div>`;
     }
-    h += `<div class="math-grid-cell text-sky-700 font-bold" style="${span(1)}">${b}</div>`;
     for (let i = 0; i < divLen; i++) {
         const place = Math.pow(10, divLen - 1 - i);
         const colTag = big && i === hlDigit && PV_NAMES[place]
             ? `<span class="demo-col-tag">▾ ${PV_NAMES[place]}</span>` : '';
         h += `<div class="math-grid-cell pv-col-${place}${i === hlDigit ? ' cell-hl' : ''}">${colTag}<span class="pv-num pv-${place}">${aStr[i]}</span></div>`;
     }
-    h += `<div class="math-grid-cell text-slate-900 font-bold" style="${span(divLen + 2)}">=</div>`;
+    h += `<div class="math-grid-cell text-slate-900 font-bold" style="${span(divLen + 1)}">=</div>`;
     for (let i = 0; i < ansStr.length; i++) {
         const shown = i < showAns;
         const isNew = i === popAnsIdx && shown;
         const isBlank = glowBlank && !shown && i === showAns;
-        h += `<div class="math-grid-cell${isNew || isBlank ? ' cell-soft-glow' : ''}" style="${span(divLen + 3 + i)}">
+        h += `<div class="math-grid-cell${isNew || isBlank ? ' cell-soft-glow' : ''}" style="${span(divLen + 2 + i)}">
             <span class="pv-num pv-1${isNew ? ' ans-pop' : ''}">${shown ? ansStr[i] : '<span class="text-slate-300">?</span>'}</span>
         </div>`;
     }
-    h += `<div style="grid-row: 3; grid-column: 2 / ${divLen + 2}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
+    h += `<div style="grid-row: 3; grid-column: 1 / ${divLen + 1}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
         <div style="width: 100%; height: 4px; background: #0f172a; border-radius: 2px;"></div>
     </div>`;
-    for (let c = 0; c < divLen; c++) {
-        h += `<div class="math-grid-cell" style="grid-row: 4; grid-column: ${c + 2};"></div>`;
+    // Nämnaren centrerad under strecket (under mittersta täljarsiffran).
+    const namnCol = Math.floor(divLen / 2) + 1;
+    for (let c = 1; c <= divLen; c++) {
+        h += `<div class="math-grid-cell${c === namnCol ? ' text-sky-700 font-bold' : ''}" style="grid-row: 4; grid-column: ${c};">${c === namnCol ? b : ''}</div>`;
     }
     return h + '</div>';
 }
@@ -454,7 +456,7 @@ export function generateAlgoQuestion() {
         qText = `Räkna ut ${a} ÷ ${b}!`;
 
         // Kort division steg för steg: varje täljarsiffra delas från vänster,
-        // resten blir minnessiffra över nästa siffra i trappan.
+        // resten blir minnessiffra över nästa siffra i uppställningen.
         const aStr = String(a);
         let rem = 0;
         const acc = {};
@@ -490,7 +492,7 @@ export function generateAlgoQuestion() {
         add: '➕ Minnessiffran skriver du litet i toppraden, över talsorten där den ska adderas.',
         sub: '➖ Låna genom att stryka siffran (Space) och skriva 10 i toppraden.',
         mul: '✖️ Minnessiffran skriver du till vänster i den svarsruta där den ska adderas – två tecken får plats i samma ruta.',
-        div: '➗ Trappan: täljarens siffror ovanför strecket, nämnaren till vänster, svaret efter = – på streckets höjd.'
+        div: '➗ Bråkform: täljaren ovanför strecket, nämnaren i mitten under – = och svaret bredvid strecket.'
     };
     document.getElementById('algo-blank-op-tip').textContent = opTips[op];
     setHintSteps('algo', hints);
@@ -518,7 +520,7 @@ export function buildAlgoDemoSteps() {
         mul: cur.mul2
             ? `Vi räknar <strong>${a} × ${b}</strong> med uppställning! När multiplikatorn har två siffror får vi <strong>två delresultat</strong> som läggs ihop.`
             : `Vi räknar <strong>${a} × ${b}</strong> med uppställning! <strong>Gångra en siffra i taget, från höger till vänster.</strong>`,
-        div: `Vi delar <strong>${a}</strong> med <strong>${b}</strong> i trappan! <strong>I division börjar vi TILL VÄNSTER</strong> — tvärtom mot de andra räknesätten!`
+        div: `Vi delar <strong>${a}</strong> med <strong>${b}</strong> – nämnaren ställer vi under strecket, som ett bråk! <strong>I division börjar vi TILL VÄNSTER</strong> — tvärtom mot de andra räknesätten!`
     };
     const intro = { text: `<p>${intros[op]}</p>` };
     if (cur.mul2) intro.mul2Grid = {};
@@ -621,35 +623,34 @@ export function renderGuidedAlgoGrid() {
     const ansStr = String(answer);
 
     if (op === 'div') {
-        // Svensk kort division ("trappan"): minnessiffror överst, täljarens
-        // siffror med streck under – och nämnare, = och svar på streckets
-        // höjd (de "korsar" raderna, vertikalt centrerade) som i skolboken.
+        // Svensk kort division i bråkform (som Zcooly/skolböckerna):
+        // minnessiffror över täljarsiffrorna, täljaren ovanför strecket,
+        // nämnaren centrerad UNDER strecket – = och svarsrutor vertikalt
+        // centrerade på streckets höjd.
         const aStr = String(a);
         const divLen = aStr.length;
-        const cols = divLen + 2 + ansStr.length; // nämnare | täljare | = | svar
+        const cols = divLen + 1 + ansStr.length; // täljare | = | svar
         const spanStyle = (col) => `grid-row: 2 / span 3; grid-column: ${col}; height: auto;`;
         let html = `<div class="math-grid-paper" style="grid-template-columns: repeat(${cols}, 54px);">`;
         // Minnessifferrad: carry-rutor över täljarsiffrorna (utom första).
         for (let c = 0; c < cols; c++) {
-            if (c >= 2 && c <= divLen) {
+            if (c >= 1 && c <= divLen - 1) {
                 html += `<div class="math-grid-cell"><input maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
             } else {
                 html += `<div class="math-grid-cell"></div>`;
             }
         }
-        // Nämnaren: vertikalt centrerad på streckets höjd, längst till vänster.
-        html += `<div class="math-grid-cell text-sky-700" style="${spanStyle(1)}">${b}</div>`;
-        // Täljarsiffrorna på rad 2.
+        // Täljarsiffrorna på rad 2, ovanför strecket.
         for (let c = 0; c < divLen; c++) {
             const place = Math.pow(10, divLen - 1 - c);
             html += `<div class="math-grid-cell pv-col-${place}"><span class="pv-num pv-${place}">${aStr[c]}</span></div>`;
         }
         // = på streckets höjd, direkt till höger om täljaren.
-        html += `<div class="math-grid-cell text-slate-900" style="${spanStyle(divLen + 2)}">=</div>`;
+        html += `<div class="math-grid-cell text-slate-900" style="${spanStyle(divLen + 1)}">=</div>`;
         // Svarsrutorna på streckets höjd.
         for (let idx = 0; idx < ansStr.length; idx++) {
             const place = Math.pow(10, ansStr.length - 1 - idx);
-            html += `<div class="math-grid-cell pv-col-${place}" style="${spanStyle(divLen + 3 + idx)}">
+            html += `<div class="math-grid-cell pv-col-${place}" style="${spanStyle(divLen + 2 + idx)}">
                 <input id="algo-ans-${idx}" maxlength="1" inputmode="numeric"
                     oninput="if(this.value && document.getElementById('algo-ans-${idx + 1}')) document.getElementById('algo-ans-${idx + 1}').focus()"
                     onkeydown="algoAnsKey(event, ${idx})"
@@ -657,13 +658,13 @@ export function renderGuidedAlgoGrid() {
             </div>`;
         }
         // Strecket under bara täljarsiffrorna.
-        html += `<div style="grid-row: 3; grid-column: 2 / ${divLen + 2}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
+        html += `<div style="grid-row: 3; grid-column: 1 / ${divLen + 1}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
             <div style="width: 100%; height: 4px; background: #0f172a; border-radius: 2px;"></div>
         </div>`;
-        // Tomma celler under täljaren håller radhöjden symmetrisk så att
-        // nämnare/=/svar hamnar exakt på streckets mitt.
-        for (let c = 0; c < divLen; c++) {
-            html += `<div class="math-grid-cell" style="grid-row: 4; grid-column: ${c + 2};"></div>`;
+        // Nämnaren centrerad under strecket (under mittersta täljarsiffran).
+        const namnCol = Math.floor(divLen / 2) + 1;
+        for (let c = 1; c <= divLen; c++) {
+            html += `<div class="math-grid-cell${c === namnCol ? ' text-sky-700 font-bold' : ''}" style="grid-row: 4; grid-column: ${c};">${c === namnCol ? b : ''}</div>`;
         }
         html += `</div>`;
         container.innerHTML = html;
@@ -804,8 +805,9 @@ export function buildBlankAlgoSheet() {
     // ×: minnessiffran skrivs "vid sidan" – litet till vänster i svarsrutan,
     //    så cellerna under första strecket får plats med två tecken
     //    (minne + svarssiffra). Toppraden blir vanlig arbetsyta.
-    // ÷: trappan – rester litet över täljaren, streck direkt under täljaren
-    //    och = + svar på raden under, plus arbetsrader längst ner.
+    // ÷: bråkform – rester litet över täljaren, streck direkt under täljaren,
+    //    nämnaren centrerad under + = och svar på raden under, plus
+    //    arbetsrader längst ner.
     const op = state.algoOp;
     const isDiv = op === 'div';
     const isMul2 = op === 'mul' && state.algoLevel === 'mul2';
@@ -988,7 +990,7 @@ export function checkAlgoAnswer() {
     } else {
         let foundRowVal = null;
         if (op === 'div') {
-            // Trappan: svaret står efter = – nämnaren före = räknas inte med.
+            // Kort division: svaret står efter = – nämnaren före = räknas inte med.
             for (let r = 9; r >= 0 && foundRowVal === null; r--) {
                 let afterEq = false, digits = '';
                 for (let c = 0; c < 8; c++) {
