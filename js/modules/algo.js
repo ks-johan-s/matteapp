@@ -489,7 +489,7 @@ export function generateAlgoQuestion() {
     const opTips = {
         add: '➕ Minnessiffran skriver du litet i toppraden, över talsorten där den ska adderas.',
         sub: '➖ Låna genom att stryka siffran (Space) och skriva 10 i toppraden.',
-        mul: '✖️ Minnessiffran skriver du litet till vänster i nästa svarsruta – den rutan där den ska adderas.',
+        mul: '✖️ Minnessiffran skriver du till vänster i den svarsruta där den ska adderas – två tecken får plats i samma ruta.',
         div: '➗ Trappan: täljarens siffror ovanför strecket, nämnaren till vänster, svaret efter = – på streckets höjd.'
     };
     document.getElementById('algo-blank-op-tip').textContent = opTips[op];
@@ -801,8 +801,9 @@ export function buildBlankAlgoSheet() {
     if (!container) return;
     // Rutpappret formas efter räknesättet – samma metod som i Färdig mall:
     // + och −: minnessiffra/lån i toppraden, streck under andra operanden.
-    // ×: minnessiffran hör hemma på multiplikatorraden, så toppraden blir
-    //    vanlig arbetsyta.
+    // ×: minnessiffran skrivs "vid sidan" – litet till vänster i svarsrutan,
+    //    så cellerna under första strecket får plats med två tecken
+    //    (minne + svarssiffra). Toppraden blir vanlig arbetsyta.
     // ÷: trappan – rester litet över täljaren, streck direkt under täljaren
     //    och = + svar på raden under, plus arbetsrader längst ner.
     const op = state.algoOp;
@@ -817,10 +818,14 @@ export function buildBlankAlgoSheet() {
         for (let c = 0; c < cols; c++) {
             const cellId = `blank-cell-${r}-${c}`;
             const isCarry = r === carryRow;
+            // ×-rader under strecket får plats med minnessiffra + svarssiffra
+            // i samma ruta (svensk "vid sidan"-konvention).
+            const twoChar = isCarry || (op === 'mul' && r > lineRows[0]);
             const ph = isCarry ? '·' : (r === ansRow ? '?' : '');
             html += `
                 <div class="math-grid-cell" style="width:48px;height:48px;">
-                    <input id="${cellId}" maxlength="${isCarry ? 2 : 1}"
+                    <input id="${cellId}" maxlength="${twoChar ? 2 : 1}"
+                        ${twoChar && !isCarry ? 'data-side="1"' : ''}
                         ${ph ? `placeholder="${ph}"` : ''}
                         onfocus="state.lastFocusedCellId='${cellId}'"
                         onclick="if(state.blankStrikeMode){this.classList.toggle('digit-struck');}"
@@ -1003,11 +1008,15 @@ export function checkAlgoAnswer() {
                     const el = document.getElementById(`blank-cell-${r}-${c}`);
                     if (el && !el.classList.contains('digit-struck')) {
                         const ch = el.value.trim();
-                        if (/^[0-9]+$/.test(ch)) rowDigits += ch;
+                        // ×-rutor kan ha minnessiffra + svarssiffra ("57") —
+                        // svaret är alltid den sista siffran i rutan.
+                        if (/^[0-9]+$/.test(ch)) rowDigits += ch.slice(-1);
                     }
                 }
                 if (rowDigits.length > 0) {
-                    foundRowVal = parseInt(rowDigits, 10);
+                    // Minnessiffror "vid sidan" (i samma ruta eller i rutan till
+                    // vänster) räknas inte med – svaret är radens sista siffror.
+                    foundRowVal = parseInt(rowDigits.slice(-ansStr.length), 10);
                     break;
                 }
             }
