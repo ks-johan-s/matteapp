@@ -558,14 +558,23 @@ body.focus-mode-active .gamification-badge {
    högra marginalen på multiplikatorraden – "till höger om
    uppställningen", som i svenska läromedel (Zcooly/Skolplus). */
 .mul-carry-note {
+    display: inline-block;
+    margin: 0 1px;
     font-family: 'Edu SA Hand', cursive;
     font-size: 0.85rem;
     font-weight: 700;
     color: #059669;
     line-height: 1;
+    white-space: nowrap;
 }
 .math-grid-mini .mul-carry-note { font-size: 0.62rem; }
 .math-grid-mid .mul-carry-note { font-size: 0.72rem; }
+/* Förbrukade minnessiffror stryks men står kvar bredvid den nya. */
+.mul-carry-used {
+    text-decoration: line-through;
+    color: #94a3b8;
+    transition: color .4s;
+}
 /* Additions-minnessiffror i slutadditionen (×2) står litet ovanför den
    svarssiffra de ska adderas till – som "minne ovanför" i vanlig addition. */
 .mul-carry-top {

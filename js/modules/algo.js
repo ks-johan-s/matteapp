@@ -51,7 +51,7 @@ const PV_NAMES = { 1: 'ental', 10: 'tiotal', 100: 'hundratal', 1000: 'tusental' 
 
 function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0,
     freshStruck = [], freshCarry = [], popAns = false, big = false, glowBlank = false,
-    carryNote = '', freshNote = false } = {}) {
+    carryNote = '', struckNotes = [], freshNote = false, freshStruckNote = false } = {}) {
     const digits = Math.max(String(a).length, String(b).length, String(answer).length);
     const aStr = String(a).padStart(digits, ' ');
     const bStr = String(b).padStart(digits, ' ');
@@ -65,8 +65,15 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     const cell = (content, cls = '') => `<div class="math-grid-cell ${cls}">${content}</div>`;
     const carryCls = c => `math-grid-carry${freshCarry.includes(c) ? ' carry-pop cell-soft-glow' : ''}`;
     const isDig = c => c > 0 && c <= digits;
+    const noteSpans = struckNotes.map((n, i) =>
+        `<span class="mul-carry-note mul-carry-used">+${n}</span>`
+    ).join('') + (carryNote ? `<span class="mul-carry-note${freshNote ? ' carry-pop' : ''}">+${carryNote}</span>` : '');
+    // Marginalkolumnen är lite bredare så strukna + nya noteringar får plats.
+    const colW = isMul
+        ? `repeat(${cols - 1}, ${big ? 62 : 34}px) ${big ? 96 : 52}px`
+        : `repeat(${cols}, ${big ? 62 : 34}px)`;
 
-    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 62 : 34}px);">`;
+    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: ${colW};">`;
     if (!isMul) for (let c = 0; c < cols; c++) h += cell(carries[c] || '', carryCls(c));
     for (let c = 0; c < cols; c++) {
         const cls = [isDig(c) ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '',
@@ -78,14 +85,16 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
         h += cell(colTag + (isDig(c) ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : ''), cls);
     }
     for (let c = 0; c < cols; c++) {
-        const note = isMul && c === digits + 1 && carryNote
-            ? `<span class="mul-carry-note${freshNote ? ' carry-pop' : ''}">${carryNote}</span>` : '';
+        const note = isMul && c === digits + 1 ? noteSpans : '';
         const content = c === 0 ? `<span class="text-sky-600">${opSym}</span>`
             : isDig(c) ? `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>` : note;
-        h += cell(content, `${isDig(c) ? `pv-col-${place(c)}` : ''}${note ? ' cell-soft-glow' : ''}`);
+        h += cell(content, `${isDig(c) ? `pv-col-${place(c)}` : ''}${note && (freshNote || freshStruckNote) ? ' cell-soft-glow' : ''}`);
     }
+    // Strecket spänner alla kolumner (annars skjuter auto-placement ut
+    // nästa cellsiffra i marginalen) men linjen slutar före marginalen.
+    const lineEnd = isMul ? `margin-right: ${big ? 98 : 54}px;` : '';
     h += `<div style="grid-column: 1 / -1; height: 3px; margin: -4px 1px 0;">
-        <div style="height: 3px; background: #0f172a; border-radius: 2px;"></div>
+        <div style="height: 3px; background: #0f172a; border-radius: 2px; ${lineEnd}"></div>
     </div>`;
     for (let c = 0; c < cols; c++) {
         const d = isDig(c) ? ansStr[c - 1] : '';
@@ -152,7 +161,8 @@ function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1
 // carryNote = den väntande minnessiffran i marginalen; ansCarries =
 // minnessiffror i slutadditionen, indexerade per rutnätskolumn.
 function algoMiniMul2Grid(a, b, { showP1 = 0, showP2 = 0, showAns = 0,
-    ansCarries = {}, carryNote = '', freshNote = false,
+    ansCarries = {}, carryNote = '', struckNotes = [], freshNote = false,
+    freshStruckNote = false,
     hlRow = '', hlCol = -1, freshCarry = [],
     popP1 = false, popP2 = false, popAns = false,
     big = false, glowBlank = false } = {}) {
@@ -172,24 +182,31 @@ function algoMiniMul2Grid(a, b, { showP1 = 0, showP2 = 0, showAns = 0,
         const fresh = freshCarry.some(f => f.row === 'ans' && f.col === c);
         return `<span class="mul-carry-top${fresh ? ' carry-pop' : ''}">${ansCarries[c]}</span>`;
     };
+    const noteSpans = struckNotes.map((n, i) =>
+        `<span class="mul-carry-note mul-carry-used">+${n}</span>`
+    ).join('') + (carryNote ? `<span class="mul-carry-note${freshNote ? ' carry-pop' : ''}">+${carryNote}</span>` : '');
+    const noteGlow = (freshNote || freshStruckNote) && noteSpans ? ' cell-soft-glow' : '';
     const freshAt = (row, c) => freshCarry.some(f => f.row === row && f.col === c);
     const tagAt = (row, c) => big && row === hlRow && c === hlCol && PV_NAMES[place(c)]
         ? `<span class="demo-col-tag">▾ ${PV_NAMES[place(c)]}</span>` : '';
     const hl = (row, c) => (row === hlRow && c === hlCol ? ' cell-hl' : '');
 
-    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-mid' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols}, ${big ? 46 : 34}px);">`;
+    // Marginalkolumnen längst till höger är bredare – där samlas de
+    // strukna och aktuella minnessiffer-noteringarna.
+    let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-mid' : ''} mx-auto my-1.5" style="grid-template-columns: repeat(${cols - 1}, ${big ? 46 : 34}px) ${big ? 118 : 72}px;">`;
     for (let c = 0; c < cols; c++)
         h += cell(tagAt('a', c) + (isDig(c) ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : ''),
             `${isDig(c) ? `pv-col-${place(c)}` : ''}${hl('a', c)}`);
     for (let c = 0; c < cols; c++) {
-        const note = c === digits + 1 && carryNote
-            ? `<span class="mul-carry-note${freshNote ? ' carry-pop' : ''}">${carryNote}</span>` : '';
+        const note = c === digits + 1 ? noteSpans : '';
         h += cell(tagAt('b', c) + (c === 0 ? `<span class="text-sky-600">×</span>`
                 : isDig(c) ? `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>` : note),
-            `${isDig(c) ? `pv-col-${place(c)}` : ''}${hl('b', c)}${note ? ' cell-soft-glow' : ''}`);
+            `${isDig(c) ? `pv-col-${place(c)}` : ''}${hl('b', c)}${note ? noteGlow : ''}`);
     }
+    // Strecket spänner alla kolumner men linjen slutar före marginalen.
+    const lineEnd = `margin-right: ${big ? 120 : 74}px;`;
     h += `<div style="grid-column: 1 / -1; height: 3px; margin: -4px 1px 0;">
-        <div style="height: 3px; background: #0f172a; border-radius: 2px;"></div>
+        <div style="height: 3px; background: #0f172a; border-radius: 2px; ${lineEnd}"></div>
     </div>`;
     // Delresultat 1 (entalen av multiplikatorn) – skrivs från höger.
     for (let c = 0; c < cols; c++) {
@@ -211,7 +228,7 @@ function algoMiniMul2Grid(a, b, { showP1 = 0, showP2 = 0, showAns = 0,
             `${isDig(c) ? `pv-col-${place(c)}` : ''}${hl('p2', c)}${isNew ? ' cell-soft-glow' : ''}`);
     }
     h += `<div style="grid-column: 1 / -1; height: 3px; margin: -4px 1px 0;">
-        <div style="height: 3px; background: #0f172a; border-radius: 2px;"></div>
+        <div style="height: 3px; background: #0f172a; border-radius: 2px; ${lineEnd}"></div>
     </div>`;
     for (let c = 0; c < cols; c++) {
         const pos = digits - c;
@@ -381,22 +398,24 @@ export function generateAlgoQuestion() {
                 { text: `<p><strong>Steg 1 – ställ upp:</strong> Talet med flest siffror, <strong>${a}</strong>, står överst och <strong>${b}</strong> under. Vi räknar <strong>en multiplikator-siffra i taget</strong> – först entalen ${b0}, sen tiotalen ${b1}!</p>`, mul2Grid: { hlRow: 'b', hlCol: mCols - 1 } },
             ];
             let carry = 0;
+            const struck = [];
             for (let i = 0; i < lenA; i++) {
                 const d = dRev[i];
                 const prod = b0 * d + carry;
                 const last = i === lenA - 1;
                 const newCarry = last ? 0 : Math.floor(prod / 10);
+                if (carry) struck.push(String(carry));
                 steps.push({
                     text: i === 0
-                        ? `<p><strong>Entalsraden:</strong> ${b0} · ${d} = <strong>${prod}</strong>. Skriv <strong>${prod % 10}</strong> under strecket${newCarry ? ` och minnessiffran <strong class="text-emerald-600">${newCarry}</strong> litet till höger om uppställningen` : ''}.</p>`
-                        : `<p><strong>${b0} · ${d}${carry ? ` + minne <strong class="text-emerald-600">${carry}</strong>` : ''} = <strong>${prod}</strong>. ${last ? `Skriv hela talet <strong>${prod}</strong>!` : `Skriv <strong>${prod % 10}</strong>${newCarry ? ` – minnessiffra <strong class="text-emerald-600">${newCarry}</strong> till höger` : ''}.`}</p>`,
-                    mul2Grid: { showP1: last ? String(p1).length : i + 1, carryNote: newCarry ? String(newCarry) : '', hlRow: 'p1', hlCol: colOf(i, 0) }
+                        ? `<p><strong>Entalsraden:</strong> ${b0} · ${d} = <strong>${prod}</strong>. Skriv <strong>${prod % 10}</strong> under strecket${newCarry ? ` och minnessiffran <strong class="text-emerald-600">+${newCarry}</strong> litet till höger om uppställningen` : ''}.</p>`
+                        : `<p><strong>${b0} · ${d}${carry ? ` + minne <strong class="text-emerald-600">${carry}</strong>` : ''} = <strong>${prod}</strong>. ${last ? `Skriv hela talet <strong>${prod}</strong>!` : `Skriv <strong>${prod % 10}</strong>${newCarry ? ` – stryk minnet och skriv <strong class="text-emerald-600">+${newCarry}</strong> brevid` : ''}.`}</p>`,
+                    mul2Grid: { showP1: last ? String(p1).length : i + 1, struckNotes: [...struck], carryNote: newCarry ? String(newCarry) : '', hlRow: 'p1', hlCol: colOf(i, 0) }
                 });
                 carry = newCarry;
             }
             steps.push({
                 text: `<p><strong>Nu tiotalen ${b1}!</strong> Den är värd <strong>${b1 * 10}</strong> – därför skrivs det här delresultatet <strong>ett steg åt vänster</strong>, med ett + framför.</p>`,
-                mul2Grid: { showP1: 99, hlRow: 'b', hlCol: mCols - 2 }
+                mul2Grid: { showP1: 99, struckNotes: [...struck], hlRow: 'b', hlCol: mCols - 2 }
             });
             carry = 0;
             for (let i = 0; i < lenA; i++) {
@@ -404,9 +423,10 @@ export function generateAlgoQuestion() {
                 const prod = b1 * d + carry;
                 const last = i === lenA - 1;
                 const newCarry = last ? 0 : Math.floor(prod / 10);
+                if (carry) struck.push(String(carry));
                 steps.push({
-                    text: `<p><strong>${b1} · ${d}${carry ? ` + minne <strong class="text-emerald-600">${carry}</strong>` : ''} = <strong>${prod}</strong>. ${last ? `Skriv hela talet <strong>${prod}</strong> – ett steg åt vänster!` : `Skriv <strong>${prod % 10}</strong>${newCarry ? ` – minnessiffra <strong class="text-emerald-600">${newCarry}</strong> till höger` : ''}.`}</p>`,
-                    mul2Grid: { showP1: 99, showP2: last ? String(p2).length : i + 1, carryNote: newCarry ? String(newCarry) : '', hlRow: 'p2', hlCol: colOf(i, 1) }
+                    text: `<p><strong>${b1} · ${d}${carry ? ` + minne <strong class="text-emerald-600">${carry}</strong>` : ''} = <strong>${prod}</strong>. ${last ? `Skriv hela talet <strong>${prod}</strong> – ett steg åt vänster!` : `Skriv <strong>${prod % 10}</strong>${newCarry ? ` – stryk minnet och skriv <strong class="text-emerald-600">+${newCarry}</strong> brevid` : ''}.`}</p>`,
+                    mul2Grid: { showP1: 99, showP2: last ? String(p2).length : i + 1, struckNotes: [...struck], carryNote: newCarry ? String(newCarry) : '', hlRow: 'p2', hlCol: colOf(i, 1) }
                 });
                 carry = newCarry;
             }
@@ -423,7 +443,7 @@ export function generateAlgoQuestion() {
             }
             steps.push({
                 text: `<p><strong>Lägg ihop delresultaten!</strong> ${p1} + ${p2 * 10} – räkna talsort för talsort som vanlig addition ➔ <strong>${a} × ${b} = ${answer}</strong>!</p>`,
-                mul2Grid: { showP1: 99, showP2: 99, showAns: 99, ansCarries: acc3, hlRow: 'ans', hlCol: -1 }
+                mul2Grid: { showP1: 99, showP2: 99, showAns: 99, struckNotes: [...struck], ansCarries: acc3, hlRow: 'ans', hlCol: -1 }
             });
         } else {
         badge = state.algoLevel === 'carry' ? '× Uppställning med minnessiffra' : '× Uppställning';
@@ -442,8 +462,8 @@ export function generateAlgoQuestion() {
         const mulDigits = Math.max(String(a).length, String(b).length, String(answer).length);
         const note = eCarry > 0 ? String(eCarry) : '';
         steps = [
-            { text: `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>. Skriv <strong>${eProd % 10}</strong> längst ner${eCarry > 0 ? ` och minnessiffran <strong class="text-emerald-600">${eCarry}</strong> litet till höger om uppställningen` : ''}.</p>`, grid: { highlight: mulDigits, carryNote: note, showAns: 1 } },
-            { text: `<p><strong>Steg 2:</strong> Gångra resten${eCarry > 0 ? ' och lägg till minnessiffran' : ''}: <strong>${b} × ${rest} = ${b * rest}</strong>. Tillsammans blir det <strong>${answer}</strong>!</p>`, grid: { carryNote: note, showAns: 99 } }
+            { text: `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>. Skriv <strong>${eProd % 10}</strong> längst ner${eCarry > 0 ? ` och minnessiffran <strong class="text-emerald-600">+${eCarry}</strong> litet till höger om uppställningen` : ''}.</p>`, grid: { highlight: mulDigits, carryNote: note, showAns: 1 } },
+            { text: `<p><strong>Steg 2:</strong> Gångra resten${eCarry > 0 ? ' och lägg till minnessiffran – stryk den när du använt den' : ''}: <strong>${b} × ${rest} = ${b * rest}</strong>. Tillsammans blir det <strong>${answer}</strong>!</p>`, grid: { struckNotes: note ? [note] : [], showAns: 99 } }
         ];
         }
     } else {
@@ -492,7 +512,7 @@ export function generateAlgoQuestion() {
     const opTips = {
         add: '➕ Minnessiffran skriver du litet i toppraden, över talsorten där den ska adderas.',
         sub: '➖ Låna genom att stryka siffran (Space) och skriva 10 i toppraden.',
-        mul: '✖️ Minnessiffran skriver du litet till höger om uppställningen – som en notering i marginalen.',
+        mul: '✖️ Minnessiffran skriver du som +siffra till höger om uppställningen – stryk den när du använt den och skriv den nya bredvid.',
         div: '➗ Bråkform: täljaren ovanför strecket, nämnaren i mitten under – = och svaret bredvid strecket.'
     };
     document.getElementById('algo-blank-op-tip').textContent = opTips[op];
@@ -536,14 +556,16 @@ export function buildAlgoDemoSteps() {
             const freshCarry = Object.keys(g.ansCarries || {}).map(Number)
                 .filter(c => !(prev.ansCarries || {})[c]).map(col => ({ row: 'ans', col }));
             const freshNote = !!g.carryNote && g.carryNote !== prev.carryNote;
+            const freshStruckNote = (g.struckNotes || []).length > (prev.struckNotes || []).length;
             return { text: s.text, html: algoMiniMul2Grid(cur.a, cur.b,
-                { ...g, freshCarry, freshNote, popP1: true, popP2: true, popAns: true, big: true }) };
+                { ...g, freshCarry, freshNote, freshStruckNote, popP1: true, popP2: true, popAns: true, big: true }) };
         }
         const prevG = idx > 0 ? (raw[idx - 1].grid || raw[idx - 1].divGrid || {}) : {};
         let g = s.grid || s.divGrid || {};
         const freshStruck = (g.struck || []).filter(c => !(prevG.struck || []).includes(c));
         const freshCarry = Object.keys(g.carries || {}).map(Number).filter(c => !(prevG.carries || {})[c]);
         const freshNote = !!g.carryNote && g.carryNote !== prevG.carryNote;
+        const freshStruckNote = (g.struckNotes || []).length > (prevG.struckNotes || []).length;
         // Auto-highlight: om steget inte markerar någon kolumn själv lyser den
         // kolumn vars svarssiffra precis avslöjades (t.ex. entalen i steg 1).
         if (g.highlight === undefined && (g.showAns || 0) > 0 && cur.op !== 'div') {
@@ -555,7 +577,7 @@ export function buildAlgoDemoSteps() {
         const text = s.text.replace(/Tryck på (\w+)talet/g, 'Stryk $1talet');
         const html = cur.op === 'div'
             ? algoMiniDivGrid(cur.a, cur.b, cur.answer, { ...g, freshCarry, popAnsIdx: (g.showAns || 0) - 1, big: true })
-            : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...g, freshStruck, freshCarry, freshNote, popAns: true, big: true });
+            : algoMiniGrid(cur.a, cur.b, cur.op, cur.answer, { ...g, freshStruck, freshCarry, freshNote, freshStruckNote, popAns: true, big: true });
         return { text, html };
     });
 
@@ -697,7 +719,7 @@ export function renderGuidedAlgoGrid() {
             html += `<div class="math-grid-cell text-slate-900 ${isDig(c) ? `pv-col-${place(c)}` : ''}">${isDig(c) ? `<span class="pv-num pv-${place(c)}">${aStr[c - 1]}</span>` : ''}</div>`;
         for (let c = 0; c < cols; c++) {
             if (c === digits + 1) {
-                html += `<div class="math-grid-cell"><input id="algo-mnote" maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
+                html += `<div class="math-grid-cell"><input id="algo-mnote" maxlength="3" class="math-grid-input math-grid-carry-input" placeholder="+"></div>`;
                 continue;
             }
             html += `<div class="math-grid-cell text-slate-900 ${isDig(c) ? `pv-col-${place(c)}` : ''}">${c === 0 ? `<span class="text-sky-600">×</span>` : `<span class="pv-num pv-${place(c)}">${bStr[c - 1]}</span>`}</div>`;
@@ -773,7 +795,7 @@ export function renderGuidedAlgoGrid() {
     for (let c = 0; c < cols; c++) {
         if (isMul && c === digits + 1) {
             // Minnessiffer-notering i marginalen – "till höger om uppställningen".
-            html += `<div class="math-grid-cell"><input id="algo-mnote" maxlength="1" inputmode="numeric" class="math-grid-input math-grid-carry-input" placeholder="·"></div>`;
+            html += `<div class="math-grid-cell"><input id="algo-mnote" maxlength="3" class="math-grid-input math-grid-carry-input" placeholder="+"></div>`;
             continue;
         }
         const place = c === 0 ? 0 : Math.pow(10, digits - c);
