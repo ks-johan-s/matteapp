@@ -303,10 +303,14 @@ export function generateAlgoQuestion() {
             answer = a - b;
             qText = `Räkna ut ${a} − ${b}!`;
 
+            // Ett lån i taget – som Zcooly: stryk givarsiffran (mottagar-
+            // kolumnen markerad), skriv 10 över den, räkna kolumnen.
             steps = [
-                { text: `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop}</strong> är mindre än <strong>${eBot}</strong>. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong> ➔ <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { highlight: 2, struck: [2], carries: { 3: '10' }, showAns: 1 } },
-                { text: `<p><strong>Steg 2 (Tiotalen):</strong> Nu finns <strong>${tTop - 1}</strong> kvar i tiotalen, vilket är mindre än <strong>${tBot}</strong>! Tryck på hundratalet <strong>${hTop}</strong> för att låna <strong>10</strong> tiotal ➔ <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>`, grid: { highlight: 1, struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 2 } },
-                { text: `<p><strong>Steg 3 (Hundratalen):</strong> Nu finns <strong>${hTop - 1}</strong> kvar längst till vänster: <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 3 } }
+                { text: `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop}</strong> är mindre än <strong>${eBot}</strong> – det går inte! Stryk tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>.</p>`, grid: { highlight: 3, struck: [2] } },
+                { text: `<p><strong>Steg 2:</strong> Tioan skrivs litet över entalen ➔ räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [2], carries: { 3: '10' }, showAns: 1 } },
+                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Nu finns bara <strong>${tTop - 1}</strong> kvar i tiotalen – mindre än <strong>${tBot}</strong>! Stryk hundratalet <strong>${hTop}</strong> och låna <strong>10</strong> tiotal.</p>`, grid: { highlight: 2, struck: [1, 2], carries: { 3: '10' } } },
+                { text: `<p><strong>Steg 4:</strong> Tioan över tiotalen ➔ räkna <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>`, grid: { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 2 } },
+                { text: `<p><strong>Steg 5 (Hundratalen):</strong> Till sist <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 3 } }
             ];
         } else {
             badge = '− Subtraktion med växling (Låna 🔄)';
@@ -319,10 +323,12 @@ export function generateAlgoQuestion() {
             answer = a - b;
             qText = `Räkna ut ${a} − ${b}!`;
 
+            // Som Zcooly: stryk givarsiffran först (mottagarkolumnen
+            // markerad), sen skrivs 10:an över den och kolumnen räknas.
             steps = [
-                { text: `<p><strong>Steg 1 (Entalen längst till höger):</strong> Vi ska ta <strong>${eTop} − ${eBot}</strong>, men ${eTop} är mindre än ${eBot}. Tryck på tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>!</p>`, grid: { highlight: 1 } },
-                { text: `<p><strong>Steg 2:</strong> Nu har vi <strong>10 + ${eTop} = ${10 + eTop}</strong> i entalen! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 1 } },
-                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Eftersom vi lånade 1 tiotal från ${tTop} finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 2 } }
+                { text: `<p><strong>Steg 1 (Entalen längst till höger):</strong> Vi ska ta <strong>${eTop} − ${eBot}</strong>, men ${eTop} är mindre än ${eBot} – det går inte! Stryk tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>.</p>`, grid: { highlight: 2, struck: [1] } },
+                { text: `<p><strong>Steg 2:</strong> Tioan skrivs litet över entalen – nu är det <strong>${10 + eTop}</strong> där! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 1 } },
+                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Vi lånade ett tiotal från ${tTop}, så det finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 2 } }
             ];
         }
     } else if (op === 'add') {
@@ -609,8 +615,10 @@ export function buildAlgoDemoSteps() {
     const lg = lastRaw.grid || lastRaw.divGrid || lastRaw.mul2Grid || {};
     const guessGrid = { ...lg, showAns: ansStr.length - 1, glowBlank: true };
     if (cur.mul2) { guessGrid.hlRow = 'ans'; guessGrid.hlCol = -1; }
-    else if (cur.op !== 'div') guessGrid.highlight = 1;
-    else guessGrid.hlDigit = -1;
+    else if (cur.op !== 'div') {
+        const gd = Math.max(String(cur.a).length, String(cur.b).length, ansStr.length);
+        guessGrid.highlight = Math.max(1, gd - ansStr.length + 1); // den saknade kolumnen
+    } else guessGrid.hlDigit = String(cur.a).length - 1; // sista täljarsiffran gav sista svarssiffran
     const sym = cur.op === 'sub' ? '−' : (cur.op === 'add' ? '+' : (cur.op === 'mul' ? '×' : '÷'));
     steps.push({
         text: `<p><strong>Din tur!</strong> Vilken siffra saknas i svaret?</p>`,
