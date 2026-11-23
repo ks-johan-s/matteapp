@@ -461,16 +461,29 @@ export function generateAlgoQuestion() {
         answer = a * b;
         qText = `Räkna ut ${a} × ${b}!`;
 
-        const eTop = a % 10;
-        const rest = Math.floor(a / 10) * 10;
-        const eProd = eTop * b;
-        const eCarry = Math.floor(eProd / 10);
+        // Kolumn för kolumn från höger – samma rytm som ×2-demon och
+        // Zcooly: varje siffra gångas, minnessiffran läggs till (och
+        // stryks i marginalen), en siffra i taget skrivs under strecket.
+        const dRev = String(a).split('').reverse().map(Number);
         const mulDigits = Math.max(String(a).length, String(b).length, String(answer).length);
-        const note = eCarry > 0 ? String(eCarry) : '';
-        steps = [
-            { text: `<p><strong>Steg 1:</strong> Börja med entalen: <strong>${b} × ${eTop} = ${eProd}</strong>. Skriv <strong>${eProd % 10}</strong> längst ner${eCarry > 0 ? ` och minnessiffran <strong class="text-emerald-600">+${eCarry}</strong> litet till höger om uppställningen` : ''}.</p>`, grid: { highlight: mulDigits, carryNote: note, showAns: 1 } },
-            { text: `<p><strong>Steg 2:</strong> Gångra resten${eCarry > 0 ? ' och lägg till minnessiffran – stryk den när du använt den' : ''}: <strong>${b} × ${rest} = ${b * rest}</strong>. Tillsammans blir det <strong>${answer}</strong>!</p>`, grid: { struckNotes: note ? [note] : [], showAns: 99 } }
-        ];
+        let carry = 0;
+        const struck = [];
+        steps = dRev.map((d, i) => {
+            const prod = b * d + carry;
+            const last = i === dRev.length - 1;
+            const newCarry = last ? 0 : Math.floor(prod / 10);
+            if (carry) struck.push(String(carry));
+            const s = {
+                text: i === 0
+                    ? `<p><strong>Steg 1 – entalen:</strong> <strong>${b} · ${d} = ${prod}</strong>. Skriv <strong>${prod % 10}</strong> längst ner${newCarry ? ` och minnessiffran <strong class="text-emerald-600">+${newCarry}</strong> litet till höger om uppställningen` : ''}.</p>`
+                    : last
+                        ? `<p><strong>Sista kolumnen:</strong> <strong>${b} · ${d}${carry ? ` + minne <strong class="text-emerald-600">${carry}</strong>` : ''} = ${prod}</strong>.${carry ? ' Stryk minnet.' : ''} Skriv <strong>${prod}</strong> ➔ <strong>${answer}</strong>!</p>`
+                        : `<p><strong>${b} · ${d}${carry ? ` + minne <strong class="text-emerald-600">${carry}</strong>` : ''} = ${prod}</strong>.${carry ? ' Stryk minnet.' : ''} Skriv <strong>${prod % 10}</strong>${newCarry ? ` – minnessiffran <strong class="text-emerald-600">+${newCarry}</strong> brevid` : ''}.</p>`,
+                grid: { highlight: mulDigits - i, struckNotes: [...struck], carryNote: newCarry ? String(newCarry) : '', showAns: last ? 99 : i + 1 }
+            };
+            carry = newCarry;
+            return s;
+        });
         }
     } else {
         badge = state.algoLevel === 'carry' ? '÷ Kort division med rest' : '÷ Kort division';
