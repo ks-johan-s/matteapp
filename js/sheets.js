@@ -41,8 +41,8 @@ export function handleSheetInput(inp, rowIdx) {
     } else if (v === '/' || v === ':') {
         inp.value = '÷';
     }
-    // data-side-celler (×-svarsraden) ska INTE bli små gröna carry-rutor
-    if ((inp.maxLength === 2 && !inp.dataset.side) || inp.value.trim() === '10') {
+    // Carry-rader (toppraden) får små gröna carry-rutor när två tecken skrivs
+    if (inp.maxLength === 2 || inp.value.trim() === '10') {
         inp.classList.add('math-grid-carry-input');
     } else {
         inp.classList.remove('math-grid-carry-input');
