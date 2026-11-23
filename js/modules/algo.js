@@ -47,7 +47,7 @@ function divHasRest(a, b) {
     return false;
 }
 
-const PV_NAMES = { 1: 'ental', 10: 'tiotal', 100: 'hundratal', 1000: 'tusental' };
+const PV_NAMES = { 1: 'ental', 10: 'tiotal', 100: 'hundratal', 1000: 'tusental', 10000: 'tiotusental', 100000: 'hundratusental' };
 
 function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries = {}, showAns = 0,
     freshStruck = [], freshCarry = [], popAns = false, big = false, glowBlank = false,
@@ -286,10 +286,25 @@ export function generateAlgoQuestion() {
             } while (a <= b || subNeedsLoan(a, b));
             answer = a - b;
             qText = `Räkna ut ${a} − ${b}!`;
-            steps = [
-                { text: `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} − ${b % 10} = ${(a % 10) - (b % 10)}</strong> och skriv under strecket.</p>`, grid: { showAns: 1 } },
-                { text: `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { showAns: 99 } }
-            ];
+            // Kolumn för kolumn från höger. Inledande nollor skrivs inte
+            // (t.ex. 34 − 33 = 1) – det visas och förklaras i texten.
+            const sdA = String(a).split('').reverse().map(Number);
+            const sdB = String(b).padStart(sdA.length, '0').split('').reverse().map(Number);
+            const sAnsLen = String(answer).length;
+            const sDigits = Math.max(sdA.length, String(b).length, sAnsLen);
+            steps = sdA.map((d, i) => {
+                const db = sdB[i] || 0;
+                const diff = d - db;
+                const last = i === sdA.length - 1;
+                const pname = (PV_NAMES[Math.pow(10, i)] || 'tal') + 'en';
+                const leadingZero = i >= sAnsLen;
+                return {
+                    text: last
+                        ? `<p><strong>Sista kolumnen (${pname}):</strong> <strong>${d} − ${db} = ${diff}</strong>${leadingZero ? ' – men en nolla först i svaret skriver vi <strong>inte</strong>' : ''} ➔ Svaret är <strong>${answer}</strong>!</p>`
+                        : `<p><strong>${i === 0 ? 'Steg 1 – ' : ''}${pname[0].toUpperCase() + pname.slice(1)}:</strong> <strong>${d} − ${db} = ${diff}</strong>${leadingZero ? ' – en nolla först i svaret skriver vi inte' : '. Skriv under strecket'}.</p>`,
+                    grid: { highlight: sDigits - i, showAns: Math.min(i + 1, sAnsLen) }
+                };
+            });
         } else if (isHard) {
             badge = '− Subtraktion med dubbel växling (Låna ×2 🔄)';
             const hTop = randInt(4, 9);
@@ -340,10 +355,22 @@ export function generateAlgoQuestion() {
             } while (addNeedsCarry(a, b));
             answer = a + b;
             qText = `Räkna ut ${a} + ${b}!`;
-            steps = [
-                { text: `<p><strong>Steg 1 (Entalen):</strong> Räkna <strong>${a % 10} + ${b % 10} = ${(a % 10) + (b % 10)}</strong> och skriv under strecket.</p>`, grid: { showAns: 1 } },
-                { text: `<p><strong>Steg 2:</strong> Fortsätt åt vänster, talsort för talsort ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { showAns: 99 } }
-            ];
+            // Kolumn för kolumn från höger – samma rytm som de andra demon.
+            const adA = String(a).split('').reverse().map(Number);
+            const adB = String(b).padStart(adA.length, '0').split('').reverse().map(Number);
+            const aDigits = Math.max(adA.length, String(b).length, String(answer).length);
+            steps = adA.map((d, i) => {
+                const db = adB[i] || 0;
+                const sum = d + db;
+                const last = i === adA.length - 1;
+                const pname = (PV_NAMES[Math.pow(10, i)] || 'tal') + 'en';
+                return {
+                    text: last
+                        ? `<p><strong>Sista kolumnen (${pname}):</strong> <strong>${d} + ${db} = ${sum}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`
+                        : `<p><strong>${i === 0 ? 'Steg 1 – ' : ''}${pname[0].toUpperCase() + pname.slice(1)}:</strong> <strong>${d} + ${db} = ${sum}</strong>. Skriv under strecket.</p>`,
+                    grid: { highlight: aDigits - i, showAns: i + 1 }
+                };
+            });
         } else if (isHard) {
             badge = '+ Addition med dubbel minnessiffra';
             const hTop = randInt(2, 5);
@@ -436,21 +463,35 @@ export function generateAlgoQuestion() {
                 });
                 carry = newCarry;
             }
-            // Slutadditionen av delresultaten, med eventuella minnessiffror.
+            // Slutadditionen kolumn för kolumn, med vanliga additions-
+            // minnessiffror ovanför nästa kolumn.
             let ac = 0;
             const acc3 = {};
             const p1D = String(p1), p2D = String(p2);
-            for (let pos = 0; pos < String(answer).length; pos++) {
+            const ansLen = String(answer).length;
+            for (let pos = 0; pos < ansLen; pos++) {
                 const d1 = pos < p1D.length ? +p1D[p1D.length - 1 - pos] : 0;
                 const d2 = pos > 0 && pos - 1 < p2D.length ? +p2D[p2D.length - pos] : 0;
                 const s = d1 + d2 + ac;
-                ac = Math.floor(s / 10);
-                if (ac) acc3[colOf(pos + 1, 0)] = String(ac);
+                const newAc = Math.floor(s / 10);
+                const last = pos === ansLen - 1;
+                const pname = (PV_NAMES[Math.pow(10, pos)] || 'tal') + 'en';
+                const terms = [];
+                if (ac) terms.push(`minne ${ac}`);
+                if (pos < p1D.length) terms.push(String(d1));
+                if (pos > 0 && pos - 1 < p2D.length) terms.push(String(d2));
+                const expr = terms.length > 1 ? `${terms.join(' + ')} = ${s}` : `bara ${terms[0]}`;
+                if (newAc) acc3[colOf(pos + 1, 0)] = String(newAc); // syns direkt i detta steg
+                steps.push({
+                    text: pos === 0
+                        ? `<p><strong>Lägg ihop delresultaten!</strong> ${p1} + ${p2 * 10} – talsort för talsort som vanlig addition. Entalen: bara <strong>${d1}</strong> ➔ skriv <strong>${s}</strong>.</p>`
+                        : last
+                            ? `<p><strong>Sista (${pname}):</strong> <strong>${expr}</strong> ➔ <strong>${a} × ${b} = ${answer}</strong>!</p>`
+                            : `<p><strong>${pname[0].toUpperCase() + pname.slice(1)}:</strong> <strong>${expr}</strong> – skriv <strong>${s % 10}</strong>${newAc ? ` och minnessiffran <strong class="text-emerald-600">${newAc}</strong> över nästa` : ''}.</p>`,
+                    mul2Grid: { showP1: 99, showP2: 99, showAns: pos + 1, struckNotes: [...struck], ansCarries: { ...acc3 }, hlRow: 'ans', hlCol: colOf(pos, 0) }
+                });
+                ac = newAc;
             }
-            steps.push({
-                text: `<p><strong>Lägg ihop delresultaten!</strong> ${p1} + ${p2 * 10} – räkna talsort för talsort som vanlig addition ➔ <strong>${a} × ${b} = ${answer}</strong>!</p>`,
-                mul2Grid: { showP1: 99, showP2: 99, showAns: 99, struckNotes: [...struck], ansCarries: acc3, hlRow: 'ans', hlCol: -1 }
-            });
         } else {
         badge = state.algoLevel === 'carry' ? '× Uppställning med minnessiffra' : '× Uppställning';
         do {
