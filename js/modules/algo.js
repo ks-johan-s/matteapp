@@ -538,20 +538,29 @@ export function generateAlgoQuestion() {
 
         // Kort division steg för steg: varje täljarsiffra delas från vänster,
         // resten blir minnessiffra över nästa siffra i uppställningen.
+        // Inledande nolla i kvoten skrivs inte (5 går 0 gånger i 1) – då
+        // avslöjas ingen svarssiffra i det steget.
         const aStr = String(a);
         let rem = 0;
         const acc = {};
+        let shown = 0;
         steps = [];
         for (let i = 0; i < aStr.length; i++) {
             const cur = rem * 10 + (+aStr[i]);
             const q = Math.floor(cur / b);
             rem = cur % b;
             if (rem > 0) acc[i + 1] = String(rem); // minnessiffra över NÄSTA siffra
+            const writes = q !== 0 || shown > 0;
+            if (writes) shown++;
+            const qPhrase = q === 0 ? '<strong>0 gånger – skriv 0 i svaret!</strong>'
+                : `<strong>${q}</strong> gång${q === 1 ? '' : 'er'}`;
             steps.push({
-                text: i === 0
-                    ? `<p><strong>Steg ${i + 1} – börja till vänster:</strong> Hur många gånger går <strong>${b}</strong> i <strong>${cur}</strong>? <strong>${q}</strong> gång${q === 1 ? '' : 'er'}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> skrivs litet över nästa siffra!` : ' – jämnt, ingen rest!'}</p>`
-                    : `<p><strong>Steg ${i + 1}:</strong> Minnessiffran + siffran = <strong>${cur}</strong>. Hur många gånger går <strong>${b}</strong> i ${cur}? <strong>${q}</strong> gång${q === 1 ? '' : 'er'}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> över nästa!` : ' – jämnt!'}</p>`,
-                divGrid: { showAns: i + 1, carries: { ...acc }, hlDigit: i }
+                text: i === 0 && q === 0
+                    ? `<p><strong>Steg 1 – börja till vänster:</strong> ${b} går <strong>0 gånger</strong> i ${cur} – men en nolla först i svaret skriver vi <strong>inte</strong>!${rem > 0 ? ` Resten <strong class="text-emerald-600">${rem}</strong> följer med över nästa siffra.` : ''}</p>`
+                    : i === 0
+                        ? `<p><strong>Steg 1 – börja till vänster:</strong> Hur många gånger går <strong>${b}</strong> i <strong>${cur}</strong>? ${qPhrase}${rem > 0 ? ` – resten <strong class="text-emerald-600">${rem}</strong> skrivs litet över nästa siffra!` : ' – jämnt, ingen rest!'}</p>`
+                        : `<p><strong>Steg ${i + 1}:</strong> Minnessiffran + siffran = <strong>${cur}</strong>. Hur många gånger går <strong>${b}</strong> i ${cur}? ${qPhrase}${rem > 0 ? ` Resten <strong class="text-emerald-600">${rem}</strong> över nästa!` : ' – jämnt!'}</p>`,
+                divGrid: { showAns: shown, carries: { ...acc }, hlDigit: i }
             });
         }
         steps.push({
