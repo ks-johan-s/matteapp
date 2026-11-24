@@ -186,12 +186,9 @@ export function toggleFocusMode() {
     document.body.classList.toggle('focus-mode-active', state.focusMode);
     const btn = document.getElementById('focus-mode-btn');
     if (btn) {
-        btn.className = state.focusMode
-            ? 'btn-3d bg-teal-600 border-2 border-teal-700 text-white px-2.5 py-1.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-1'
-            : 'btn-3d bg-teal-50 hover:bg-teal-100 border-2 border-teal-300 text-teal-900 px-2.5 py-1.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-1';
-        btn.innerHTML = state.focusMode
-            ? '<span>🧘</span><span class="hidden sm:inline">Avsluta lugn vy</span>'
-            : '<span>🧘</span><span class="hidden lg:inline">Lugn vy</span>';
+        btn.className = 'w-9 h-9 rounded-2xl flex items-center justify-center text-base ' + (state.focusMode
+            ? 'bg-teal-600 border border-teal-700 text-white'
+            : 'bg-teal-50 hover:bg-teal-100 border border-teal-300 text-teal-900');
     }
 }
 

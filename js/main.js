@@ -188,8 +188,7 @@ function restoreSavedState() {
         document.body.classList.add('focus-mode-active');
         const fb = document.getElementById('focus-mode-btn');
         if (fb) {
-            fb.className = 'btn-3d bg-teal-600 border-2 border-teal-700 text-white px-2.5 py-1.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-1';
-            fb.innerHTML = '<span>🧘</span><span class="hidden sm:inline">Avsluta lugn vy</span>';
+            fb.className = 'w-9 h-9 rounded-2xl flex items-center justify-center text-base bg-teal-600 border border-teal-700 text-white';
         }
     }
     const sc = document.getElementById('star-count');
