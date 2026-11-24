@@ -1,6 +1,12 @@
 // js/visuals.js — autogenererad av split.py från original.html
 import { formatNumSv } from './utils.js';
 
+// Bråkform/uppställningsform för division: täljaren över nämnaren med
+// streck – samma form som kortdivisionens uppställning visar.
+export function divStackHTML(top, bottom) {
+    return `<span class="div-stack"><span class="div-stack-n">${top}</span><span class="div-stack-line"></span><span class="div-stack-n">${bottom}</span></span>`;
+}
+
 export function buildNumberLineJumpSVG(start, mid, end, lbl1, lbl2, isSub = false) {
     const arcColor = isSub ? '#e11d48' : '#0284c7';
     return `

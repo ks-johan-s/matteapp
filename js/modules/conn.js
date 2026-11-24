@@ -2,6 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { randInt, showFeedback, shuffleArray } from '../utils.js';
+import { divStackHTML } from '../visuals.js';
 
 export function setConnSubMode(mode) {
     playSound('click');
@@ -25,10 +26,14 @@ function connStmts(a, b, c) {
     ];
 }
 
-// Satstexten med '?' på luckan (utan ram).
+// Satstexten med '?' på luckan (utan ram). Division ritas i
+// bråkform – samma form som uppställningen visar.
 function connStmtText(st, isAsked, part) {
-    const v = (val, isBlank) => isAsked && isBlank ? '<strong class="text-indigo-600">?</strong>' : val;
-    return `${v(st.lhs, part === 'lhs')} ${st.op} ${v(st.rhs, part === 'rhs')} = ${v(st.res, part === 'res')}`;
+    const v = (val, isBlank) => isAsked && isBlank ? '<strong class="conn-q">?</strong>' : val;
+    if (st.op === '÷') {
+        return `${divStackHTML(v(st.lhs, part === 'lhs'), v(st.rhs, part === 'rhs'))}<span class="conn-eq">=</span>${v(st.res, part === 'res')}`;
+    }
+    return `${v(st.lhs, part === 'lhs')} <span class="conn-op-x">×</span> ${v(st.rhs, part === 'rhs')} <span class="conn-eq">=</span> ${v(st.res, part === 'res')}`;
 }
 
 // En html-ruta med en familjsats; isAskedLucka anger vilken del som är '?'.
@@ -101,8 +106,8 @@ export function generateConnQuestion() {
         famEl.classList.add('hidden');
         famEl.classList.remove('grid');
         visEl.classList.remove('hidden');
-        visEl.innerHTML = `<div class="inline-block bg-indigo-50 border-3 border-indigo-300 rounded-3xl px-8 py-5">${
-            connStmtHtml(asked, true, form.part)
+        visEl.innerHTML = `<div class="conn-visual-box inline-block bg-indigo-50 border-3 border-indigo-300 rounded-3xl px-8 py-5">${
+            connStmtText(asked, true, form.part)
         }</div>`;
     }
     optEl.innerHTML = choices.map((v, idx) => `
@@ -110,8 +115,8 @@ export function generateConnQuestion() {
             ${v}
         </button>`).join('');
 
-    const familyStr = stmts.map(s => `${s.lhs} ${s.op} ${s.rhs} = ${s.res}`).join(' &nbsp;•&nbsp; ');
-    const askedEq = `${asked.lhs} ${asked.op} ${asked.rhs} = ${asked.res}`;
+    const familyStr = stmts.map(st => connStmtText(st, false, null)).join(' &nbsp;•&nbsp; ');
+    const askedEq = connStmtText(asked, false, null);
     // Den multiplikationssats som "bevisar" svaret – alltid sann i familjen.
     const mulCheck = form.ans === a ? `${b} × ${a} = ${c}`
         : form.ans === b ? `${a} × ${b} = ${c}`
@@ -123,7 +128,7 @@ export function generateConnQuestion() {
         ? `frågar "vilket tal gånger <strong>${asked.res}</strong> blir <strong>${asked.lhs}</strong>?"`
         : `betyder <strong>${asked.rhs} × ${asked.res} = ?</strong>`;
     setHintSteps('conn', [
-        `<p><strong>Steg 1:</strong> I en faktorfamilj är <strong>× och ÷ samma sanning</strong>! <strong>${a} × ${b} = ${c}</strong> ⇄ <strong>${c} ÷ ${a} = ${b}</strong> – dela upp produkten ger samma tal tillbaka.</p>`,
+        `<p><strong>Steg 1:</strong> I en faktorfamilj är <strong>× och ÷ samma sanning</strong>! <strong>${a} × ${b} = ${c}</strong> ⇄ <strong>${divStackHTML(c, a)} = ${b}</strong> – dela upp produkten ger samma tal tillbaka.</p>`,
         isDivAsk
             ? `<p><strong>Steg 2:</strong> Division är multiplikation baklänges! <strong>${askedEq}</strong> ${divHint}. Testa: <strong>${mulCheck}</strong> ✓ – svaret är <strong>${form.ans}</strong>!</p>`
             : `<p><strong>Steg 2:</strong> Frågan är <strong>${askedEq}</strong>. Tänk "vilket tal gör likhet?" – kolla tabellen: <strong>${mulCheck}</strong> – svaret är <strong>${form.ans}</strong>!</p>`,
@@ -138,13 +143,11 @@ export function checkConnChoice(idx) {
     const st = connStmts(cur.a, cur.b, cur.c)[cur.form.s];
     if (picked === cur.ans) {
         addReward(1);
-        showFeedback('conn-feedback', true, `🎉 Rätt! ${st.lhs} ${st.op} ${st.rhs} = ${st.res} – samma sanning i hela faktorfamiljen!`);
+        showFeedback('conn-feedback', true, `🎉 Rätt! ${connStmtText(st, false, null)} – samma sanning i hela faktorfamiljen!`);
         document.getElementById('conn-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();
-        const hintEq = cur.form.part === 'res' ? `${st.lhs} ${st.op} ${st.rhs} = ?`
-            : cur.form.part === 'rhs' ? `${st.lhs} ${st.op} ? = ${st.res}`
-            : `? ${st.op} ${st.rhs} = ${st.res}`;
+        const hintEq = connStmtText(st, true, cur.form.part);
         showFeedback('conn-feedback', false, `🤔 ${picked} passar inte! Tänk: ${hintEq} – vilket tal gör likhet?`);
     }
 }
@@ -185,18 +188,18 @@ export function buildConnDemoSteps() {
     const stmts = connStmts(a, b, c);
     const panel = (askIdx = -1, part = null) =>
         `<div class="grid grid-cols-2 gap-2 max-w-md mx-auto">${stmts.map((st, i) =>
-            `<div class="bg-white border-2 ${i === askIdx ? 'border-indigo-400 bg-indigo-50' : 'border-indigo-200'} rounded-xl px-3 py-2 font-display font-bold text-lg text-slate-900">${connStmtText(st, i === askIdx, part)}</div>`
+            `<div class="bg-white border-2 ${i === askIdx ? 'border-indigo-400 bg-indigo-50' : 'border-indigo-200'} rounded-xl px-3 py-2 font-display font-bold text-xl text-slate-900">${connStmtText(st, i === askIdx, part)}</div>`
         ).join('')}</div>`;
     return { steps: [
         { text: `<p>56 kakor ska delas till <strong>7 barn</strong> – <strong>8 kakor var</strong>. Rita prickarna som en matris: <strong>7 rader med 8 prickar</strong>. Men samma 56 prickar kan också ses som <strong>8 kolumner med 7 prickar</strong>!</p>`,
           html: connArraySVG({}) },
         { text: `<p><strong>Multiplikation</strong> räknar prickarna: <strong>7 × 8 = 56</strong> betyder "7 högar (rader) med 8 i varje". Byt plats: <strong>8 × 7 = 56</strong> – samma prickar ger samma svar!</p>`,
           html: connArraySVG({ hlRows: CONN_ALL_ROWS }) },
-        { text: `<p><strong>Division baklänges:</strong> 56 kakor i högar <strong>à 8</strong> – hur många högar får plats? Räkna <strong>raderna</strong>: 1–2–3–4–5–6–7! Alltså <strong>56 ÷ 8 = 7</strong>.</p>`,
+        { text: `<p><strong>Division baklänges:</strong> 56 kakor i högar <strong>à 8</strong> – hur många högar får plats? Räkna <strong>raderna</strong>: 1–2–3–4–5–6–7! Alltså <strong>${divStackHTML(56, 8)} = 7</strong>.</p>`,
           html: connArraySVG({ hlRows: CONN_ALL_ROWS, rowNums: true }) },
-        { text: `<p>Eller 56 kakor i <strong>påsar à 7</strong>: räkna <strong>kolumnerna</strong> istället – 1–2–3–4–5–6–7–8! Alltså <strong>56 ÷ 7 = 8</strong>. Samma prickar – bara ett annat sätt att dela!</p>`,
+        { text: `<p>Eller 56 kakor i <strong>påsar à 7</strong>: räkna <strong>kolumnerna</strong> istället – 1–2–3–4–5–6–7–8! Alltså <strong>${divStackHTML(56, 7)} = 8</strong>. Samma prickar – bara ett annat sätt att dela!</p>`,
           html: connArraySVG({ hlCols: CONN_ALL_COLS, colNums: true }) },
-        { text: `<p><strong>56 ÷ 7</strong> frågar <em>"vad gånger 7 blir 56?"</em> – samma som <strong>7 × ? = 56</strong>. Men akta: <strong>56 ÷ 7 är INTE samma sak som 7 ÷ 56!</strong></p>`,
+        { text: `<p><strong>${divStackHTML(56, 7)}</strong> frågar <em>"vad gånger 7 blir 56?"</em> – samma som <strong>7 × ? = 56</strong>. Men akta: <strong>${divStackHTML(56, 7)} är INTE samma sak som ${divStackHTML(7, 56)}!</strong></p>`,
           warn: true,
           html: panel() },
         { text: `<p><strong>Din tur!</strong> Vilket tal saknas? Titta på familjen – multiplicera baklänges!</p>`,
@@ -207,6 +210,6 @@ export function buildConnDemoSteps() {
               { label: '64', ok: false },
               { label: '42', ok: false },
           ] },
-          doneText: `? ÷ 8 = 7 → <strong>56</strong> – för 7 × 8 = 56! 🎉` },
+          doneText: `${divStackHTML('?', 8)} = 7 → <strong>56</strong> – för 7 × 8 = 56! 🎉` },
     ] };
 }

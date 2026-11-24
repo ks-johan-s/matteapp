@@ -2,6 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { randInt, showFeedback, shuffleArray } from '../utils.js';
+import { divStackHTML } from '../visuals.js';
 
 /* =============================================================
    5. MODUL 2: GÅNGERTABELLEN
@@ -68,7 +69,7 @@ export function generateMultQuestion() {
         ? [`<p><strong>${t} × ? = ${total}</strong> frågar: "hur många i varje rad om det är ${t} rader och ${total} prickar totalt?"</p>`,
            `<p>Räkna prickarna i en rad – det är <strong>${f}</strong>. Alltså ${t} × <strong>${f}</strong> = ${total}!</p>`]
         : [`<p><strong>? × ${f} = ${total}</strong> frågar: "hur många rader om ${f} prickar i varje rad blir ${total} totalt?"</p>`,
-           `<p>Räkna raderna i rutan – det är <strong>${t}</strong>. Alltså <strong>${t}</strong> × ${f} = ${total}! (Samma sak som ${total} ÷ ${f}.)</p>`])
+           `<p>Räkna raderna i rutan – det är <strong>${t}</strong>. Alltså <strong>${t}</strong> × ${f} = ${total}! (Samma sak som ${divStackHTML(total, f)}.)</p>`])
     : [
         `<p><strong>${t} × ${f}</strong> betyder <strong>${t} rader</strong> med <strong>${f}</strong> prickar i varje – som ett rutenät (${Array(t).fill(f).join(' + ')}).</p>`,
         `<p>Räkna i <strong>${f}-skutt</strong> ${t} gånger:</p>
@@ -107,7 +108,7 @@ export function checkMultChoice(val) {
     if (val === answer) {
         addReward(1);
         showFeedback('mult-feedback', true, missing
-            ? `🎉 Grymt! ${t} × ${f} = ${total} – den saknade faktorn var ${answer}! 💡 Kolla: ${total} ÷ ${f} = ${t}.`
+            ? `🎉 Grymt! ${t} × ${f} = ${total} – den saknade faktorn var ${answer}! 💡 Kolla: ${divStackHTML(total, f)} = ${t}.`
             : `🎉 Grymt! ${t} × ${f} = ${answer}! ${t <= 6 ? `💡 Tänk: ${Array(t).fill(f).join(' + ')} = ${total}.` : `💡 Matteord: ${t} och ${f} är <strong>faktorer</strong>, ${total} är <strong>produkten</strong>!`}`);
         document.getElementById('mult-next-wrap').classList.remove('hidden');
     } else {

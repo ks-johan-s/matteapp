@@ -3,6 +3,7 @@ import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { handleSheetInput, handleSheetKeyDown } from '../sheets.js';
 import { formatNumSv, randInt, showFeedback } from '../utils.js';
+import { divStackHTML } from '../visuals.js';
 
 /* =============================================================
    18. MODUL 15: TEXTUPPGIFTER (FLERSTEG & EGET RUTPAPPER)
@@ -222,7 +223,7 @@ function genBrakAv() {
             text: `I en låda ligger ${total} ${item[0]}. ${name} tar ${num}/${den} av ${item[1]}. Hur många ${item[0]} finns kvar i lådan?`,
             ans: left, unit: item[0],
             hints: [
-                `<p><strong>Steg 1:</strong> Dela ${total} i ${den} lika delar: <strong>${total} ÷ ${den} = ${perPile}</strong> ${item[0]} per del.</p>`,
+                `<p><strong>Steg 1:</strong> Dela ${total} i ${den} lika delar: <strong>${divStackHTML(total, den)} = ${perPile}</strong> ${item[0]} per del.</p>`,
                 `<p><strong>Steg 2:</strong> ${name} tar ${num} ${num === 1 ? 'del' : 'delar'}: <strong>${num} × ${perPile} = ${eaten}</strong>. Kvar: <strong>${total} − ${eaten} = ${left}</strong>!</p>`
             ]
         };
@@ -240,7 +241,7 @@ function genBrakAv() {
         text: `I en låda ligger ${total} ${item[0]}. ${name} tar ${num}/${den} av ${item[1]} och ger sedan bort ${given} till ${other}. Hur många ${item[0]} har ${name} kvar?`,
         ans, unit: item[0],
         hints: [
-            `<p><strong>Steg 1:</strong> ${num}/${den} av ${total}: en del är <strong>${total} ÷ ${den} = ${perPile}</strong>, så ${num} delar är <strong>${num} × ${perPile} = ${taken}</strong>.</p>`,
+            `<p><strong>Steg 1:</strong> ${num}/${den} av ${total}: en del är <strong>${divStackHTML(total, den)} = ${perPile}</strong>, så ${num} delar är <strong>${num} × ${perPile} = ${taken}</strong>.</p>`,
             `<p><strong>Steg 2:</strong> Kvar: <strong>${total} − ${taken} − ${given} = ${ans}</strong> ${item[0]}!</p>`
         ]
     };
@@ -260,7 +261,7 @@ function genProcent() {
             text: `En ${thing[0].slice(3)} kostar ${price} kr. På rean sänks priset först med ${pct} % och sedan får ${name} ytterligare ${coupon} kr rabatt med en kupong. Vad får hen betala?`,
             ans, unit: 'kr',
             hints: [
-                `<p><strong>Steg 1:</strong> ${pct} % av ${price}: <strong>${price} ÷ ${100 / pct} = ${disc} kr</strong> i rabatt.</p>`,
+                `<p><strong>Steg 1:</strong> ${pct} % av ${price}: <strong>${divStackHTML(price, 100 / pct)} = ${disc} kr</strong> i rabatt.</p>`,
                 `<p><strong>Steg 2:</strong> Efter rean: <strong>${price} − ${disc} = ${price - disc} kr</strong>.</p>`,
                 `<p><strong>Steg 3:</strong> Med kupongen: <strong>${price - disc} − ${coupon} = ${ans} kr</strong>!</p>`
             ]
@@ -275,7 +276,7 @@ function genProcent() {
         text: `${thing[0][0].toUpperCase() + thing[0].slice(1)} kostar ${price} kr. Det är ${pct} % rabatt i affären. Hur många kronor rabatt får ${name}?`,
         ans, unit: 'kr',
         hints: [
-            `<p><strong>Steg 1:</strong> ${pct} % betyder ${pct}/100 = 1/${100 / pct}. Dela priset: <strong>${price} ÷ ${100 / pct} = ${ans} kr</strong>.</p>`,
+            `<p><strong>Steg 1:</strong> ${pct} % betyder ${pct}/100 = 1/${100 / pct}. Dela priset: <strong>${divStackHTML(price, 100 / pct)} = ${ans} kr</strong>.</p>`,
             `<p><strong>Steg 2:</strong> Rabatten är <strong>${ans} kr</strong>! (Det nya priset skulle bli ${price - ans} kr.)</p>`
         ]
     };
@@ -345,7 +346,7 @@ function genPasar() {
         ans: n, unit: item[2],
         hints: [
             `<p><strong>Steg 1:</strong> Tänk multiplikation baklänges: <strong>${per} × ? = ${total}</strong>.</p>`,
-            `<p><strong>Steg 2:</strong> <strong>${total} ÷ ${per} = ${n}</strong> ${item[2]}!</p>`
+            `<p><strong>Steg 2:</strong> <strong>${divStackHTML(total, per)} = ${n}</strong> ${item[2]}!</p>`
         ]
     };
 }
@@ -360,8 +361,8 @@ function genDelaLika() {
         text: `${total} ${item} ska delas lika mellan ${kids} barn. Hur många ${item} får varje barn?`,
         ans: each, unit: `${item} per barn`,
         hints: [
-            `<p><strong>Steg 1:</strong> Fördela en i taget: ${total} ÷ ${kids} – hur många gånger rymms ${kids} i ${total}?</p>`,
-            `<p><strong>Steg 2:</strong> <strong>${total} ÷ ${kids} = ${each}</strong> ${item} till varje barn!</p>`
+            `<p><strong>Steg 1:</strong> Fördela en i taget: ${divStackHTML(total, kids)} – hur många gånger rymms ${kids} i ${total}?</p>`,
+            `<p><strong>Steg 2:</strong> <strong>${divStackHTML(total, kids)} = ${each}</strong> ${item} till varje barn!</p>`
         ]
     };
 }
@@ -378,7 +379,7 @@ function genKartonger() {
             ans: n, unit: 'kartonger',
             hints: [
                 `<p><strong>Steg 1:</strong> Hur många gånger rymms ${per} i ${total}?</p>`,
-                `<p><strong>Steg 2:</strong> <strong>${total} ÷ ${per} = ${n}</strong> kartonger!</p>`
+                `<p><strong>Steg 2:</strong> <strong>${divStackHTML(total, per)} = ${n}</strong> kartonger!</p>`
             ]
         };
     }
@@ -392,7 +393,7 @@ function genKartonger() {
         text: `${name} har ${total} ägg. Äggkartongerna rymmer ${per} ägg styck. Hur många kartonger behövs för att alla äggen ska få plats?`,
         ans: need, unit: 'kartonger',
         hints: [
-            `<p><strong>Steg 1:</strong> Fyllda kartonger: <strong>${total} ÷ ${per} = ${full}</strong> hela, men det blir <strong>${rest} ägg över</strong>!</p>`,
+            `<p><strong>Steg 1:</strong> Fyllda kartonger: <strong>${divStackHTML(total, per)} = ${full}</strong> hela, men det blir <strong>${rest} ägg över</strong>!</p>`,
             `<p><strong>Steg 2:</strong> De ${rest} äggen behöver en egen kartong: <strong>${full} + 1 = ${need} kartonger</strong>!</p>`
         ]
     };
@@ -482,7 +483,7 @@ function genMedelWord() {
         ans: m, unit: ctx[1],
         hints: [
             `<p><strong>Steg 1:</strong> Lägg ihop alla: <strong>${nums.join(' + ')} = ${sum}</strong>.</p>`,
-            `<p><strong>Steg 2:</strong> Dela på antalet: <strong>${sum} ÷ ${n} = ${wFmt(m)}</strong> ${ctx[1]} i snitt!</p>`
+            `<p><strong>Steg 2:</strong> Dela på antalet: <strong>${divStackHTML(sum, n)} = ${wFmt(m)}</strong> ${ctx[1]} i snitt!</p>`
         ]
     };
 }

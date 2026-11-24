@@ -2,7 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { formatNumSv, randInt, showFeedback, shuffleArray } from '../utils.js';
-import { renderMeanLevelingSVG } from '../visuals.js';
+import { renderMeanLevelingSVG , divStackHTML} from '../visuals.js';
 
 /* =============================================================
    17. MODUL 14: MEDELVÄRDE (GENOMSNITT), MEDIAN & TYPVÄRDE
@@ -109,7 +109,7 @@ export function generateAvgQuestion() {
         hints = [
             `<p><strong>Steg 1 (Lägg ihop alla talen):</strong> Räkna ut summan tillsammans:<br>
              <span class="inline-block mt-1 px-3 py-1 rounded-xl bg-rose-100 font-display font-bold text-rose-950">${nums.map(formatNumSv).join(' + ')} = ${formatNumSv(sum)}</span></p>`,
-            `<p><strong>Steg 2 (Dela lika på antal tal = ${count} st):</strong> Jämna ut staplarna så alla får lika mycket: <strong>${formatNumSv(sum)} ÷ ${count} = ${formatNumSv(answer)}</strong>!</p>
+            `<p><strong>Steg 2 (Dela lika på antal tal = ${count} st):</strong> Jämna ut staplarna så alla får lika mycket: <strong>${divStackHTML(formatNumSv(sum), count)} = ${formatNumSv(answer)}</strong>!</p>
              ${renderMeanLevelingSVG(nums, ctx.labels, answer)}`
         ];
     } else if (mode === 'median') {
@@ -163,7 +163,7 @@ export function generateAvgQuestion() {
                     <span class="px-3.5 py-1.5 rounded-xl bg-amber-300 text-amber-950 border-2 border-amber-500">${sorted[2]}</span>
                     <span class="px-3 py-1 rounded-xl bg-slate-100 text-slate-400 line-through">${sorted[3]}</span>
                  </div>`,
-                `<p><strong>Steg 2:</strong> Medianen ligger precis mitt emellan <strong>${sorted[1]}</strong> och <strong>${sorted[2]}</strong>: <strong>(${sorted[1]} + ${sorted[2]}) ÷ 2 = ${formatNumSv(answer)}</strong>!</p>`
+                `<p><strong>Steg 2:</strong> Medianen ligger precis mitt emellan <strong>${sorted[1]}</strong> och <strong>${sorted[2]}</strong>: <strong>${divStackHTML(`(${sorted[1]} + ${sorted[2]})`, 2)} = ${formatNumSv(answer)}</strong>!</p>`
             ];
         }
 
@@ -389,7 +389,7 @@ function renderAvgSortCards() {
     if (sorted && cur.mode === 'median') {
         note = mids.length === 1
             ? `✨ Sorterat! 🎯 Mitttalet lyser – det är <strong>medianen</strong>!`
-            : `✨ Sorterat! 🎯 Två tal i mitten – medianen är <strong>(${formatNumSv(cur.order[mids[0]])} + ${formatNumSv(cur.order[mids[1]])}) ÷ 2</strong>!`;
+            : `✨ Sorterat! 🎯 Två tal i mitten – medianen är <strong>${divStackHTML(`(${formatNumSv(cur.order[mids[0]])} + ${formatNumSv(cur.order[mids[1]])})`, 2)}</strong>!`;
     } else if (sorted && cur.mode === 'mode') {
         note = `✨ Sorterat! 👑 Klumpen med flest likadana – <strong>typvärdet ${modeVal}</strong> finns ${freqMap[modeVal]} gånger!`;
     }
@@ -453,7 +453,7 @@ export function buildAvgDemoSteps() {
           html: towers(nums) },
         { text: `<p><strong>Steg 1:</strong> Lägg ihop ALLT först: <strong>${nums.join(' + ')} = ${nums.reduce((a, b) => a + b)}</strong> klossar totalt.</p>`,
           html: towers(nums) },
-        { text: `<p><strong>Steg 2:</strong> Dela lika på ${nums.length} personer: <strong>${nums.reduce((a, b) => a + b)} ÷ ${nums.length} = ${mean}</strong>. Den gröna streckade linjen visar den utjämnade nivån!</p>`,
+        { text: `<p><strong>Steg 2:</strong> Dela lika på ${nums.length} personer: <strong>${divStackHTML(nums.reduce((a, b) => a + b), nums.length)} = ${mean}</strong>. Den gröna streckade linjen visar den utjämnade nivån!</p>`,
           html: svg },
         { text: `<p>Dela alltid med <strong>antalet tal</strong> – här ${nums.length}, inte 2! Och blanda inte ihop med <strong>medianen</strong>: det är mitt-talet när talen står i storleksordning.</p>`,
           warn: true,
@@ -464,6 +464,6 @@ export function buildAvgDemoSteps() {
               { label: '5', ok: true },
               { label: '6', ok: false },
           ] },
-          doneText: `3 + 5 + 7 = 15, och 15 ÷ 3 = <strong>5</strong>! 🎉` },
+          doneText: `3 + 5 + 7 = 15, och ${divStackHTML(15, 3)} = <strong>5</strong>! 🎉` },
     ] };
 }

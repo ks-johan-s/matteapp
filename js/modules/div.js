@@ -2,6 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { randInt, showFeedback, shuffleArray } from '../utils.js';
+import { divStackHTML } from '../visuals.js';
 
 const DIV_ITEMS = ['🍎', '🍪', '⚽', '🍓', '🥕', '🧃', '🍊'];
 const DIV_WHO = ['barn', 'vänner', 'grisar', 'ugglor'];
@@ -74,7 +75,7 @@ export function generateDivQuestion() {
         }
         hints = [
             `<p>Tänk <strong>"dela ut"</strong>: ge ett ${item} i taget till varje hög, varv efter varv, tills alla ${total} är slut.</p>`,
-            `<p>När alla är utdelade ligger det <strong>${quotient} i varje hög</strong>: ${total} ÷ ${divisor} = <strong>${quotient}</strong>!</p>`
+            `<p>När alla är utdelade ligger det <strong>${quotient} i varje hög</strong>: ${divStackHTML(total, divisor)} = <strong>${quotient}</strong>!</p>`
         ];
     } else if (mode === 'group') {
         badgeEl.textContent = '🛍️ Påsar';
@@ -94,14 +95,14 @@ export function generateDivQuestion() {
         }
         hints = [
             `<p>Räkna hur många gånger <strong>${divisor}</strong> får plats i ${total}: ${Array.from({ length: quotient }, (_, i) => `${divisor * (i + 1)}`).join(' ➔ ')}.</p>`,
-            `<p>Det blev <strong>${quotient} påsar</strong>: ${total} ÷ ${divisor} = <strong>${quotient}</strong>!</p>`
+            `<p>Det blev <strong>${quotient} påsar</strong>: ${divStackHTML(total, divisor)} = <strong>${quotient}</strong>!</p>`
         ];
     } else if (mode === 'missing') {
         const missDividend = Math.random() < 0.5;
         if (missDividend) {
             // ? ÷ d = q  → saknat total; multiplikation baklänges
             badgeEl.textContent = '❓ Saknat tal';
-            qEl.innerHTML = `<span class="text-teal-700">?</span> ÷ ${divisor} = ${quotient}`;
+            qEl.innerHTML = `${divStackHTML('<span class="text-teal-700">?</span>', divisor)} = ${quotient}`;
             visEl.innerHTML = `<div class="w-full text-sm font-extrabold text-teal-900 mb-1">👆 Ett okänt antal delades i ${divisor} högar – varje hög fick ${quotient}:</div>` +
                 Array.from({ length: divisor }, (_, p) => `
                     <div class="pile-pop px-3 py-2 rounded-2xl border-2 bg-teal-50 border-teal-300" style="animation-delay:${p * 130}ms">
@@ -113,11 +114,11 @@ export function generateDivQuestion() {
                 `<p>${divisor} × ${quotient} = <strong>${total}</strong> – division är multiplikation baklänges!</p>`
             ];
             answerOverride = total;
-            fullEq = `${total} ÷ ${divisor} = ${quotient}`;
+            fullEq = `${divStackHTML(total, divisor)} = ${quotient}`;
         } else {
             // t ÷ ? = q  → saknad divisor; hur många högar?
             badgeEl.textContent = '❓ Saknat tal';
-            qEl.innerHTML = `${total} ÷ <span class="text-teal-700">?</span> = ${quotient}`;
+            qEl.innerHTML = `${divStackHTML(total, `<span class="text-teal-700">?</span>`)} = ${quotient}`;
             visEl.innerHTML = `<div class="w-full text-sm font-extrabold text-amber-900 mb-1">👆 ${total} ${item} packades i högar med ${quotient} i varje – <strong>räkna högarana!</strong></div>` +
                 Array.from({ length: divisor }, (_, p) => `
                     <div class="pile-pop px-3 py-2 rounded-2xl border-2 bg-amber-50 border-amber-300" style="animation-delay:${p * 130}ms">
@@ -126,10 +127,10 @@ export function generateDivQuestion() {
                     </div>`).join('');
             hints = [
                 `<p>${total} ska bli högar med <strong>${quotient}</strong> i varje. Räkna högarana i bilden – eller tänk: <strong>vilken tabell</strong> når ${total} i ${quotient} skutt?</p>`,
-                `<p>${quotient} × ? = ${total} ➔ det är <strong>${divisor} högar</strong>: ${total} ÷ ${divisor} = ${quotient}!</p>`
+                `<p>${quotient} × ? = ${total} ➔ det är <strong>${divisor} högar</strong>: ${divStackHTML(total, divisor)} = ${quotient}!</p>`
             ];
             answerOverride = divisor;
-            fullEq = `${total} ÷ ${divisor} = ${quotient}`;
+            fullEq = `${divStackHTML(total, divisor)} = ${quotient}`;
         }
     } else if (mode === 'hands') {
         badgeEl.textContent = '🤲 Dela själv';
@@ -137,7 +138,7 @@ export function generateDivQuestion() {
         state.currentDiv = { mode, total, divisor, quotient, item, answer: quotient, piles: Array(divisor).fill(0), history: [] };
         hints = [
             `<p>Ge <strong>ett ${item} i taget</strong> åt varje hög – samma turordning varje varv, som när man delar ut kort!</p>`,
-            `<p>När alla ${total} är utdelade ska varje hög ha <strong>${quotient}</strong> – det betyder ${total} ÷ ${divisor} = ${quotient}.</p>`
+            `<p>När alla ${total} är utdelade ska varje hög ha <strong>${quotient}</strong> – det betyder ${divStackHTML(total, divisor)} = ${quotient}.</p>`
         ];
         setHintSteps('div', hints);
         if (modeToggle) modeToggle.parentElement.classList.add('hidden');
@@ -147,7 +148,7 @@ export function generateDivQuestion() {
         return;
     } else {
         badgeEl.textContent = '⚡ Snabb division';
-        qEl.innerHTML = `${total} ÷ ${divisor} = <span class="text-teal-700">?</span>`;
+        qEl.innerHTML = `${divStackHTML(total, divisor)} = <span class="text-teal-700">?</span>`;
         visEl.innerHTML = `
             <div class="inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-teal-50 border-2 border-teal-200 rounded-2xl px-5 py-3">
                 <span class="text-sm font-extrabold text-teal-900">💡 Tänk baklänges:</span>
@@ -192,7 +193,7 @@ export function checkDivChoice(val) {
     if (val === answer) {
         if (pendingReveal && revealHtml) document.getElementById('div-visual-container').innerHTML = revealHtml;
         addReward(1);
-        showFeedback('div-feedback', true, `🎉 Rätt! ${fullEq || `${total} ÷ ${divisor} = ${answer}`}! 💡 Kolla med gånger: ${quotient} × ${divisor} = ${total}.`);
+        showFeedback('div-feedback', true, `🎉 Rätt! ${fullEq || `${divStackHTML(total, divisor)} = ${answer}`}! 💡 Kolla med gånger: ${quotient} × ${divisor} = ${total}.`);
         document.getElementById('div-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();
@@ -268,7 +269,7 @@ export function checkDivHands() {
         return;
     }
     addReward(2);
-    showFeedback('div-feedback', true, `🎉 Perfekt fördelat! Varje hög fick ${cur.quotient} – ${cur.total} ÷ ${cur.divisor} = ${cur.quotient}! 💡 Kolla: ${cur.quotient} × ${cur.divisor} = ${cur.total}.`);
+    showFeedback('div-feedback', true, `🎉 Perfekt fördelat! Varje hög fick ${cur.quotient} – ${divStackHTML(cur.total, cur.divisor)} = ${cur.quotient}! 💡 Kolla: ${cur.quotient} × ${cur.divisor} = ${cur.total}.`);
     document.getElementById('div-next-wrap').classList.remove('hidden');
 }
 
@@ -316,7 +317,7 @@ export function buildDivDemoSteps() {
               { label: '12', ok: false },
               { label: '4', ok: true },
           ] },
-          doneText: `${total} ÷ ${divisor} = ${quotient} – division är att dela lika! 🎉` },
+          doneText: `${divStackHTML(total, divisor)} = ${quotient} – division är att dela lika! 🎉` },
     ];
     return { steps };
 }

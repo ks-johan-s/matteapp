@@ -2,6 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { formatFractionHTML, randInt, showFeedback, shuffleArray, styleNumbersIn } from '../utils.js';
+import { divStackHTML } from '../visuals.js';
 
 export function setComboHands(on) {
     playSound('click');
@@ -60,7 +61,7 @@ export function generateComboQuestion() {
     document.getElementById('combo-visual-container').innerHTML = pilesHtml;
 
     setHintSteps('combo', [
-        `<p><strong>Steg 1:</strong> Dela upp alla <strong>${total} äpplen</strong> i <strong>${den} lika högar</strong> (${total} ÷ ${den} = <strong>${perPile} äpplen</strong> i varje hög).</p>`,
+        `<p><strong>Steg 1:</strong> Dela upp alla <strong>${total} äpplen</strong> i <strong>${den} lika högar</strong> (${divStackHTML(total, den)} = <strong>${perPile} äpplen</strong> i varje hög).</p>`,
         `<p><strong>Steg 2:</strong> Vi ska ta <strong>${num}</strong> sådana högar: <strong>${num} × ${perPile} = ${answer} äpplen</strong>!</p>`
     ]);
 
@@ -228,7 +229,7 @@ export function buildComboDemoSteps() {
     return { steps: [
         { text: `<p>Hur mycket är <strong>⅓ av 12 äpplen</strong>? "Av" betyder: dela alla <strong>12</strong> äpplen i <strong>3 lika stora högar</strong> (nämnaren!).</p>`,
           html: `<div class="text-4xl my-3">🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎</div>` },
-        { text: `<p>Dela upp: <strong>12 ÷ 3 = 4 äpplen</strong> i varje hög.</p>`,
+        { text: `<p>Dela upp: <strong>${divStackHTML(12, 3)} = 4 äpplen</strong> i varje hög.</p>`,
           html: piles(3, 0, 4) },
         { text: `<p>Nu säger <strong>täljaren</strong> hur många högar vi tar: ⅓ betyder <strong>1 hög</strong> ➔ <strong>4 äpplen</strong>!</p>`,
           html: piles(3, 1, 4) },
@@ -242,6 +243,6 @@ export function buildComboDemoSteps() {
               { label: '8 äpplen', ok: true },
               { label: '6 äpplen', ok: false },
           ] },
-          doneText: `12 ÷ 3 = 4 per hög, 2 högar ➔ <strong>8 äpplen</strong>! 🎉` },
+          doneText: `${divStackHTML(12, 3)} = 4 per hög, 2 högar ➔ <strong>8 äpplen</strong>! 🎉` },
     ] };
 }

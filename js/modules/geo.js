@@ -2,6 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { formatNumSv, randInt, showFeedback, shuffleArray } from '../utils.js';
+import { divStackHTML } from '../visuals.js';
 
 /* =============================================================
    15. MODUL 12: GEOMETRI (AREA & OMKRETS)
@@ -142,8 +143,8 @@ export function generateGeoQuestion() {
                 </svg>
             `;
             hints = [
-                `<p>En triangel är precis <strong>hälften</strong> av en rektangel: <strong>(basen × höjden) ÷ 2</strong>.</p>`,
-                `<p>Räkna ut: <strong>(${formatNumSv(base)} × ${formatNumSv(height)}) ÷ 2 = ${formatNumSv(base * height)} ÷ 2 = ${formatNumSv(answer)} cm²</strong>!</p>`
+                `<p>En triangel är precis <strong>hälften</strong> av en rektangel: <strong>${divStackHTML('basen × höjden', 2)}</strong>.</p>`,
+                `<p>Räkna ut: <strong>${divStackHTML(`(${formatNumSv(base)} × ${formatNumSv(height)})`, 2)} = ${divStackHTML(formatNumSv(base * height), 2)} = ${formatNumSv(answer)} cm²</strong>!</p>`
             ];
         } else {
             const s1 = isHard ? [6.5, 8.5, 11.5][randInt(0, 2)] : randInt(4, 8);

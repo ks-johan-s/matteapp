@@ -2,6 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { randInt, showFeedback, shuffleArray } from '../utils.js';
+import { divStackHTML } from '../visuals.js';
 
 const SEQ_PATTERNS = [
     ['🔵', '🔴'], ['🌟', '🌙'], ['🍏', '🍎'], ['🐶', '🐱'],
@@ -72,7 +73,7 @@ export function generateSeqQuestion() {
             stepArrow(doubling ? '×2' : `${up ? '+' : '−'}${step}`) +
             (withAnswer ? numChip(answer, true) : `<span class="px-2.5 py-1 rounded-xl bg-white border-2 border-dashed border-purple-400 font-display font-bold text-base text-purple-600">?</span>`) + `</div>`;
         hints = doubling
-            ? [`<p>Titta på vad som händer mellan talen: ${seq[1]} ÷ ${seq[0]} = <strong>2</strong>. Varje tal är <strong>dubbelt</strong> så stort!</p>` + seqVisual(false),
+            ? [`<p>Titta på vad som händer mellan talen: ${divStackHTML(seq[1], seq[0])} = <strong>2</strong>. Varje tal är <strong>dubbelt</strong> så stort!</p>` + seqVisual(false),
                `<p>${seq[3]} × 2 = <strong>${answer}</strong>!</p>` + seqVisual(true)]
             : [`<p>Räkna <strong>skillnaden</strong> mellan två tal i rad: ${up ? `${seq[1]} − ${seq[0]}` : `${seq[0]} − ${seq[1]}`} = <strong>${step}</strong>. Samma steg varje gång, men <strong>${up ? 'uppåt' : 'neråt'}</strong>!</p>` + seqVisual(false),
                `<p>Nästa tal blir ${seq[3]} ${up ? '+' : '−'} ${step} = <strong>${answer}</strong>!</p>` + seqVisual(true)];

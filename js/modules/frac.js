@@ -2,7 +2,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { formatFractionHTML, formatMixedHTML, randInt, showFeedback, shuffleArray } from '../utils.js';
-import { renderPizzaSVG } from '../visuals.js';
+import { renderPizzaSVG , divStackHTML} from '../visuals.js';
 
 export function setFracSubMode(mode) {
     playSound('click');
@@ -221,7 +221,7 @@ export function generateFracQuestion() {
 
         setHintSteps('frac', [
             `<p><strong>${pct} %</strong> betyder ${formatFractionHTML(r.n, r.d)} – dela <strong>${amount}</strong> i <strong>${r.d} lika delar</strong>.</p>`,
-            `<p>Varje del är ${amount} ÷ ${r.d} = <strong>${perPart}</strong>. Vi ska ha <strong>${r.n}</strong> ${r.n === 1 ? 'del' : 'delar'}: ${r.n} × ${perPart} = <strong>${answer}</strong>!</p>`
+            `<p>Varje del är ${divStackHTML(amount, r.d)} = <strong>${perPart}</strong>. Vi ska ha <strong>${r.n}</strong> ${r.n === 1 ? 'del' : 'delar'}: ${r.n} × ${perPart} = <strong>${answer}</strong>!</p>`
         ]);
 
         if (state.inputModes.frac === 'choice') {
