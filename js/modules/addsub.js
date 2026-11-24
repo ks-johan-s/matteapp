@@ -260,8 +260,12 @@ export function generateAddSubQuestion() {
     if (tensPart > 0 && onesPart > 0) {
         setHintSteps('addsub', [
             `<p>Dela upp <strong>${formatPlaceValueHTML(b)}</strong> i tiotal (<strong class="pv-num pv-10">${tensPart}</strong>) och ental (<strong class="pv-num pv-1">${onesPart}</strong>).</p>`,
-            `<p>Hoppa på tallinjen – först tiotalen, sedan entalen:</p>
-             ${buildNumberLineJumpSVG(a, midVal, answer, `${isSub ? '−' : '+'}${tensPart}`, `${isSub ? '−' : '+'}${onesPart}`, isSub)}`
+            { html: `<p>Hoppa på tallinjen – först tiotalen, sedan entalen:</p>
+             ${buildNumberLineJumpSVG(a, midVal, answer, `${isSub ? '−' : '+'}${tensPart}`, `${isSub ? '−' : '+'}${onesPart}`, isSub)}`,
+              anim: { fly: [
+                  { text: '🐸', from: '[data-nl="0"]', to: '[data-nl="1"]', hideTarget: false, fill: false, cls: 'fly-emoji', delay: 800 },
+                  { text: '🐸', from: '[data-nl="1"]', to: '[data-nl="2"]', hideTarget: false, fill: false, cls: 'fly-emoji', delay: 1900 },
+              ] } },
         ]);
     } else {
         setHintSteps('addsub', [

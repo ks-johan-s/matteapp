@@ -2,6 +2,7 @@
 // som spelas upp i en overlay ovanför aktivitetsvyn. Varje modul
 // tillhandahåller en stegbyggare som returnerar { steps, onExit }.
 import { playSound } from './core.js';
+import { runStepFlights } from './visuals.js';
 import { buildAlgoDemoSteps, generateAlgoQuestion } from './modules/algo.js';
 import { buildFracDemoSteps } from './modules/frac.js';
 import { buildClockDemoSteps } from './modules/clock.js';
@@ -93,64 +94,7 @@ export function closeDemo() {
     document.body.classList.remove('overflow-hidden');
 }
 
-// Deklarativ flyganimation i demon: { fly: [{ text, from, to, delay? }] }
-// – en token åker från "from"-elementets mitt till "to"-elementets mitt,
-// medan målets riktiga innehåll är osynligt tills token landar. Så ser
-// värdet ut att faktiskt flytta (lånat tiotal, minnessiffra, omflyttat tal).
-export function runStepFlights(anim, rootEl) {
-    const flights = anim?.fly || [];
-    if (!flights.length) return;
-    flights.forEach((f, i) => {
-        const src = rootEl.querySelector(f.from);
-        const dst = rootEl.querySelector(f.to);
-        if (!src || !dst) return;
-        // Målets innehåll döljs under flygningen så token ser ut att landa:
-        // 'color' (default) = osynlig text, ram kvar · 'visibility' = hela
-        // formen gömd (klossar, luckor) · false = målet syns hela tiden.
-        const hideMode = f.hideTarget === 'visibility' ? 'visibility'
-            : (f.hideTarget === false ? 'none' : 'color');
-        const hadContent = dst.textContent.trim() !== '';
-        if (hideMode === 'visibility') dst.style.visibility = 'hidden';
-        else if (hideMode === 'color') dst.style.color = 'transparent';
-        const delay = f.delay ?? (300 + i * 220);
-        setTimeout(() => {
-            // Om användaren hunnit byta steg är elementen borta ur DOM:en.
-            if (!document.getElementById('demo-visual')?.contains(dst)) {
-                if (hideMode === 'visibility') dst.style.visibility = '';
-                else if (hideMode === 'color') dst.style.color = '';
-                return;
-            }
-            const r1 = src.getBoundingClientRect();
-            const r2 = dst.getBoundingClientRect();
-            if (f.hideSource) src.style.visibility = 'hidden';
-            const el = document.createElement('span');
-            el.className = `demo-fly-token ${f.cls || ''}`;
-            el.textContent = f.text;
-            el.style.left = `${r1.left + r1.width / 2}px`;
-            el.style.top = `${r1.top + r1.height / 2}px`;
-            document.body.appendChild(el);
-            // Reflow först så transitionen startar – rAF pausas i bakgrundsflikar.
-            void el.offsetWidth;
-            const dx = (r2.left + r2.width / 2) - (r1.left + r1.width / 2);
-            const dy = (r2.top + r2.height / 2) - (r1.top + r1.height / 2);
-            el.style.transform = `translate(${dx}px, ${dy}px) scale(0.8)`;
-            const land = () => {
-                if (!el.isConnected) return;
-                el.remove();
-                if (f.fillText !== undefined) dst.textContent = f.fillText;
-                else if (f.fill !== false && !hadContent) dst.textContent = f.text;
-                if (hideMode === 'visibility') dst.style.visibility = '';
-                else if (hideMode === 'color') dst.style.color = '';
-                dst.classList.remove('carry-pop');
-                void dst.offsetWidth;
-                dst.classList.add('carry-pop');
-                if (f.onLand) f.onLand(dst);
-            };
-            el.addEventListener('transitionend', land, { once: true });
-            setTimeout(land, 780); // fallback om transitionend uteblir
-        }, delay);
-    });
-}
+
 
 export function demoExit() {
     const onExit = demo?.onExit;

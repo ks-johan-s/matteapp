@@ -584,11 +584,15 @@ export function generateAlgoQuestion() {
     }
 
     state.currentAlgo = { a, b, op, answer, steps, mul2: op === 'mul' && state.algoLevel === 'mul2' };
-    // Ledtrådarna byggs av samma strukturerade steg som "Visa mig"-demon.
-    const hints = (steps || []).map(s => s.text +
-        (s.grid ? algoMiniGrid(a, b, op, answer, s.grid) : '') +
-        (s.mul2Grid ? algoMiniMul2Grid(a, b, s.mul2Grid) : '') +
-        (s.divGrid ? algoMiniDivGrid(a, b, answer, s.divGrid) : ''));
+    // Ledtrådarna byggs av samma strukturerade steg som "Visa mig"-demon –
+    // inklusive anim-speckarna, så t.ex. resten flyger i ledtråden också.
+    const hints = (steps || []).map(s => ({
+        html: s.text +
+            (s.grid ? algoMiniGrid(a, b, op, answer, s.grid) : '') +
+            (s.mul2Grid ? algoMiniMul2Grid(a, b, s.mul2Grid) : '') +
+            (s.divGrid ? algoMiniDivGrid(a, b, answer, s.divGrid) : ''),
+        anim: s.anim,
+    }));
     document.getElementById('algo-mode-badge').textContent = badge;
     document.getElementById('algo-question-text').textContent = qText;
     document.getElementById('algo-blank-problem-label').textContent = `${a} ${op === 'sub' ? '−' : (op === 'add' ? '+' : (op === 'mul' ? '×' : '÷'))} ${b}`;

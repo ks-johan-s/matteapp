@@ -1,6 +1,7 @@
 // js/hints.js — autogenererad av split.py från original.html
 import { playSound, state } from './core.js';
 import { styleNumbersIn } from './utils.js';
+import { runStepFlights } from './visuals.js';
 
 export const moduleHintsData = {};
 
@@ -82,12 +83,20 @@ export function renderHintBox(mod) {
                 <div>${moduleConcepts[mod]}</div>
             </div>`
             : '';
-        contentEl.innerHTML = concept + steps.slice(0, shown).map((html, idx) => `
+        contentEl.innerHTML = concept + steps.slice(0, shown).map((s, idx) => `
             <div class="hint-step-card bg-white rounded-xl p-3 border border-sky-200 shadow-2xs">
                 <span class="inline-block px-2 py-0.5 rounded-md bg-sky-100 text-sky-900 text-[11px] font-extrabold mb-1">Steg ${idx + 1}</span>
-                <div>${html}</div>
+                <div>${typeof s === 'string' ? s : s.html}</div>
             </div>
         `).join('');
+        // Flyganimationer körs bara på det nyast visade kortet – äldre
+        // steg ska inte spela om sig vid varje "nästa"-tryck.
+        const last = steps[shown - 1];
+        if (last && typeof last !== 'string' && last.anim) {
+            const cards = contentEl.querySelectorAll('.hint-step-card');
+            const cardEl = cards[cards.length - 1];
+            if (cardEl) runStepFlights(last.anim, cardEl);
+        }
     }
     if (nextBtn) {
         nextBtn.classList.toggle('hidden', shown >= steps.length);

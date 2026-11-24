@@ -179,9 +179,13 @@ export function generateShopQuestion() {
         setHintSteps('shop', [
             `<p><strong>Steg 1:</strong> Varorna kostar tillsammans <strong>${totalCost} kr</strong>.</p>`,
             jump1 > 0 && jump2 > 0
-                ? `<p><strong>Steg 2:</strong> Räkna uppåt från <strong>${totalCost} kr</strong> till <strong>${paidBill} kr</strong> på tallinjen:</p>
+                ? { html: `<p><strong>Steg 2:</strong> Räkna uppåt från <strong>${totalCost} kr</strong> till <strong>${paidBill} kr</strong> på tallinjen:</p>
                    ${buildNumberLineJumpSVG(totalCost, nextTen, paidBill, `+${jump1} kr`, `+${jump2} kr`, false)}
-                   <p class="text-center font-display font-bold text-emerald-800">Växel = ${jump1} + ${jump2} = ${change} kr!</p>`
+                   <p class="text-center font-display font-bold text-emerald-800">Växel = ${jump1} + ${jump2} = ${change} kr!</p>`,
+                    anim: { fly: [
+                        { text: '🐸', from: '[data-nl="0"]', to: '[data-nl="1"]', hideTarget: false, fill: false, cls: 'fly-emoji', delay: 800 },
+                        { text: '🐸', from: '[data-nl="1"]', to: '[data-nl="2"]', hideTarget: false, fill: false, cls: 'fly-emoji', delay: 1900 },
+                    ] } }
                 : `<p><strong>Steg 2:</strong> Räkna ut skillnaden: <strong>${paidBill} kr − ${totalCost} kr = ${change} kr</strong> i växel!</p>`
         ]);
     }
