@@ -144,11 +144,15 @@ function algoMiniDivGrid(a, b, answer, { showAns = 0, carries = {}, hlDigit = -1
     h += `<div style="grid-row: 3; grid-column: 1 / ${divLen + 1}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
         <div style="width: 100%; height: 4px; background: #0f172a; border-radius: 2px;"></div>
     </div>`;
-    // Nämnaren centrerad under strecket (under mittersta täljarsiffran).
-    const namnCol = Math.floor(divLen / 2) + 1;
+    // Nämnaren centrerad under hela räknestrecket – ett genomskinligt
+    // lager ovanpå rutorna så siffran hamnar exakt i mitten även vid
+    // jämnt antal täljarsiffror.
     for (let c = 1; c <= divLen; c++) {
-        h += `<div class="math-grid-cell${c === namnCol ? ' text-sky-700 font-bold' : ''}" style="grid-row: 4; grid-column: ${c};">${c === namnCol ? b : ''}</div>`;
+        h += `<div class="math-grid-cell" style="grid-row: 4; grid-column: ${c};"></div>`;
     }
+    h += `<div style="grid-row: 4; grid-column: 1 / ${divLen + 1}; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+        <div class="math-grid-cell text-sky-700 font-bold" style="border: none; width: auto; height: auto;">${b}</div>
+    </div>`;
     return h + '</div>';
 }
 
@@ -756,11 +760,14 @@ export function renderGuidedAlgoGrid() {
         html += `<div style="grid-row: 3; grid-column: 1 / ${divLen + 1}; display: flex; align-items: center; height: 4px; margin: -4px 2px;">
             <div style="width: 100%; height: 4px; background: #0f172a; border-radius: 2px;"></div>
         </div>`;
-        // Nämnaren centrerad under strecket (under mittersta täljarsiffran).
-        const namnCol = Math.floor(divLen / 2) + 1;
+        // Nämnaren centrerad under hela räknestrecket – genomskinligt
+        // lager ovanpå rutorna så siffran hamnar exakt i mitten.
         for (let c = 1; c <= divLen; c++) {
-            html += `<div class="math-grid-cell${c === namnCol ? ' text-sky-700 font-bold' : ''}" style="grid-row: 4; grid-column: ${c};">${c === namnCol ? b : ''}</div>`;
+            html += `<div class="math-grid-cell" style="grid-row: 4; grid-column: ${c};"></div>`;
         }
+        html += `<div style="grid-row: 4; grid-column: 1 / ${divLen + 1}; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+            <div class="math-grid-cell text-sky-700 font-bold" style="border: none; width: auto; height: auto;">${b}</div>
+        </div>`;
         html += `</div>`;
         container.innerHTML = html;
         return;
