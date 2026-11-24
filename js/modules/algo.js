@@ -9,7 +9,9 @@ import { randInt, showFeedback, shuffleArray } from '../utils.js';
 ============================================================== */
 // Miniatyr-uppställning i ledtråden: visar konkret vad steget gör.
 // highlight = kolumn att markera (bärnstensram), struck = överstrukna
-// siffror, carries = {kolumn: '10'/'1'}, showAns = antal ifyllda svartal från höger.
+// siffror, carries = {platsvärde: '10'/'1'} (1=ental, 10=tiotal, 100=hundratal…),
+// showAns = antal ifyllda svartal från höger. Platsvärdesnycklar gör att
+// minnessiffran alltid hamnar rätt även när svaret får en extra inledande siffra.
 // Nivåkontroller för trappan: 'plain' = utan växling/minne/rest,
 // 'carry' = garanterat med. Hjälpfunktionerna simulerar metoden.
 function addNeedsCarry(a, b) {
@@ -63,7 +65,7 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
     const opSym = op === 'sub' ? '−' : (op === 'add' ? '+' : '×');
     const place = c => Math.pow(10, digits - c);
     const cell = (content, cls = '') => `<div class="math-grid-cell ${cls}">${content}</div>`;
-    const carryCls = c => `math-grid-carry${freshCarry.includes(c) ? ' carry-pop cell-soft-glow' : ''}`;
+    const carryCls = c => `math-grid-carry${freshCarry.includes(place(c)) ? ' carry-pop cell-soft-glow' : ''}`;
     const isDig = c => c > 0 && c <= digits;
     const noteSpans = struckNotes.map((n, i) =>
         `<span class="mul-carry-note mul-carry-used">+${n}</span>`
@@ -74,7 +76,7 @@ function algoMiniGrid(a, b, op, answer, { highlight = -1, struck = [], carries =
         : `repeat(${cols}, ${big ? 62 : 34}px)`;
 
     let h = `<div class="math-grid-paper math-grid-mini${big ? ' math-grid-big' : ''} mx-auto my-1.5" style="grid-template-columns: ${colW};">`;
-    if (!isMul) for (let c = 0; c < cols; c++) h += cell(carries[c] || '', carryCls(c));
+    if (!isMul) for (let c = 0; c < cols; c++) h += cell(carries[place(c)] || '', carryCls(c));
     for (let c = 0; c < cols; c++) {
         const cls = [isDig(c) ? `pv-col-${place(c)}` : '', struck.includes(c) ? 'digit-struck' : '',
             freshStruck.includes(c) ? 'demo-struck' : '',
@@ -326,10 +328,10 @@ export function generateAlgoQuestion() {
             // kolumnen markerad), skriv 10 över den, räkna kolumnen.
             steps = [
                 { text: `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop}</strong> är mindre än <strong>${eBot}</strong> – det går inte! Stryk tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>.</p>`, grid: { highlight: 3, struck: [2] } },
-                { text: `<p><strong>Steg 2:</strong> Tioan skrivs litet över entalen ➔ räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [2], carries: { 3: '10' }, showAns: 1 } },
-                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Nu finns bara <strong>${tTop - 1}</strong> kvar i tiotalen – mindre än <strong>${tBot}</strong>! Stryk hundratalet <strong>${hTop}</strong> och låna <strong>10</strong> tiotal.</p>`, grid: { highlight: 2, struck: [1, 2], carries: { 3: '10' } } },
-                { text: `<p><strong>Steg 4:</strong> Tioan över tiotalen ➔ räkna <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>`, grid: { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 2 } },
-                { text: `<p><strong>Steg 5 (Hundratalen):</strong> Till sist <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { struck: [1, 2], carries: { 2: '10', 3: '10' }, showAns: 3 } }
+                { text: `<p><strong>Steg 2:</strong> Tioan skrivs litet över entalen ➔ räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [2], carries: { 1: '10' }, showAns: 1 } },
+                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Nu finns bara <strong>${tTop - 1}</strong> kvar i tiotalen – mindre än <strong>${tBot}</strong>! Stryk hundratalet <strong>${hTop}</strong> och låna <strong>10</strong> tiotal.</p>`, grid: { highlight: 2, struck: [1, 2], carries: { 1: '10' } } },
+                { text: `<p><strong>Steg 4:</strong> Tioan över tiotalen ➔ räkna <strong>${10 + tTop - 1} − ${tBot} = ${(10 + tTop - 1) - tBot}</strong>.</p>`, grid: { struck: [1, 2], carries: { 10: '10', 1: '10' }, showAns: 2 } },
+                { text: `<p><strong>Steg 5 (Hundratalen):</strong> Till sist <strong>${hTop - 1} − ${hBot} = ${(hTop - 1) - hBot}</strong> ➔ Svaret är <strong>${answer}</strong>!</p>`, grid: { struck: [1, 2], carries: { 10: '10', 1: '10' }, showAns: 3 } }
             ];
         } else {
             badge = '− Subtraktion med växling (Låna 🔄)';
@@ -346,8 +348,8 @@ export function generateAlgoQuestion() {
             // markerad), sen skrivs 10:an över den och kolumnen räknas.
             steps = [
                 { text: `<p><strong>Steg 1 (Entalen längst till höger):</strong> Vi ska ta <strong>${eTop} − ${eBot}</strong>, men ${eTop} är mindre än ${eBot} – det går inte! Stryk tiotalet <strong>${tTop}</strong> för att låna <strong>10</strong>.</p>`, grid: { highlight: 2, struck: [1] } },
-                { text: `<p><strong>Steg 2:</strong> Tioan skrivs litet över entalen – nu är det <strong>${10 + eTop}</strong> där! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 1 } },
-                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Vi lånade ett tiotal från ${tTop}, så det finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { struck: [1], carries: { 2: '10' }, showAns: 2 } }
+                { text: `<p><strong>Steg 2:</strong> Tioan skrivs litet över entalen – nu är det <strong>${10 + eTop}</strong> där! Räkna <strong>${10 + eTop} − ${eBot} = ${(10 + eTop) - eBot}</strong>.</p>`, grid: { struck: [1], carries: { 1: '10' }, showAns: 1 } },
+                { text: `<p><strong>Steg 3 (Tiotalen):</strong> Vi lånade ett tiotal från ${tTop}, så det finns <strong>${tTop - 1}</strong> kvar där uppe. Räkna <strong>${tTop - 1} − ${tBot} = ${(tTop - 1) - tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { struck: [1], carries: { 1: '10' }, showAns: 2 } }
             ];
         }
     } else if (op === 'add') {
@@ -391,9 +393,9 @@ export function generateAlgoQuestion() {
             const eSum = eTop + eBot;
             const tSum = 1 + tTop + tBot;
             steps = [
-                { text: `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop} + ${eBot} = ${eSum}</strong>. Skriv <strong>${eSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`, grid: { carries: { 2: '1' }, showAns: 1 } },
-                { text: `<p><strong>Steg 2 (Tiotalen):</strong> <strong>1 + ${tTop} + ${tBot} = ${tSum}</strong>. Skriv <strong>${tSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över hundratalen.</p>`, grid: { carries: { 1: '1', 2: '1' }, showAns: 2 } },
-                { text: `<p><strong>Steg 3 (Hundratalen):</strong> <strong>1 + ${hTop} + ${hBot} = ${1 + hTop + hBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { carries: { 1: '1', 2: '1' }, showAns: 3 } }
+                { text: `<p><strong>Steg 1 (Entalen):</strong> <strong>${eTop} + ${eBot} = ${eSum}</strong>. Skriv <strong>${eSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`, grid: { carries: { 10: '1' }, showAns: 1 } },
+                { text: `<p><strong>Steg 2 (Tiotalen):</strong> <strong>1 + ${tTop} + ${tBot} = ${tSum}</strong>. Skriv <strong>${tSum % 10}</strong> och minnessiffran <strong class="text-emerald-600">1</strong> över hundratalen.</p>`, grid: { carries: { 100: '1', 10: '1' }, showAns: 2 } },
+                { text: `<p><strong>Steg 3 (Hundratalen):</strong> <strong>1 + ${hTop} + ${hBot} = ${1 + hTop + hBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { carries: { 100: '1', 10: '1' }, showAns: 3 } }
             ];
         } else {
             badge = '+ Addition med minnessiffra';
@@ -407,8 +409,8 @@ export function generateAlgoQuestion() {
             qText = `Räkna ut ${a} + ${b}!`;
 
             steps = [
-                { text: `<p><strong>Steg 1 (Entalen längst till höger):</strong> Räkna <strong>${eTop} + ${eBot} = ${eTop + eBot}</strong>. Skriv entalet <strong>${(eTop + eBot) % 10}</strong> längst ner och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`, grid: { carries: { 1: '1' }, showAns: 1 } },
-                { text: `<p><strong>Steg 2 (Tiotalen):</strong> Räkna ihop minnessiffran och tiotalen: <strong>1 + ${tTop} + ${tBot} = ${1 + tTop + tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { carries: { 1: '1' }, showAns: 2 } }
+                { text: `<p><strong>Steg 1 (Entalen längst till höger):</strong> Räkna <strong>${eTop} + ${eBot} = ${eTop + eBot}</strong>. Skriv entalet <strong>${(eTop + eBot) % 10}</strong> längst ner och minnessiffran <strong class="text-emerald-600">1</strong> över tiotalen.</p>`, grid: { carries: { 10: '1' }, showAns: 1 } },
+                { text: `<p><strong>Steg 2 (Tiotalen):</strong> Räkna ihop minnessiffran och tiotalen: <strong>1 + ${tTop} + ${tBot} = ${1 + tTop + tBot}</strong> ➔ Svaret blir <strong>${answer}</strong>!</p>`, grid: { carries: { 10: '1' }, showAns: 2 } }
             ];
         }
     } else if (op === 'mul') {
