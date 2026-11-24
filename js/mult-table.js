@@ -15,17 +15,17 @@ export function buildMultHelperTable() {
     const container = document.getElementById('mult-helper-grid');
     if (!container) return;
     let html = `<div class="grid grid-cols-11 gap-1 text-center font-display font-bold text-xs sm:text-sm select-none">`;
-    html += `<div class="p-1.5 rounded-lg bg-amber-200 text-amber-950">×</div>`;
+    html += `<div class="p-1.5 rounded-lg border-2 border-slate-400 bg-white text-slate-700">×</div>`;
     for (let c = 1; c <= 10; c++) {
-        html += `<div id="mt-col-hdr-${c}" class="mult-table-cell p-1.5 rounded-lg bg-amber-100 text-amber-900">${c}</div>`;
+        html += `<div id="mt-col-hdr-${c}" class="mult-table-cell mtc-hdr-${c} p-1.5 rounded-lg border-2 bg-white text-slate-800">${c}</div>`;
     }
     for (let r = 1; r <= 10; r++) {
-        html += `<div id="mt-row-hdr-${r}" class="mult-table-cell p-1.5 rounded-lg bg-amber-100 text-amber-900">${r}</div>`;
+        html += `<div id="mt-row-hdr-${r}" class="mult-table-cell mtc-hdr-${r} p-1.5 rounded-lg border-2 bg-white text-slate-800">${r}</div>`;
         for (let c = 1; c <= 10; c++) {
             html += `<button id="mt-cell-${r}-${c}"
                 onmouseenter="if(!state.lockedTableCell) highlightMultCell(${r}, ${c}, false)"
                 onclick="highlightMultCell(${r}, ${c}, true)"
-                class="mult-table-cell p-1.5 rounded-lg bg-slate-50 hover:bg-amber-100 border border-slate-200 text-slate-800">
+                class="mult-table-cell mtc-${c} p-1.5 rounded-lg border border-black/10 text-white hover:brightness-110">
                 ${r * c}
             </button>`;
         }
