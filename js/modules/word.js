@@ -642,3 +642,27 @@ export function checkWordAnswer() {
         showFeedback('word-feedback', false, `🤔 Inte riktigt ${formatNumSv(val)} ${unit} – dela upp problemet i två steg och försök igen!`);
     }
 }
+
+// "Visa mig": metod för textuppgift – läs, hitta talen, räkna i steg.
+export function buildWordDemoSteps() {
+    const story = (inner) => `<div class="max-w-md mx-auto bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-left text-base sm:text-lg text-slate-800 my-2">${inner}</div>`;
+    const num = (t) => `<span class="bg-yellow-200 border border-yellow-400 rounded-lg px-1.5 font-extrabold">${t}</span>`;
+    return { steps: [
+        { text: `<p>Textuppgifter gömmer en räkneuppgift i en <strong>berättelse</strong>. Läs hela först – vad handlar den om?</p>`,
+          html: story(`Sara köper 3 paket bullar för 20 kr styck. Hon betalar med en 100-lapp. Hur mycket får hon tillbaka?`) },
+        { text: `<p><strong>Steg 1:</strong> Markera <strong>talen</strong> och <strong>frågan</strong> – vad ska vi räkna ut?</p>`,
+          html: story(`Sara köper ${num('3')} paket bullar för ${num('20 kr')} styck. Hon betalar med en ${num('100')}-lapp. Hur mycket får hon <strong>tillbaka</strong>?`) },
+        { text: `<p><strong>Steg 2:</strong> Räkna i <strong>två steg</strong>: kostnaden först (3 × 20 = <strong>60 kr</strong>), sen växeln (100 − 60 = <strong>40 kr</strong>)!</p>`,
+          html: story(`${num('3')} × ${num('20 kr')} = 60 kr &nbsp;➔&nbsp; ${num('100')} − 60 = <strong>40 kr</strong> i växel 💰`) },
+        { text: `<p>Svara på <strong>det som frågas</strong>! Svaret är 40 kr – inte 60 kr (det var bara mellansteget). Skriv alltid svaret med <strong>enheten</strong>: "kr".</p>`,
+          warn: true,
+          html: story(`✅ <strong>40 kr</strong> &nbsp;&nbsp; ❌ 60 kr &nbsp;&nbsp; ❌ "40" (utan kr)`) },
+        { text: `<p><strong>Din tur!</strong> Mia har <strong>4 påsar</strong> med <strong>6 kulor</strong> i varje. Hur många kulor har hon?</p>`,
+          guess: { options: [
+              { label: '10 kulor', ok: false },
+              { label: '24 kulor', ok: true },
+              { label: '20 kulor', ok: false },
+          ] },
+          doneText: `4 × 6 = <strong>24 kulor</strong>! 🎉` },
+    ] };
+}

@@ -216,3 +216,32 @@ export function checkComboHandsTake() {
     showFeedback('combo-feedback', true, `🎉 ${formatFractionHTML(cur.num, cur.den)} av ${cur.total} = ${items} 🍎 – du delade upp och tog rätt högar själv!`);
     document.getElementById('combo-next-wrap').classList.remove('hidden');
 }
+
+// "Visa mig": bråk av ett antal = dela i lika högar, ta täljarens högar.
+export function buildComboDemoSteps() {
+    const piles = (den, taken, per) => `<div class="flex flex-wrap justify-center gap-3 my-2">` +
+        Array.from({ length: den }, (_, p) => `
+            <div class="px-3 py-2 rounded-2xl border-2 ${p < taken ? 'bg-indigo-100 border-indigo-400' : 'bg-slate-50 border-slate-200 opacity-75'}">
+                <div class="text-base sm:text-lg font-display font-bold text-slate-900">${'🍎'.repeat(per)}</div>
+                <div class="text-[11px] font-extrabold ${p < taken ? 'text-indigo-900' : 'text-slate-500'}">Hög ${p + 1} (${per} st)</div>
+            </div>`).join('') + `</div>`;
+    return { steps: [
+        { text: `<p>Hur mycket är <strong>⅓ av 12 äpplen</strong>? "Av" betyder: dela alla <strong>12</strong> äpplen i <strong>3 lika stora högar</strong> (nämnaren!).</p>`,
+          html: `<div class="text-4xl my-3">🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎</div>` },
+        { text: `<p>Dela upp: <strong>12 ÷ 3 = 4 äpplen</strong> i varje hög.</p>`,
+          html: piles(3, 0, 4) },
+        { text: `<p>Nu säger <strong>täljaren</strong> hur många högar vi tar: ⅓ betyder <strong>1 hög</strong> ➔ <strong>4 äpplen</strong>!</p>`,
+          html: piles(3, 1, 4) },
+        { text: `<p>Vid <strong>2/3</strong> tar du <strong>två</strong> högar: 2 × 4 = <strong>8 äpplen</strong>. Antalet högar du delar upp är alltid nämnaren – antalet du <em>tar</em> är täljaren!</p>`,
+          warn: true,
+          html: piles(3, 2, 4) },
+        { text: `<p><strong>Din tur!</strong> Hur mycket är <strong>2/3 av 12</strong>?</p>`,
+          html: piles(3, 0, 4),
+          guess: { options: [
+              { label: '4 äpplen', ok: false },
+              { label: '8 äpplen', ok: true },
+              { label: '6 äpplen', ok: false },
+          ] },
+          doneText: `12 ÷ 3 = 4 per hög, 2 högar ➔ <strong>8 äpplen</strong>! 🎉` },
+    ] };
+}

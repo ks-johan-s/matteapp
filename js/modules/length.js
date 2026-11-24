@@ -132,3 +132,28 @@ export function checkLengthTyped() {
     if (isNaN(val)) return;
     checkLengthChoice(val);
 }
+
+// "Visa mig": enhetsstegstegan – ×10 neråt, ÷10 uppåt.
+export function buildLengthDemoSteps() {
+    const units = ['km', 'm', 'dm', 'cm', 'mm'];
+    const ladder = (f, t, mul) => `<div class="flex justify-center">${buildUnitLadderSVGHTML(units, ['×1000', '×10', '×10', '×10'], ['÷1000', '÷10', '÷10', '÷10'], f, t, mul)}</div>`;
+    return { steps: [
+        { text: `<p>Enhetsstegstegan! Varje steg <strong>åt höger</strong> blir enheten 10 gånger mindre – då blir <strong>talet</strong> 10 gånger större (<strong>×10</strong>). Åt vänster tvärtom (<strong>÷10</strong>).</p>`,
+          html: ladder('m', 'cm', true) },
+        { text: `<p><strong>2 m → mm?</strong> Tre steg åt höger: ×10 ×10 ×10 = <strong>×1000</strong> ➔ 2 × 1000 = <strong>2000 mm</strong>!</p>`,
+          html: ladder('m', 'mm', true) },
+        { text: `<p><strong>3000 m → km?</strong> Ett steg åt vänster: ÷1000 ➔ <strong>3 km</strong>!</p>`,
+          html: ladder('km', 'm', false) },
+        { text: `<p>Räkna <strong>antalet steg</strong>! m → cm är <strong>två</strong> steg = ×100, inte ×10. cm → mm är ett steg = ×10.</p>`,
+          warn: true,
+          html: ladder('m', 'cm', true) },
+        { text: `<p><strong>Din tur!</strong> Hur många mm är <strong>5 cm</strong>? (Ett steg åt höger!)</p>`,
+          html: ladder('cm', 'mm', true),
+          guess: { options: [
+              { label: '5 mm', ok: false },
+              { label: '50 mm', ok: true },
+              { label: '500 mm', ok: false },
+          ] },
+          doneText: `5 × 10 = <strong>50 mm</strong>! 🎉` },
+    ] };
+}

@@ -202,3 +202,28 @@ export function checkChartTyped() {
     if (isNaN(val)) return;
     checkChartChoice(val);
 }
+
+// "Visa mig": läs av stapeldiagrammet mot skalan.
+export function buildChartDemoSteps() {
+    const items = [{ label: '🍎', val: 6 }, { label: '🍌', val: 9 }, { label: '🍇', val: 4 }, { label: '🍓', val: 7 }];
+    const chart = (hi = [], bracket = false) => `<div class="flex justify-center">${renderBarChartSVG('Favoritfrukt i klassen', items, hi, bracket)}</div>`;
+    return { steps: [
+        { text: `<p>Ett <strong>stapeldiagram</strong> visar antal som staplar – ju <strong>högre</strong> stapel, desto <strong>fler</strong> röster!</p>`,
+          html: chart() },
+        { text: `<p>Läs av en stapel: följ dess <strong>topp</strong> rakt ut mot <strong>skalan till vänster</strong>. 🍌 når upp till <strong>9</strong>!</p>`,
+          html: chart([1]) },
+        { text: `<p>Jämför: störst är 🍌 (<strong>9</strong>) och minst är 🍇 (<strong>4</strong>). Skillnaden är <strong>9 − 4 = 5</strong>!</p>`,
+          html: chart([1, 2], true) },
+        { text: `<p>Gissa <strong>inte</strong> på höjden med ögat – en stapel mellan två linjer är lätt att läsa fel på. Följ alltid rutlinjen till siffran!</p>`,
+          warn: true,
+          html: chart([3]) },
+        { text: `<p><strong>Din tur!</strong> Hur många röstade på 🍓?</p>`,
+          html: chart([3]),
+          guess: { options: [
+              { label: '6', ok: false },
+              { label: '7', ok: true },
+              { label: '8', ok: false },
+          ] },
+          doneText: `🍓 når upp till <strong>7</strong>! 🎉` },
+    ] };
+}

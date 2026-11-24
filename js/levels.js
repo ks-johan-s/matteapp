@@ -83,7 +83,7 @@ export const LEVEL_MODULES = {
         title: 'Mönster', icon: '🧩',
         steps: [
             { icon: '🎨', label: 'Formmönster', desc: 'Se vad som upprepas', apply: () => { setSeqSubMode('shapes'); return 'seq'; } },
-            { icon: '🔢', label: 'Talföljder', desc: 'Hitta räkneregeln', apply: () => { setSeqSubMode('numbers'); return 'seq'; } },
+            { icon: '🔢', label: 'Talföljder', desc: 'Hitta räkneregeln', demo: true, apply: () => { setSeqSubMode('numbers'); return 'seq'; } },
             { icon: '📈', label: 'Växande figurer', desc: 'Koppla mönster till tal', apply: () => { setSeqSubMode('grow'); return 'seq'; } },
         ],
         explore: [
@@ -108,7 +108,7 @@ export const LEVEL_MODULES = {
         title: 'Bråk av ett antal', icon: '🍎',
         steps: [
             { icon: '🤲', label: 'Dela själv', desc: 'Fördela i lika högar', apply: () => { setComboHands(true); return 'combo'; } },
-            { icon: '🍎', label: 'Bråk av ett antal', desc: 'Hur mycket är 1/3 av 12?', apply: () => { setComboHands(false); return 'combo'; } },
+            { icon: '🍎', label: 'Bråk av ett antal', desc: 'Hur mycket är 1/3 av 12?', demo: true, apply: () => { setComboHands(false); return 'combo'; } },
         ],
         explore: [],
     },
@@ -116,7 +116,7 @@ export const LEVEL_MODULES = {
         title: 'Balansvågen', icon: '⚖️',
         steps: [
             { icon: '🤲', label: 'Väg själv', desc: 'Lägg tyngder på vågen', apply: () => { setScaleHands(true); return 'scale'; } },
-            { icon: '⚖️', label: 'Balansfrågor', desc: 'Vilken tyngd saknas?', apply: () => { setScaleHands(false); return 'scale'; } },
+            { icon: '⚖️', label: 'Balansfrågor', desc: 'Vilken tyngd saknas?', demo: true, apply: () => { setScaleHands(false); return 'scale'; } },
         ],
         explore: [],
     },
@@ -124,8 +124,8 @@ export const LEVEL_MODULES = {
         title: 'Klockan', icon: '🕒',
         steps: [
             { icon: '🕒', label: 'Klockslag', desc: 'Läs av klockan', demo: true, apply: () => { setClockSubMode('read'); return 'clock'; } },
-            { icon: '🖥️', label: 'Digital → Analog', desc: 'Vilken klocka visar tiden?', apply: () => { setClockSubMode('digital'); return 'clock'; } },
-            { icon: '💬', label: 'Med ord', desc: 'Kvart över, halv, kvart i…', apply: () => { setClockSubMode('words'); return 'clock'; } },
+            { icon: '🖥️', label: 'Digital → Analog', desc: 'Vilken klocka visar tiden?', demo: true, apply: () => { setClockSubMode('digital'); return 'clock'; } },
+            { icon: '💬', label: 'Med ord', desc: 'Kvart över, halv, kvart i…', demo: true, apply: () => { setClockSubMode('words'); return 'clock'; } },
             { icon: '⏩', label: 'Tidshopp', desc: 'Hur lång tid har gått?', apply: () => { setClockSubMode('jump'); return 'clock'; } },
         ],
         explore: [
@@ -136,7 +136,7 @@ export const LEVEL_MODULES = {
     length: {
         title: 'Längd', icon: '📏',
         steps: [
-            { icon: '📏', label: 'mm ↔ cm', desc: 'Millimeter och centimeter', apply: () => { setLengthSubMode('mmcm'); return 'length'; } },
+            { icon: '📏', label: 'mm ↔ cm', desc: 'Millimeter och centimeter', demo: true, apply: () => { setLengthSubMode('mmcm'); return 'length'; } },
             { icon: '📐', label: 'cm ↔ dm ↔ m', desc: 'Decimeter och meter', apply: () => { setLengthSubMode('cmdmm'); return 'length'; } },
             { icon: '🗺️', label: 'm ↔ km', desc: 'Meter och kilometer', apply: () => { setLengthSubMode('mkm'); return 'length'; } },
         ],
@@ -147,7 +147,7 @@ export const LEVEL_MODULES = {
     volweight: {
         title: 'Vikt & Volym', icon: '⚖️',
         steps: [
-            { icon: '🧪', label: 'Volym (ml–l)', desc: 'Milliliter och liter', apply: () => { setVolWeightSubMode('vol'); return 'volweight'; } },
+            { icon: '🧪', label: 'Volym (ml–l)', desc: 'Milliliter och liter', demo: true, apply: () => { setVolWeightSubMode('vol'); return 'volweight'; } },
             { icon: '⚖️', label: 'Vikt (g–kg)', desc: 'Gram och kilogram', apply: () => { setVolWeightSubMode('weight'); return 'volweight'; } },
         ],
         explore: [
@@ -169,8 +169,8 @@ export const LEVEL_MODULES = {
     shop: {
         title: 'Mattekiosken', icon: '🛒',
         steps: [
-            { icon: '🛒', label: 'Betala varor', desc: 'Räkna ihop priset', apply: () => { setShopSubMode('pay'); return 'shop'; } },
-            { icon: '💵', label: 'Ge tillbaka växel', desc: 'Hur mycket får man tillbaka?', apply: () => { setShopSubMode('change'); return 'shop'; } },
+            { icon: '🛒', label: 'Betala varor', desc: 'Räkna ihop priset', demo: true, apply: () => { setShopSubMode('pay'); return 'shop'; } },
+            { icon: '💵', label: 'Ge tillbaka växel', desc: 'Hur mycket får man tillbaka?', demo: true, apply: () => { setShopSubMode('change'); return 'shop'; } },
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setShopSubMode('mix'); return 'shop'; } },
@@ -191,7 +191,7 @@ export const LEVEL_MODULES = {
     chart: {
         title: 'Tabeller & Diagram', icon: '📊',
         steps: [
-            { icon: '📊', label: 'Läs av stapel', desc: 'Vad visar diagrammet?', apply: () => { setChartSubMode('read'); return 'chart'; } },
+            { icon: '📊', label: 'Läs av stapel', desc: 'Vad visar diagrammet?', demo: true, apply: () => { setChartSubMode('read'); return 'chart'; } },
             { icon: '⚖️', label: 'Jämför & Totalt', desc: 'Skillnader och summor', apply: () => { setChartSubMode('diff'); return 'chart'; } },
         ],
         explore: [
@@ -202,7 +202,7 @@ export const LEVEL_MODULES = {
         title: 'Medelvärde & Median', icon: '⚖️',
         steps: [
             { icon: '🧱', label: 'Jämna ut', desc: 'Fördela lika med klossar', apply: () => { setAvgSubMode('level'); return 'avg'; } },
-            { icon: '⚖️', label: 'Medelvärde', desc: 'Genomsnittet av talen', apply: () => { setAvgSubMode('mean'); return 'avg'; } },
+            { icon: '⚖️', label: 'Medelvärde', desc: 'Genomsnittet av talen', demo: true, apply: () => { setAvgSubMode('mean'); return 'avg'; } },
             { icon: '🎯', label: 'Median', desc: 'Talet i mitten', apply: () => { setAvgSubMode('median'); return 'avg'; } },
             { icon: '👑', label: 'Typvärde', desc: 'Vanligaste värdet', apply: () => { setAvgSubMode('mode'); return 'avg'; } },
         ],
@@ -213,7 +213,7 @@ export const LEVEL_MODULES = {
     word: {
         title: 'Textuppgifter', icon: '📖',
         steps: [
-            { icon: '💰', label: 'Vardagsproblem', desc: 'Pengar och flersteg', apply: () => { setWordCategory('money'); return 'word'; } },
+            { icon: '💰', label: 'Vardagsproblem', desc: 'Pengar och flersteg', demo: true, apply: () => { setWordCategory('money'); return 'word'; } },
             { icon: '➗', label: 'Dela & Fördela', desc: 'Division i vardagen', apply: () => { setWordCategory('div'); return 'word'; } },
             { icon: '🍕', label: 'Bråk & Procent', desc: 'Delar av helheter', apply: () => { setWordCategory('frac'); return 'word'; } },
             { icon: '📐', label: 'Area & Mått', desc: 'Geometri i vardagen', apply: () => { setWordCategory('geo'); return 'word'; } },

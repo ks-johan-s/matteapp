@@ -208,3 +208,27 @@ export function checkShopAnswer() {
         showFeedback('shop-feedback', false, `🤔 Du har lagt ${userSum} kr på disken. ${diffMsg} Prova igen!`);
     }
 }
+
+// "Visa mig": räkna växeln genom att hoppa uppåt till betalningen.
+export function buildShopDemoSteps() {
+    const jump = `<div class="flex justify-center">${buildNumberLineJumpSVG(37, 40, 50, '+3 kr', '+10 kr', false)}</div>`;
+    const badges = (vals) => `<div class="flex flex-wrap justify-center gap-2 my-3">${vals.map(v => renderMoneyBadgeHTML(v)).join('')}</div>`;
+    return { steps: [
+        { text: `<p>Du köper en sak för <strong>37 kr</strong> och betalar med en <strong>50-lapp</strong>. Hur mycket ska du få tillbaka?</p>`,
+          html: badges([50]) },
+        { text: `<p><strong>Knepet: räkna UPP från priset!</strong> Hoppa först till närmaste tia: 37 + <strong>3</strong> = 40. Sen till betalningen: 40 + <strong>10</strong> = 50.</p>`,
+          html: jump },
+        { text: `<p>Växeln är hoppen ihop: <strong>3 + 10 = 13 kr</strong>! T.ex. en tia och tre enkronor.</p>`,
+          html: badges([10, 1, 1, 1]) },
+        { text: `<p>Första hoppet ska landa på <strong>närmaste tia</strong> – och hoppen ska sluta <strong>exakt</strong> på betalningen!</p>`,
+          warn: true,
+          html: jump },
+        { text: `<p><strong>Din tur!</strong> Du köper för <strong>62 kr</strong> och betalar med en <strong>100-lapp</strong>. Hur stor är växeln?</p>`,
+          guess: { options: [
+              { label: '38 kr', ok: true },
+              { label: '48 kr', ok: false },
+              { label: '42 kr', ok: false },
+          ] },
+          doneText: `62 + 8 = 70, +30 = 100 ➔ <strong>38 kr</strong> i växel! 🎉` },
+    ] };
+}

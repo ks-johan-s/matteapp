@@ -438,3 +438,32 @@ function attachSortDrag() {
         });
     });
 }
+
+// "Visa mig": medelvärde = jämna ut staplarna.
+export function buildAvgDemoSteps() {
+    const nums = [4, 8, 6], labels = ['Ali', 'Bo', 'Cy'], mean = 6;
+    const towers = (ns) => `<div class="flex items-end justify-center gap-5 my-3">` + ns.map((v, i) =>
+        `<div class="flex flex-col items-center gap-1.5">
+            <div class="flex flex-col-reverse gap-0.5">${Array.from({ length: v }, () => '<div class="w-9 h-4 rounded-md bg-rose-400 border border-rose-200"></div>').join('')}</div>
+            <span class="text-xs font-extrabold text-slate-600">${labels[i]} (${v})</span>
+        </div>`).join('') + `</div>`;
+    const svg = `<div class="flex justify-center">${renderMeanLevelingSVG(nums, labels, mean)}</div>`;
+    return { steps: [
+        { text: `<p>Tre kompisar plockade klossar – ojämnt fördelat! <strong>Medelvärdet</strong> svarar på: <em>hur många skulle var och en ha om alla hade lika?</em></p>`,
+          html: towers(nums) },
+        { text: `<p><strong>Steg 1:</strong> Lägg ihop ALLT först: <strong>${nums.join(' + ')} = ${nums.reduce((a, b) => a + b)}</strong> klossar totalt.</p>`,
+          html: towers(nums) },
+        { text: `<p><strong>Steg 2:</strong> Dela lika på ${nums.length} personer: <strong>${nums.reduce((a, b) => a + b)} ÷ ${nums.length} = ${mean}</strong>. Den gröna streckade linjen visar den utjämnade nivån!</p>`,
+          html: svg },
+        { text: `<p>Dela alltid med <strong>antalet tal</strong> – här ${nums.length}, inte 2! Och blanda inte ihop med <strong>medianen</strong>: det är mitt-talet när talen står i storleksordning.</p>`,
+          warn: true,
+          html: svg },
+        { text: `<p><strong>Din tur!</strong> Vilket är medelvärdet av <strong>3, 5, 7</strong>? (Lägg ihop, dela med 3!)</p>`,
+          guess: { options: [
+              { label: '4', ok: false },
+              { label: '5', ok: true },
+              { label: '6', ok: false },
+          ] },
+          doneText: `3 + 5 + 7 = 15, och 15 ÷ 3 = <strong>5</strong>! 🎉` },
+    ] };
+}

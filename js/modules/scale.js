@@ -143,3 +143,27 @@ export function scaleWeigh(d) {
         document.getElementById('scale-next-wrap').classList.remove('hidden');
     }
 }
+
+// "Visa mig": balansvågen = ett levande likhetstecken.
+export function buildScaleDemoSteps() {
+    const scale = (l, r, tilt) => `<div class="flex justify-center">${renderScaleSVG(l, r, tilt)}</div>`;
+    return { steps: [
+        { text: `<p>Balansvågen tippade! Vänster sida väger <strong>5 + 3 = 8</strong>, men höger bara <strong>4</strong>. Den tunga sidan åker <strong>ner</strong>!</p>`,
+          html: scale('5 + 3', '4', -8) },
+        { text: `<p>Gör höger sidan <strong>lika tung</strong> – då står vågen rakt: <strong>5 + 3 = 8</strong>!</p>`,
+          html: scale('5 + 3', '8', 0) },
+        { text: `<p>Vågen är egentligen ett <strong>likhetstecken</strong>! Det som står på vänster sida ska väga <strong>exakt lika mycket</strong> som höger sida.</p>`,
+          html: scale('8', '8', 0) },
+        { text: `<p>Räkna alltid ut <strong>varje sida för sig</strong> först! Det räcker inte att höger sida har "många" vikter – det är summan som räknas.</p>`,
+          warn: true,
+          html: scale('10', '2 + 3 + 4', -6) },
+        { text: `<p><strong>Din tur!</strong> Vänster sida visar <strong>7 + 2</strong>. Vilken vikt balanserar vågen?</p>`,
+          html: scale('7 + 2', '?', -8),
+          guess: { options: [
+              { label: '8', ok: false },
+              { label: '9', ok: true },
+              { label: '10', ok: false },
+          ] },
+          doneText: `7 + 2 = <strong>9</strong> – vågen står rakt! 🎉` },
+    ] };
+}

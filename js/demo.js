@@ -9,6 +9,15 @@ import { buildMultDemoSteps } from './modules/mult.js';
 import { buildDecimalDemoSteps } from './modules/decimal.js';
 import { buildDivDemoSteps } from './modules/div.js';
 import { buildGeoDemoSteps } from './modules/geo.js';
+import { buildAvgDemoSteps } from './modules/avg.js';
+import { buildScaleDemoSteps } from './modules/scale.js';
+import { buildComboDemoSteps } from './modules/combo.js';
+import { buildLengthDemoSteps } from './modules/length.js';
+import { buildVolWeightDemoSteps } from './modules/volweight.js';
+import { buildShopDemoSteps } from './modules/shop.js';
+import { buildChartDemoSteps } from './modules/chart.js';
+import { buildSeqDemoSteps } from './modules/seq.js';
+import { buildWordDemoSteps } from './modules/word.js';
 
 // Stegbyggare per modul. onExit körs när eleven väljer "Öva själv nu!"
 // (algo genererar om frågan så demon inte råkar visa övningens svar).
@@ -20,6 +29,15 @@ const DEMO_BUILDERS = {
     decimal: { build: buildDecimalDemoSteps },
     div: { build: buildDivDemoSteps },
     geo: { build: buildGeoDemoSteps },
+    avg: { build: buildAvgDemoSteps },
+    scale: { build: buildScaleDemoSteps },
+    combo: { build: buildComboDemoSteps },
+    length: { build: buildLengthDemoSteps },
+    volweight: { build: buildVolWeightDemoSteps },
+    shop: { build: buildShopDemoSteps },
+    chart: { build: buildChartDemoSteps },
+    seq: { build: buildSeqDemoSteps },
+    word: { build: buildWordDemoSteps },
 };
 
 // Demo-state hålls utanför `state` – det är flyktigt och ska inte

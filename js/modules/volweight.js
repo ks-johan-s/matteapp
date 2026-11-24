@@ -193,3 +193,28 @@ export function checkVolWeightTyped() {
     if (isNaN(val)) return;
     checkVolWeightChoice(val);
 }
+
+// "Visa mig": samma stegstege för volym och vikt.
+export function buildVolWeightDemoSteps() {
+    const volLadder = (f, t, mul) => `<div class="flex justify-center">${buildUnitLadderSVGHTML(['liter', 'dl', 'cl', 'ml'], ['×10', '×10', '×10'], ['÷10', '÷10', '÷10'], f, t, mul)}</div>`;
+    const wLadder = (f, t, mul) => `<div class="flex justify-center">${buildUnitLadderSVGHTML(['kg', 'hg', 'g'], ['×10', '×100'], ['÷10', '÷100'], f, t, mul)}</div>`;
+    return { steps: [
+        { text: `<p>Samma knep som längd! <strong>1 liter = 10 dl = 100 cl = 1000 ml</strong>. Åt höger i stegan blir talet större (×10 per steg).</p>`,
+          html: volLadder('liter', 'ml', true) },
+        { text: `<p><strong>2 liter → ml?</strong> Tre steg åt höger: ×10 ×10 ×10 = ×1000 ➔ <strong>2000 ml</strong>!</p>`,
+          html: volLadder('liter', 'ml', true) },
+        { text: `<p>För vikt: <strong>1 kg = 10 hg = 1000 g</strong>. Ett hekto (hg) är <strong>100 g</strong> – där är steget ×100!</p>`,
+          html: wLadder('hg', 'g', true) },
+        { text: `<p>Mittensteget <strong>hg → g</strong> är ×100, inte ×10 – "hekto" betyder hundra! Alla andra steg är ×10.</p>`,
+          warn: true,
+          html: wLadder('hg', 'g', true) },
+        { text: `<p><strong>Din tur!</strong> Hur många cl är <strong>3 dl</strong>? (Ett steg åt höger!)</p>`,
+          html: volLadder('dl', 'cl', true),
+          guess: { options: [
+              { label: '3 cl', ok: false },
+              { label: '30 cl', ok: true },
+              { label: '300 cl', ok: false },
+          ] },
+          doneText: `3 × 10 = <strong>30 cl</strong>! 🎉` },
+    ] };
+}
