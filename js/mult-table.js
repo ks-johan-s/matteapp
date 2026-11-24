@@ -68,3 +68,14 @@ export function highlightMultCell(r, c, lock = false) {
         readout.textContent = `${target.r} × ${target.c} = ${target.r * target.c}${state.lockedTableCell ? ' 📌' : ''}`;
     }
 }
+
+export function clearMultHighlight() {
+    if (state.lockedTableCell) return;
+    document.querySelectorAll('.mult-table-cell').forEach(el => {
+        el.classList.remove('mult-hl-row-col', 'mult-hl-header', 'mult-hl-active');
+    });
+    const grid = document.getElementById('mult-helper-grid');
+    if (grid) grid.classList.remove('mult-focusing');
+    const readout = document.getElementById('mult-helper-readout');
+    if (readout) readout.textContent = 'Peka på valfri ruta i tabellen!';
+}
