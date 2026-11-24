@@ -112,9 +112,22 @@ export function generateConnQuestion() {
 
     const familyStr = stmts.map(s => `${s.lhs} ${s.op} ${s.rhs} = ${s.res}`).join(' &nbsp;•&nbsp; ');
     const askedEq = `${asked.lhs} ${asked.op} ${asked.rhs} = ${asked.res}`;
+    // Den multiplikationssats som "bevisar" svaret – alltid sann i familjen.
+    const mulCheck = form.ans === a ? `${b} × ${a} = ${c}`
+        : form.ans === b ? `${a} × ${b} = ${c}`
+        : `${a} × ${b} = ${c}`;
+    const isDivAsk = asked.op === '÷';
+    const divHint = form.part === 'res'
+        ? `frågar "vad gånger <strong>${asked.rhs}</strong> blir <strong>${asked.lhs}</strong>?"`
+        : form.part === 'rhs'
+        ? `frågar "vilket tal gånger <strong>${asked.res}</strong> blir <strong>${asked.lhs}</strong>?"`
+        : `betyder <strong>${asked.rhs} × ${asked.res} = ?</strong>`;
     setHintSteps('conn', [
-        `<p><strong>Steg 1:</strong> I en faktorfamilj är <strong>multiplikation och division samma sanning</strong>! <strong>${a} × ${b} = ${c}</strong> ⇄ <strong>${c} ÷ ${a} = ${b}</strong>.</p>`,
-        `<p><strong>Steg 2:</strong> Frågan är <strong>${askedEq}</strong>. Tänk "vilket tal gör likhet?" – svaret är <strong>${form.ans}</strong>! Hela familjen: ${familyStr}</p>`
+        `<p><strong>Steg 1:</strong> I en faktorfamilj är <strong>× och ÷ samma sanning</strong>! <strong>${a} × ${b} = ${c}</strong> ⇄ <strong>${c} ÷ ${a} = ${b}</strong> – dela upp produkten ger samma tal tillbaka.</p>`,
+        isDivAsk
+            ? `<p><strong>Steg 2:</strong> Division är multiplikation baklänges! <strong>${askedEq}</strong> ${divHint}. Testa: <strong>${mulCheck}</strong> ✓ – svaret är <strong>${form.ans}</strong>!</p>`
+            : `<p><strong>Steg 2:</strong> Frågan är <strong>${askedEq}</strong>. Tänk "vilket tal gör likhet?" – kolla tabellen: <strong>${mulCheck}</strong> – svaret är <strong>${form.ans}</strong>!</p>`,
+        `<p><strong>Steg 3:</strong> Hela familjen: ${familyStr} – alla fyra är samma sanning!</p>`
     ]);
 }
 
@@ -136,7 +149,37 @@ export function checkConnChoice(idx) {
     }
 }
 
-// "Visa mig": en faktorfamilj ur fyra likvärdiga satser.
+// Prickmatrisen (arraymodellen): 8 kolumner × 7 rader = 56 prickar.
+// Samma prickar ses som 7 högar à 8 (×) eller 8 grupper à 7 (÷) –
+// det är bron mellan räknesätten.
+function connArraySVG({ hlRows = [], hlCols = [], rowNums = false, colNums = false } = {}) {
+    const r = 6.5, gap = 30, padX = 38, padY = 30;
+    const w = padX * 2 + 7 * gap;
+    const h = padY * 2 + 6 * gap + (colNums ? 22 : 0);
+    const cx = c => padX + c * gap;
+    const cy = i => padY + i * gap;
+    let s = `<svg viewBox="0 0 ${w} ${h}" class="mx-auto" style="max-width:300px;height:auto">`;
+    hlRows.forEach(i => {
+        s += `<rect x="8" y="${cy(i) - gap / 2 + 3}" width="${w - 16}" height="${gap - 6}" rx="14" fill="#e0f2fe"/>`;
+    });
+    hlCols.forEach(i => {
+        s += `<rect x="${cx(i) - gap / 2 + 3}" y="8" width="${gap - 6}" height="${h - 16 - (colNums ? 22 : 0)}" rx="14" fill="#fef3c7"/>`;
+    });
+    for (let i = 0; i < 7; i++) for (let c = 0; c < 8; c++) {
+        s += `<circle cx="${cx(c)}" cy="${cy(i)}" r="${r}" fill="#6366f1"/>`;
+    }
+    if (rowNums) for (let i = 0; i < 7; i++)
+        s += `<text x="20" y="${cy(i) + 4.5}" text-anchor="middle" font-size="14" font-weight="800" fill="#0369a1">${i + 1}</text>`;
+    if (colNums) for (let c = 0; c < 8; c++)
+        s += `<text x="${cx(c)}" y="${h - 6}" text-anchor="middle" font-size="14" font-weight="800" fill="#b45309">${c + 1}</text>`;
+    return s + '</svg>';
+}
+
+const CONN_ALL_ROWS = [0, 1, 2, 3, 4, 5, 6];
+const CONN_ALL_COLS = [0, 1, 2, 3, 4, 5, 6, 7];
+
+// "Visa mig":_from vardaglig situation → prickmatris → båda räknesätten →
+// hela familjen → ett motfråga där eleven måste använda sambandet.
 export function buildConnDemoSteps() {
     const a = 7, b = 8, c = 56;
     const stmts = connStmts(a, b, c);
@@ -145,22 +188,25 @@ export function buildConnDemoSteps() {
             `<div class="bg-white border-2 ${i === askIdx ? 'border-indigo-400 bg-indigo-50' : 'border-indigo-200'} rounded-xl px-3 py-2 font-display font-bold text-lg text-slate-900">${connStmtText(st, i === askIdx, part)}</div>`
         ).join('')}</div>`;
     return { steps: [
-        { text: `<p>Tre tal kan bilda en <strong>faktorfamilj</strong>! Talen <strong>7, 8 och 56</strong> hänger ihop – de kan skrivas på <strong>fyra olika sätt</strong>.</p>`,
-          html: `<div class="flex justify-center gap-2 my-2">${[7, 8, 56].map(n => `<span class="px-4 py-2 rounded-2xl bg-indigo-100 border-2 border-indigo-300 font-display font-bold text-2xl text-indigo-900">${n}</span>`).join('<span class="self-center text-indigo-400 font-bold">+</span>')}</div>` },
-        { text: `<p>Multiplikationen ger produkten: <strong>7 × 8 = 56</strong>. Och <strong>tvärtom</strong>: <strong>8 × 7 = 56</strong> – samma svar!</p>`,
-          html: panel() },
-        { text: `<p>Samma familj ger <strong>division</strong>! <strong>56 ÷ 7 = 8</strong> och <strong>56 ÷ 8 = 7</strong> – division är bara multiplikation baklänges!</p>`,
-          html: panel() },
-        { text: `<p>Knepet: division <strong>56 ÷ 7</strong> frågar <em>"vilket tal gånger 7 blir 56?"</em> – samma som <strong>7 × ? = 56</strong>. Tänk alltid på produkten först!</p>`,
+        { text: `<p>56 kakor ska delas till <strong>7 barn</strong> – <strong>8 kakor var</strong>. Rita prickarna som en matris: <strong>7 rader med 8 prickar</strong>. Men samma 56 prickar kan också ses som <strong>8 kolumner med 7 prickar</strong>!</p>`,
+          html: connArraySVG({}) },
+        { text: `<p><strong>Multiplikation</strong> räknar prickarna: <strong>7 × 8 = 56</strong> betyder "7 högar (rader) med 8 i varje". Byt plats: <strong>8 × 7 = 56</strong> – samma prickar ger samma svar!</p>`,
+          html: connArraySVG({ hlRows: CONN_ALL_ROWS }) },
+        { text: `<p><strong>Division baklänges:</strong> 56 kakor i högar <strong>à 8</strong> – hur många högar får plats? Räkna <strong>raderna</strong>: 1–2–3–4–5–6–7! Alltså <strong>56 ÷ 8 = 7</strong>.</p>`,
+          html: connArraySVG({ hlRows: CONN_ALL_ROWS, rowNums: true }) },
+        { text: `<p>Eller 56 kakor i <strong>påsar à 7</strong>: räkna <strong>kolumnerna</strong> istället – 1–2–3–4–5–6–7–8! Alltså <strong>56 ÷ 7 = 8</strong>. Samma prickar – bara ett annat sätt att dela!</p>`,
+          html: connArraySVG({ hlCols: CONN_ALL_COLS, colNums: true }) },
+        { text: `<p><strong>56 ÷ 7</strong> frågar <em>"vad gånger 7 blir 56?"</em> – samma som <strong>7 × ? = 56</strong>. Men akta: <strong>56 ÷ 7 är INTE samma sak som 7 ÷ 56!</strong></p>`,
           warn: true,
           html: panel() },
-        { text: `<p><strong>Din tur!</strong> Vilket tal saknas i familjen?</p>`,
-          html: panel(2, 'res'),
+        { text: `<p><strong>Din tur!</strong> Vilket tal saknas? Titta på familjen – multiplicera baklänges!</p>`,
+          html: panel(3, 'lhs'),
           guess: { options: [
-              { label: '7', ok: false },
-              { label: '8', ok: true },
-              { label: '6', ok: false },
+              { label: '48', ok: false },
+              { label: '56', ok: true },
+              { label: '64', ok: false },
+              { label: '42', ok: false },
           ] },
-          doneText: `56 ÷ 7 = <strong>8</strong> – för 7 × 8 = 56! 🎉` },
+          doneText: `? ÷ 8 = 7 → <strong>56</strong> – för 7 × 8 = 56! 🎉` },
     ] };
 }
