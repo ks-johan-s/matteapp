@@ -124,6 +124,8 @@ export const LEVEL_MODULES = {
         title: 'Klockan', icon: '🕒',
         steps: [
             { icon: '🕒', label: 'Klockslag', desc: 'Läs av klockan', demo: true, apply: () => { setClockSubMode('read'); return 'clock'; } },
+            { icon: '🖥️', label: 'Digital → Analog', desc: 'Vilken klocka visar tiden?', apply: () => { setClockSubMode('digital'); return 'clock'; } },
+            { icon: '💬', label: 'Med ord', desc: 'Kvart över, halv, kvart i…', apply: () => { setClockSubMode('words'); return 'clock'; } },
             { icon: '⏩', label: 'Tidshopp', desc: 'Hur lång tid har gått?', apply: () => { setClockSubMode('jump'); return 'clock'; } },
         ],
         explore: [

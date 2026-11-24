@@ -11,7 +11,7 @@ export function formatDigitalTime(h, m) {
 export function setClockSubMode(mode) {
     playSound('click');
     state.clockSubMode = mode;
-    ['mix', 'read', 'jump', 'sandbox'].forEach(m => {
+    ['mix', 'read', 'digital', 'words', 'jump', 'sandbox'].forEach(m => {
         const btn = document.getElementById(`clock-sub-${m}`);
         if (!btn) return;
         btn.className = 'px-3 py-1 rounded-xl text-xs sm:text-sm font-extrabold ' +
@@ -29,7 +29,14 @@ export function generateClockQuestion() {
 
     const isHard = state.difficulty === 'hard';
     let mode = state.clockSubMode;
-    if (mode === 'mix') mode = Math.random() < 0.55 ? 'read' : 'jump';
+    if (mode === 'mix') {
+        const r = Math.random();
+        mode = r < 0.35 ? 'read' : r < 0.6 ? 'digital' : r < 0.85 ? 'words' : 'jump';
+    }
+    if (mode === 'digital' || mode === 'words') {
+        generateClockVisualQuestion(mode);
+        return;
+    }
 
     const h = randInt(1, 12);
     const minsPool = state.difficulty === 'easy'
@@ -112,12 +119,138 @@ export function generateClockQuestion() {
     }
 }
 
+// Vanliga felsvar: fel timme, "över"↔"i"-spegling, halvtimmesfel.
+function clockPerturbations(h, m) {
+    const cands = [
+        [h, (m + 30) % 60],
+        [h === 12 ? 1 : h + 1, m],
+        [h === 1 ? 12 : h - 1, m],
+        [h, 60 - m],
+        [h, (m + 15) % 60],
+        [h, (m + 45) % 60],
+        [h === 12 ? 1 : h + 1, (m + 30) % 60],
+    ];
+    const seen = new Set([h * 60 + m]);
+    const out = [];
+    for (const [dh, dm] of cands) {
+        const key = dh * 60 + dm;
+        if (!seen.has(key)) { seen.add(key); out.push({ h: dh, m: dm }); }
+    }
+    return out;
+}
+
+function wordMinuteRule(h, m) {
+    const names = ['tolv', 'ett', 'två', 'tre', 'fyra', 'fem', 'sex', 'sju', 'åtta', 'nio', 'tio', 'elva', 'tolv'];
+    const cur = names[h % 12 || 12];
+    const next = names[(h % 12) + 1];
+    if (m === 0) return `Minutvisaren rakt upp på 12 ➔ "<strong>Klockan ${cur}</strong>" – hela timmen!`;
+    if (m === 30) return `"<strong>Halv ${next}</strong>" = halvvägs mot ${next} – visaren rakt ner på 6.`;
+    if (m === 25) return `25 minuter är <strong>fem i halv ${next}</strong> – fem minuter kvar till halv ${next}.`;
+    if (m === 35) return `35 minuter är <strong>fem över halv ${next}</strong> – fem minuter efter halv ${next}.`;
+    if (m < 30) return `"<strong>Över</strong>" säger vi när klockan passerat hela timmen: ${m} minuter efter ${cur}.`;
+    return `"<strong>I</strong>" säger vi när vi närmar oss nästa timme: ${60 - m} minuter kvar till ${next}.`;
+}
+
+// 'digital': digital tid → välj urtavla. 'words': klocka/ord/digital i tre riktningar.
+function generateClockVisualQuestion(mode) {
+    const isHard = state.difficulty === 'hard';
+    const h = randInt(1, 12);
+    const mPool = mode === 'words'
+        ? (state.difficulty === 'easy' ? [0, 15, 30, 45] : CLOCK_WORD_MINS)
+        : (state.difficulty === 'easy' ? [0, 30]
+            : (state.difficulty === 'medium' ? [0, 15, 30, 45] : CLOCK_WORD_MINS));
+    const m = mPool[randInt(0, mPool.length - 1)];
+    const word = describeTimeInWords(h, m);
+    const isAfternoon = isHard && Math.random() < 0.5;
+    const dispH = isAfternoon ? (h === 12 ? 12 : h + 12) : (isHard && h === 12 ? 0 : h);
+    const digStr = formatDigitalTime(dispH, m);
+
+    const badgeEl = document.getElementById('clock-mode-badge');
+    const qEl = document.getElementById('clock-question-text');
+    const svgEl = document.getElementById('clock-svg-container');
+    const optEl = document.getElementById('clock-options');
+
+    const bigLabel = (txt) => `<div class="font-display font-extrabold text-4xl sm:text-5xl text-slate-900 tracking-wide bg-violet-50 border-3 border-violet-300 rounded-3xl px-7 py-6 inline-block">${txt}</div>`;
+    const pairChoices = shuffleArray([{ h, m }, ...shuffleArray(clockPerturbations(h, m)).slice(0, 3)]);
+    const clockButtons = pairChoices.map((p, idx) => `
+        <button onclick="checkClockChoice(${idx})" class="btn-3d bg-white hover:bg-violet-50 border-3 border-violet-300 rounded-2xl py-3 flex justify-center items-center">
+            ${renderClockSVG(p.h, p.m, 96)}
+        </button>`).join('');
+    const textButtons = (labels) => labels.map((w, idx) => `
+        <button onclick="checkClockChoice(${idx})" class="btn-3d bg-white hover:bg-violet-50 border-3 border-violet-300 rounded-2xl py-4 px-2 font-display font-bold text-lg sm:text-xl text-slate-900">
+            ${w}
+        </button>`).join('');
+
+    if (mode === 'digital') {
+        badgeEl.textContent = isAfternoon ? '🖥️ Digital tid (Eftermiddag)' : '🖥️ Digital tid';
+        qEl.textContent = 'Vilken klocka visar samma tid?';
+        svgEl.innerHTML = bigLabel(digStr);
+        state.currentClock = { mode, h, m, ansStr: formatDigitalTime(h, m), choices: pairChoices.map(p => formatDigitalTime(p.h, p.m)), ansLabel: `Rätt klocka! ${digStr} är ${word}` };
+        optEl.innerHTML = clockButtons;
+        setHintSteps('clock', [
+            `<p>Den <strong class="text-rose-600">korta timvisaren</strong> ska peka mot <strong>${h}</strong>${isAfternoon ? ` (${dispH} på eftermiddagen = ${dispH} − 12 = <strong>${h}</strong>)` : ''}.</p>`,
+            `<p>Den <strong class="text-sky-600">långa minutvisaren</strong> ska stå på <strong>${String(m).padStart(2, '0')} min</strong> ➔ ${digStr}!</p>`
+        ]);
+        return;
+    }
+
+    badgeEl.textContent = '💬 Tid med ord';
+    const wt = ['c2w', 'w2c', 'w2d'][randInt(0, 2)];
+    if (wt === 'c2w') {
+        qEl.textContent = 'Vad heter tiden?';
+        svgEl.innerHTML = renderClockSVG(h, m, 185);
+        const seen = new Set([word]);
+        const wChoices = [word];
+        for (const p of shuffleArray(clockPerturbations(h, m))) {
+            const w = describeTimeInWords(p.h, p.m);
+            if (!seen.has(w)) { seen.add(w); wChoices.push(w); }
+            if (wChoices.length === 4) break;
+        }
+        while (wChoices.length < 4) {
+            const w = describeTimeInWords(randInt(1, 12), CLOCK_WORD_MINS[randInt(0, CLOCK_WORD_MINS.length - 1)]);
+            if (!seen.has(w)) { seen.add(w); wChoices.push(w); }
+        }
+        const shuffled = shuffleArray(wChoices);
+        state.currentClock = { mode, h, m, ansStr: word, choices: shuffled, ansLabel: `Rätt! Klockan är ${digStr} – "${word}"` };
+        optEl.innerHTML = textButtons(shuffled);
+        setHintSteps('clock', [
+            `<p>Minutvisaren pekar på <strong>${String(m).padStart(2, '0')} min</strong>. ${wordMinuteRule(h, m)}</p>`,
+            `<p>➔ Tiden heter <strong>${word}</strong>!</p>`
+        ]);
+    } else if (wt === 'w2c') {
+        qEl.textContent = 'Vilken klocka visar det?';
+        svgEl.innerHTML = bigLabel(word);
+        state.currentClock = { mode, h, m, ansStr: formatDigitalTime(h, m), choices: pairChoices.map(p => formatDigitalTime(p.h, p.m)), ansLabel: `Rätt! "${word}" är klockan ${digStr}` };
+        optEl.innerHTML = clockButtons;
+        setHintSteps('clock', [
+            `<p>${wordMinuteRule(h, m)}</p>`,
+            `<p>Kolla timvisaren också – den ska vara på väg mot <strong>${m >= 25 ? 'nästa' : 'den passerade'} timmen</strong> ➔ ${digStr}!</p>`
+        ]);
+    } else {
+        qEl.textContent = isAfternoon ? 'Vilken tid är det på eftermiddagen?' : 'Vilken tid är det?';
+        svgEl.innerHTML = bigLabel(word);
+        const dChoices = pairChoices.map(p => {
+            const pd = isAfternoon ? (p.h === 12 ? 12 : p.h + 12) : p.h;
+            return formatDigitalTime(pd, p.m);
+        });
+        state.currentClock = { mode, h, m, ansStr: digStr, choices: dChoices, ansLabel: `Rätt! "${word}" är klockan ${digStr}` };
+        optEl.innerHTML = dChoices.map((t, idx) => `
+            <button onclick="checkClockChoice(${idx})" class="btn-3d bg-white hover:bg-violet-50 border-3 border-violet-300 rounded-2xl py-4 font-display font-bold text-2xl text-slate-900">
+                ${t}
+            </button>`).join('');
+        setHintSteps('clock', [
+            `<p>${wordMinuteRule(h, m)}</p>`,
+            `<p>Minutvisaren står på <strong>${String(m).padStart(2, '0')}</strong> och timmen är <strong>${dispH}</strong> ➔ ${digStr}!</p>`
+        ]);
+    }
+}
+
 export function checkClockChoice(idx) {
     if (!document.getElementById('clock-next-wrap').classList.contains('hidden')) return;
     const picked = state.currentClock.choices[idx];
     if (picked === state.currentClock.ansStr) {
         addReward(1);
-        showFeedback('clock-feedback', true, `🎉 Rätt tid! Klockan är ${picked}!`);
+        showFeedback('clock-feedback', true, `🎉 ${state.currentClock.ansLabel || `Rätt tid! Klockan är ${picked}`}!`);
         document.getElementById('clock-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();
@@ -125,14 +258,27 @@ export function checkClockChoice(idx) {
     }
 }
 
+const CLOCK_WORD_MINS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
 export function describeTimeInWords(h, m) {
     const names = ['tolv', 'ett', 'två', 'tre', 'fyra', 'fem', 'sex', 'sju', 'åtta', 'nio', 'tio', 'elva', 'tolv'];
     const curName = names[h % 12 || 12];
     const nextName = names[(h % 12) + 1];
-    if (m === 0) return `Klockan ${curName}`;
-    if (m === 15) return `Kvart över ${curName}`;
-    if (m === 30) return `Halv ${nextName}`;
-    if (m === 45) return `Kvart i ${nextName}`;
+    const byMinute = {
+        0: `Klockan ${curName}`,
+        5: `Fem över ${curName}`,
+        10: `Tio över ${curName}`,
+        15: `Kvart över ${curName}`,
+        20: `Tjugo över ${curName}`,
+        25: `Fem i halv ${nextName}`,
+        30: `Halv ${nextName}`,
+        35: `Fem över halv ${nextName}`,
+        40: `Tjugo i ${nextName}`,
+        45: `Kvart i ${nextName}`,
+        50: `Tio i ${nextName}`,
+        55: `Fem i ${nextName}`,
+    };
+    if (byMinute[m]) return byMinute[m];
     if (m < 30) return `${m} minuter över ${curName}`;
     return `${60 - m} minuter i ${nextName}`;
 }
@@ -190,13 +336,14 @@ export function adjustSandboxMinutes(delta) {
 export function startSandboxChallenge() {
     playSound('click');
     const th = randInt(1, 12);
-    const tm = [0, 15, 30, 45][randInt(0, 3)];
+    const tm = CLOCK_WORD_MINS[randInt(0, CLOCK_WORD_MINS.length - 1)];
     const pm = Math.random() < 0.5;
     const dispH = pm ? (th === 12 ? 12 : th + 12) : (th === 12 ? 0 : th);
     state.sandboxTarget = { h: th, m: tm, pm, dispStr: formatDigitalTime(dispH, tm) };
+    const label = Math.random() < 0.5 ? describeTimeInWords(th, tm) : state.sandboxTarget.dispStr;
     document.getElementById('sandbox-target-banner').classList.remove('hidden');
     document.getElementById('sandbox-feedback').classList.add('hidden');
-    document.getElementById('sandbox-target-text').textContent = `Ställ klockan på: ${state.sandboxTarget.dispStr}`;
+    document.getElementById('sandbox-target-text').textContent = `Ställ klockan på: ${label}`;
 }
 
 export function checkSandboxTarget() {
