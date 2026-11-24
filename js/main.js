@@ -19,6 +19,7 @@ import * as ns_div from './modules/div.js';
 import * as ns_length from './modules/length.js';
 import * as ns_volweight from './modules/volweight.js';
 import * as ns_clock from './modules/clock.js';
+import * as ns_conn from './modules/conn.js';
 import * as ns_shop from './modules/shop.js';
 import * as ns_geo from './modules/geo.js';
 import * as ns_chart from './modules/chart.js';
@@ -30,7 +31,7 @@ import * as ns_mult_table from './mult-table.js';
 import * as ns_levels from './levels.js';
 import * as ns_demo from './demo.js';
 
-Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels, ns_demo);
+Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_conn, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels, ns_demo);
 
 // Autofokus i svarsrutan: wrappa alla generate*Question så att fokus
 // flyttas även när frågan genereras via inline-onclick ("Nästa uppgift").
@@ -84,6 +85,8 @@ document.addEventListener('keydown', (e) => {
     } else if (v === 'div') {
         if (!document.getElementById('div-next-wrap').classList.contains('hidden')) generateDivQuestion();
         else if (state.inputModes.div === 'type') checkDivTyped();
+    } else if (v === 'conn') {
+        if (!document.getElementById('conn-next-wrap').classList.contains('hidden')) generateConnQuestion();
     } else if (v === 'seq') {
         if (!document.getElementById('seq-next-wrap').classList.contains('hidden')) generateSeqQuestion();
         else if (state.inputModes.seq === 'type') checkSeqTyped();
@@ -154,6 +157,7 @@ function restoreSavedState() {
         setComboHands(!!state.comboHands);
         setScaleHands(!!state.scaleHands);
         setDivSubMode(state.divSubMode);
+        setConnSubMode(state.connSubMode);
         setSeqSubMode(state.seqSubMode);
         setAlgoOp(state.algoOp);
         setAlgoSheetMode(state.algoSheetMode);

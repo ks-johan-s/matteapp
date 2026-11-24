@@ -22,6 +22,7 @@ import { setShopSubMode } from './modules/shop.js';
 import { setGeoSubMode } from './modules/geo.js';
 import { setChartSubMode } from './modules/chart.js';
 import { setAvgSubMode } from './modules/avg.js';
+import { setConnSubMode } from './modules/conn.js';
 import { setWordCategory } from './modules/word.js';
 
 export const LEVEL_MODULES = {
@@ -77,6 +78,16 @@ export const LEVEL_MODULES = {
             { icon: '🛍️', label: 'Påsar', apply: () => { setDivSubMode('group'); return 'div'; } },
             { icon: '⚡', label: 'Snabb division', apply: () => { setDivSubMode('quick'); return 'div'; } },
             { icon: '❓', label: 'Saknat tal', apply: () => { setDivSubMode('missing'); return 'div'; } },
+        ],
+    },
+    conn: {
+        title: 'Samband ×↔÷', icon: '🔀',
+        steps: [
+            { icon: '🔁', label: 'Faktorfamilj', desc: 'Fyra sanningar ur samma familj', demo: true, apply: () => { setConnSubMode('family'); return 'conn'; } },
+            { icon: '❓', label: 'Saknat tal', desc: 'Samma utan hjälpen – tänk själv', apply: () => { setConnSubMode('missing'); return 'conn'; } },
+        ],
+        explore: [
+            { icon: '🎲', label: 'Blandat', apply: () => { setConnSubMode('mix'); return 'conn'; } },
         ],
     },
     seq: {

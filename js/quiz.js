@@ -5,7 +5,7 @@ import { state, playSound } from './core.js';
 import { setClockSubMode } from './modules/clock.js';
 import { shuffleArray } from './utils.js';
 
-const QUIZ_VIEWS = ['addsub', 'mult', 'div', 'seq', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg'];
+const QUIZ_VIEWS = ['addsub', 'mult', 'div', 'conn', 'seq', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg'];
 const QUIZ_TOTAL = 10;
 
 let quiz = null; // { order, index, results, wrongThisQ, observer, prevClockSubMode, advancing }

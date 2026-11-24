@@ -5,6 +5,7 @@ import { playSound } from './core.js';
 import { buildAlgoDemoSteps, generateAlgoQuestion } from './modules/algo.js';
 import { buildFracDemoSteps } from './modules/frac.js';
 import { buildClockDemoSteps } from './modules/clock.js';
+import { buildConnDemoSteps } from './modules/conn.js';
 import { buildMultDemoSteps } from './modules/mult.js';
 import { buildDecimalDemoSteps } from './modules/decimal.js';
 import { buildDivDemoSteps } from './modules/div.js';
@@ -25,6 +26,7 @@ const DEMO_BUILDERS = {
     algo: { build: buildAlgoDemoSteps, onExit: () => generateAlgoQuestion() },
     frac: { build: buildFracDemoSteps },
     clock: { build: buildClockDemoSteps },
+    conn: { build: buildConnDemoSteps },
     mult: { build: buildMultDemoSteps },
     decimal: { build: buildDecimalDemoSteps },
     div: { build: buildDivDemoSteps },

@@ -97,6 +97,8 @@ export const state = {
     currentChart: null,
     avgSubMode: 'mix',
     currentAvg: null,
+    connSubMode: 'mix',
+    currentConn: null,
     scratchpadOpen: false,
     scratchpadTab: 'grid',
     scratchpadLineRows: {},

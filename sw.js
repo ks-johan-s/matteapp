@@ -1,7 +1,7 @@
 // Service worker – gör appen installerbar och användbar offline.
 // Samma origin: nät först (färska filer), cache som reserv (offline).
 // Externa CDN (Tailwind, Google Fonts): visa cache direkt, uppdatera i bakgrunden.
-const CACHE = 'matteaventyr-v20';
+const CACHE = 'matteaventyr-v21';
 const SHELL = [
     './',
     './index.html',
@@ -33,6 +33,7 @@ const SHELL = [
     './js/modules/length.js',
     './js/modules/volweight.js',
     './js/modules/clock.js',
+    './js/modules/conn.js',
     './js/modules/shop.js',
     './js/modules/geo.js',
     './js/modules/chart.js',
