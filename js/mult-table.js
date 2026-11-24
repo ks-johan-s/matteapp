@@ -25,7 +25,7 @@ export function buildMultHelperTable() {
             html += `<button id="mt-cell-${r}-${c}"
                 onmouseenter="if(!state.lockedTableCell) highlightMultCell(${r}, ${c}, false)"
                 onclick="highlightMultCell(${r}, ${c}, true)"
-                class="mult-table-cell mtc-${c} p-1.5 rounded-lg border border-black/10 text-white hover:brightness-110">
+                class="mult-table-cell mtc-${Math.max(r, c)} p-1.5 rounded-lg border border-black/10 text-white hover:brightness-110">
                 ${r * c}
             </button>`;
         }
@@ -47,6 +47,8 @@ export function highlightMultCell(r, c, lock = false) {
     document.querySelectorAll('.mult-table-cell').forEach(el => {
         el.classList.remove('mult-hl-row-col', 'mult-hl-header', 'mult-hl-active');
     });
+    const grid = document.getElementById('mult-helper-grid');
+    if (grid) grid.classList.add('mult-focusing');
     const rHdr = document.getElementById(`mt-row-hdr-${target.r}`);
     const cHdr = document.getElementById(`mt-col-hdr-${target.c}`);
     if (rHdr) rHdr.classList.add('mult-hl-header');
