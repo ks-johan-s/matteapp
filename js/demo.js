@@ -104,38 +104,50 @@ export function runStepFlights(anim, rootEl) {
         const src = rootEl.querySelector(f.from);
         const dst = rootEl.querySelector(f.to);
         if (!src || !dst) return;
-        // Målets innehåll döljs som osynlig färg (ramar/bågar syns kvar)
-        // – det ser ut som att token verkligen landar på platsen.
+        // Målets innehåll döljs under flygningen så token ser ut att landa:
+        // 'color' (default) = osynlig text, ram kvar · 'visibility' = hela
+        // formen gömd (klossar, luckor) · false = målet syns hela tiden.
+        const hideMode = f.hideTarget === 'visibility' ? 'visibility'
+            : (f.hideTarget === false ? 'none' : 'color');
         const hadContent = dst.textContent.trim() !== '';
-        if (f.hideTarget !== false) dst.style.color = 'transparent';
+        if (hideMode === 'visibility') dst.style.visibility = 'hidden';
+        else if (hideMode === 'color') dst.style.color = 'transparent';
         const delay = f.delay ?? (300 + i * 220);
         setTimeout(() => {
             // Om användaren hunnit byta steg är elementen borta ur DOM:en.
             if (!document.getElementById('demo-visual')?.contains(dst)) {
-                if (f.hideTarget !== false) dst.style.color = '';
+                if (hideMode === 'visibility') dst.style.visibility = '';
+                else if (hideMode === 'color') dst.style.color = '';
                 return;
             }
             const r1 = src.getBoundingClientRect();
             const r2 = dst.getBoundingClientRect();
+            if (f.hideSource) src.style.visibility = 'hidden';
             const el = document.createElement('span');
             el.className = `demo-fly-token ${f.cls || ''}`;
             el.textContent = f.text;
             el.style.left = `${r1.left + r1.width / 2}px`;
             el.style.top = `${r1.top + r1.height / 2}px`;
             document.body.appendChild(el);
-            requestAnimationFrame(() => {
-                const dx = (r2.left + r2.width / 2) - (r1.left + r1.width / 2);
-                const dy = (r2.top + r2.height / 2) - (r1.top + r1.height / 2);
-                el.style.transform = `translate(${dx}px, ${dy}px) scale(0.8)`;
-            });
-            el.addEventListener('transitionend', () => {
+            // Reflow först så transitionen startar – rAF pausas i bakgrundsflikar.
+            void el.offsetWidth;
+            const dx = (r2.left + r2.width / 2) - (r1.left + r1.width / 2);
+            const dy = (r2.top + r2.height / 2) - (r1.top + r1.height / 2);
+            el.style.transform = `translate(${dx}px, ${dy}px) scale(0.8)`;
+            const land = () => {
+                if (!el.isConnected) return;
                 el.remove();
-                if (!hadContent) dst.textContent = f.text; // fyll tom lucka (t.ex. conn-slot)
-                dst.style.color = '';
+                if (f.fillText !== undefined) dst.textContent = f.fillText;
+                else if (f.fill !== false && !hadContent) dst.textContent = f.text;
+                if (hideMode === 'visibility') dst.style.visibility = '';
+                else if (hideMode === 'color') dst.style.color = '';
                 dst.classList.remove('carry-pop');
                 void dst.offsetWidth;
                 dst.classList.add('carry-pop');
-            }, { once: true });
+                if (f.onLand) f.onLand(dst);
+            };
+            el.addEventListener('transitionend', land, { once: true });
+            setTimeout(land, 780); // fallback om transitionend uteblir
         }, delay);
     });
 }

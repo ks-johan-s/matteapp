@@ -150,8 +150,15 @@ export function buildScaleDemoSteps() {
     return { steps: [
         { text: `<p>Balansvågen tippade! Vänster sida väger <strong>5 + 3 = 8</strong>, men höger bara <strong>4</strong>. Den tunga sidan åker <strong>ner</strong>!</p>`,
           html: scale('5 + 3', '4', -8) },
-        { text: `<p>Gör höger sidan <strong>lika tung</strong> – då står vågen rakt: <strong>5 + 3 = 8</strong>!</p>`,
-          html: scale('5 + 3', '8', 0) },
+        { text: `<p>Gör höger sidan <strong>lika tung</strong> – lägg på <strong>4</strong> till, då står vågen rakt: <strong>5 + 3 = 8</strong>!</p>`,
+          html: scale('5 + 3', '4', -8) + `<div class="flex justify-center my-1"><span data-sweight class="px-3 py-1.5 rounded-xl bg-amber-200 border-2 border-amber-500 font-display font-bold text-amber-900">+4</span></div>`,
+          anim: { fly: [
+              { text: '+4', from: '[data-sweight]', to: '[data-pan="right"]', cls: 'fly-weight', hideSource: true, hideTarget: false, fill: false, delay: 700,
+                onLand: () => {
+                    const v = document.getElementById('demo-visual');
+                    if (v) v.innerHTML = scale('5 + 3', '4 + 4 = 8', 0);
+                } },
+          ] } },
         { text: `<p>Vågen är egentligen ett <strong>likhetstecken</strong>! Det som står på vänster sida ska väga <strong>exakt lika mycket</strong> som höger sida.</p>`,
           html: scale('8', '8', 0) },
         { text: `<p>Räkna alltid ut <strong>varje sida för sig</strong> först! Det räcker inte att höger sida har "många" vikter – det är summan som räknas.</p>`,

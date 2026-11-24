@@ -217,7 +217,11 @@ export function buildShopDemoSteps() {
         { text: `<p>Du köper en sak för <strong>37 kr</strong> och betalar med en <strong>50-lapp</strong>. Hur mycket ska du få tillbaka?</p>`,
           html: badges([50]) },
         { text: `<p><strong>Knepet: räkna UPP från priset!</strong> Hoppa först till närmaste tia: 37 + <strong>3</strong> = 40. Sen till betalningen: 40 + <strong>10</strong> = 50.</p>`,
-          html: jump },
+          html: jump,
+          anim: { fly: [
+              { text: '🐸', from: '[data-nl="0"]', to: '[data-nl="1"]', hideTarget: false, fill: false, cls: 'fly-emoji', delay: 800 },
+              { text: '🐸', from: '[data-nl="1"]', to: '[data-nl="2"]', hideTarget: false, fill: false, cls: 'fly-emoji', delay: 1900 },
+          ] } },
         { text: `<p>Växeln är hoppen ihop: <strong>3 + 10 = 13 kr</strong>! T.ex. en tia och tre enkronor.</p>`,
           html: badges([10, 1, 1, 1]) },
         { text: `<p>Första hoppet ska landa på <strong>närmaste tia</strong> – och hoppen ska sluta <strong>exakt</strong> på betalningen!</p>`,

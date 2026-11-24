@@ -730,6 +730,50 @@ body.focus-mode-active .gamification-badge {
     transition: border-color 0.2s, border-style 0.2s;
 }
 .conn-slot.carry-pop { border-style: solid; background: #eef2ff; }
+/* Flygtoken-varianter: kloss (medelvärde), emoji (🍎🐸), vikt (våg), siffra, pin (stege) */
+.demo-fly-token.fly-block {
+    width: 36px;
+    height: 15px;
+    margin-left: -18px;
+    margin-top: -7px;
+    background: #fb7185;
+    border: 1px solid #fecdd3;
+    border-radius: 5px;
+    text-shadow: none;
+}
+.demo-fly-token.fly-emoji { font-size: 1.5rem; margin-left: -0.6em; margin-top: -0.7em; }
+.demo-fly-token.fly-pin { font-size: 1.4rem; margin-left: -0.55em; margin-top: -1.1em; }
+.demo-fly-token.fly-weight {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: #92400e;
+    background: #fde68a;
+    border: 2px solid #d97706;
+    border-radius: 0.6rem;
+    padding: 0.15rem 0.55rem;
+    margin-left: -1em;
+    margin-top: -0.8em;
+    text-shadow: none;
+}
+.demo-fly-token.fly-num {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+    color: #d97706;
+}
+/* Tomma luckor som äpplena delas ut till (bråk av antal) */
+.apple-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    height: 1.5em;
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.5rem;
+    font-size: 1.1rem;
+}
+.apple-slot.carry-pop { border-style: solid; border-color: #fb7185; background: #fff1f2; }
 
 /* Överstrykningen dras som ett streck vid lån */
 div.demo-struck::after {

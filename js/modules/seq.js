@@ -227,16 +227,24 @@ export function checkSeqTyped() {
 
 // "Visa mig": hitta regeln i talföljden – samma hopp hela vägen.
 export function buildSeqDemoSteps() {
-    const arrow = (lbl) => `<span class="inline-flex flex-col items-center mx-0.5"><span class="text-[10px] font-extrabold text-purple-700 bg-purple-100 px-1.5 rounded-md border border-purple-300">${lbl}</span><span class="text-purple-400 font-bold text-sm leading-none">▼</span></span>`;
-    const chip = (n, hot) => `<span class="px-2.5 py-1 rounded-xl border-2 font-display font-bold text-lg ${hot ? 'bg-purple-600 border-purple-800 text-white' : 'bg-purple-50 border-purple-300 text-slate-900'}">${n}</span>`;
+    const arrow = (lbl, i) => `<span class="inline-flex flex-col items-center mx-0.5"><span class="text-[10px] font-extrabold text-purple-700 bg-purple-100 px-1.5 rounded-md border border-purple-300" ${i !== undefined ? `data-sgap="${i}"` : ''}>${lbl}</span><span class="text-purple-400 font-bold text-sm leading-none">▼</span></span>`;
+    const chip = (n, hot, i) => `<span class="px-2.5 py-1 rounded-xl border-2 font-display font-bold text-lg ${hot ? 'bg-purple-600 border-purple-800 text-white' : 'bg-purple-50 border-purple-300 text-slate-900'}" ${i !== undefined ? `data-schip="${i}"` : ''}>${n}</span>`;
     const row = (parts) => `<div class="my-2 flex flex-wrap items-center justify-center gap-y-1">${parts.join('')}</div>`;
     return { steps: [
         { text: `<p>En <strong>talföljd</strong> följer en <strong>regel</strong> – samma sak händer mellan varje tal. Din uppgift: hitta regeln!</p>`,
           html: row([chip(5), arrow('?'), chip(10), arrow('?'), chip(15), arrow('?'), chip('?')]) },
         { text: `<p>Jämför hoppen mellan talen: 5 → 10 är <strong>+5</strong>, och 10 → 15 är <strong>+5</strong> igen. Samma steg hela vägen!</p>`,
-          html: row([chip(5), arrow('+5'), chip(10), arrow('+5'), chip(15), arrow('+5'), chip('?')]) },
+          html: row([chip(5, false, 0), arrow('?', 0), chip(10, false, 1), arrow('?', 1), chip(15, false, 2), arrow('?', 2), chip('?')]),
+          anim: { fly: [
+              { text: '+5', from: '[data-schip="0"]', to: '[data-sgap="0"]', fillText: '+5', hideTarget: false, cls: 'fly-num', delay: 500 },
+              { text: '+5', from: '[data-schip="1"]', to: '[data-sgap="1"]', fillText: '+5', hideTarget: false, cls: 'fly-num', delay: 1300 },
+              { text: '+5', from: '[data-schip="2"]', to: '[data-sgap="2"]', fillText: '+5', hideTarget: false, cls: 'fly-num', delay: 2100 },
+          ] } },
         { text: `<p>Regeln är <strong>+5</strong> ➔ nästa tal är 15 + 5 = <strong>20</strong>!</p>`,
-          html: row([chip(5), arrow('+5'), chip(10), arrow('+5'), chip(15), arrow('+5'), chip(20, true)]) },
+          html: row([chip(5), arrow('+5'), chip(10), arrow('+5'), chip(15, false, 0), arrow('+5', 0), chip('?', true, 1)]),
+          anim: { fly: [
+              { text: '+5', from: '[data-schip="0"]', to: '[data-schip="1"]', fillText: '20', hideTarget: false, cls: 'fly-num', delay: 600 },
+          ] } },
         { text: `<p>Kolla <strong>alla</strong> hoppen! 2, 4, 8, … är <strong>inte</strong> +2 – där händer ×2. Det räcker inte att två hopp råkar vara lika.</p>`,
           warn: true,
           html: row([chip(2), arrow('×2'), chip(4), arrow('×2'), chip(8), arrow('×2'), chip(16, true)]) },

@@ -442,18 +442,32 @@ function attachSortDrag() {
 // "Visa mig": medelvärde = jämna ut staplarna.
 export function buildAvgDemoSteps() {
     const nums = [4, 8, 6], labels = ['Ali', 'Bo', 'Cy'], mean = 6;
-    const towers = (ns) => `<div class="flex items-end justify-center gap-5 my-3">` + ns.map((v, i) =>
-        `<div class="flex flex-col items-center gap-1.5">
-            <div class="flex flex-col-reverse gap-0.5">${Array.from({ length: v }, () => '<div class="w-9 h-4 rounded-md bg-rose-400 border border-rose-200"></div>').join('')}</div>
+    const towers = (ns, marks) => `<div class="flex items-end justify-center gap-5 my-3">` + ns.map((v, i) => {
+        const blocks = Array.from({ length: v }, (_, b) => {
+            const give = marks && marks.giveFrom === i && b >= v - marks.giveCount;
+            return `<div class="w-9 h-4 rounded-md bg-rose-400 border border-rose-200" ${give ? `data-agive="${b - (v - marks.giveCount)}"` : ''}></div>`;
+        }).join('');
+        const extra = marks && marks.landOn === i
+            ? Array.from({ length: marks.giveCount }, (_, k) => `<div class="w-9 h-4 rounded-md bg-rose-400 border border-rose-200" data-aland="${k}"></div>`).join('')
+            : '';
+        return `<div class="flex flex-col items-center gap-1.5">
+            <div class="flex flex-col-reverse gap-0.5">${blocks}${extra}</div>
             <span class="text-xs font-extrabold text-slate-600">${labels[i]} (${v})</span>
-        </div>`).join('') + `</div>`;
+        </div>`;
+    }).join('') + `</div>`;
     const svg = `<div class="flex justify-center">${renderMeanLevelingSVG(nums, labels, mean)}</div>`;
     return { steps: [
         { text: `<p>Tre kompisar plockade klossar – ojämnt fördelat! <strong>Medelvärdet</strong> svarar på: <em>hur många skulle var och en ha om alla hade lika?</em></p>`,
           html: towers(nums) },
         { text: `<p><strong>Steg 1:</strong> Lägg ihop ALLT först: <strong>${nums.join(' + ')} = ${nums.reduce((a, b) => a + b)}</strong> klossar totalt.</p>`,
           html: towers(nums) },
-        { text: `<p><strong>Steg 2:</strong> Dela lika på ${nums.length} personer: <strong>${divStackHTML(nums.reduce((a, b) => a + b), nums.length)} = ${mean}</strong>. Den gröna streckade linjen visar den utjämnade nivån!</p>`,
+        { text: `<p><strong>Steg 2:</strong> Bo har <strong>8</strong> – två klossar för många. Ali har <strong>4</strong> – två för få. <strong>Flytta över dem!</strong></p>`,
+          html: towers(nums, { giveFrom: 1, giveCount: 2, landOn: 0 }),
+          anim: { fly: [
+              { from: '[data-agive="0"]', to: '[data-aland="0"]', cls: 'fly-block', hideSource: true, hideTarget: 'visibility', fill: false, delay: 500 },
+              { from: '[data-agive="1"]', to: '[data-aland="1"]', cls: 'fly-block', hideSource: true, hideTarget: 'visibility', fill: false, delay: 1500 },
+          ] } },
+        { text: `<p><strong>Steg 3:</strong> Nu har alla <strong>6</strong>! Mattematiken säger samma sak: dela lika på ${nums.length} personer – <strong>${divStackHTML(nums.reduce((a, b) => a + b), nums.length)} = ${mean}</strong>. Den gröna linjen visar den utjämnade nivån!</p>`,
           html: svg },
         { text: `<p>Dela alltid med <strong>antalet tal</strong> – här ${nums.length}, inte 2! Och blanda inte ihop med <strong>medianen</strong>: det är mitt-talet när talen står i storleksordning.</p>`,
           warn: true,

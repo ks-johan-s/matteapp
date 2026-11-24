@@ -21,11 +21,11 @@ export function buildNumberLineJumpSVG(start, mid, end, lbl1, lbl2, isSub = fals
             <text x="117" y="22" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="${arcColor}">${lbl1}</text>
             <path d="M 184 58 Q 242 12 301 55" fill="none" stroke="#10b981" stroke-width="2.8" marker-end="url(#nl-arr-${isSub ? 'sub' : 'add'})" class="svg-arc-draw-delay" />
             <text x="242" y="22" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="#047857">${lbl2}</text>
-            <circle cx="55" cy="62" r="5" fill="#0f172a" />
+            <circle cx="55" cy="62" r="5" fill="#0f172a" data-nl="0" />
             <text x="55" y="82" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="#0f172a">${start}</text>
-            <circle cx="180" cy="62" r="5" fill="${arcColor}" />
+            <circle cx="180" cy="62" r="5" fill="${arcColor}" data-nl="1" />
             <text x="180" y="82" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="${arcColor}">${mid}</text>
-            <circle cx="305" cy="62" r="6" fill="#10b981" />
+            <circle cx="305" cy="62" r="6" fill="#10b981" data-nl="2" />
             <text x="305" y="82" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#065f46">${end}</text>
         </svg>
     `;
@@ -45,13 +45,13 @@ export function renderScaleSVG(leftText, rightText, tiltDeg = -8) {
                 <g transform="translate(-125, 0) rotate(${-tiltDeg})">
                     <line x1="-30" y1="35" x2="0" y2="0" stroke="#64748b" stroke-width="2" />
                     <line x1="30" y1="35" x2="0" y2="0" stroke="#64748b" stroke-width="2" />
-                    <rect x="-54" y="34" width="108" height="36" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="3" />
+                    <rect x="-54" y="34" width="108" height="36" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="3" data-pan="left" />
                     <text x="0" y="57" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="#0c4a6e">${leftText}</text>
                 </g>
                 <g transform="translate(125, 0) rotate(${-tiltDeg})">
                     <line x1="-30" y1="35" x2="0" y2="0" stroke="#64748b" stroke-width="2" />
                     <line x1="30" y1="35" x2="0" y2="0" stroke="#64748b" stroke-width="2" />
-                    <rect x="-54" y="34" width="108" height="36" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="3" />
+                    <rect x="-54" y="34" width="108" height="36" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="3" data-pan="right" />
                     <text x="0" y="57" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="#78350f">${rightText}</text>
                 </g>
             </g>
@@ -227,7 +227,7 @@ export function buildUnitLadderSVGHTML(units, stepMuls, stepDivs, fromUnit, toUn
             ? 'bg-amber-400 text-amber-950 border-amber-600 scale-105 shadow-xs'
             : (isTo ? 'bg-lime-600 text-white border-lime-800 scale-105 shadow-xs'
             : (isBetween ? 'bg-sky-100 text-sky-900 border-sky-400' : 'bg-slate-100 text-slate-400 border-slate-200 opacity-65'));
-        html += `<span class="px-3 py-1.5 rounded-xl border-2 font-display font-bold text-sm ${cls}">${u}</span>`;
+        html += `<span class="px-3 py-1.5 rounded-xl border-2 font-display font-bold text-sm ${cls}" data-lstep="${idx}">${u}</span>`;
         if (idx < units.length - 1) {
             const active = idx >= minIdx && idx < maxIdx;
             const lbl = isMul ? `${stepMuls[idx]} →` : `← ${stepDivs[idx]}`;

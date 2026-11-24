@@ -647,14 +647,24 @@ export function checkWordAnswer() {
 // "Visa mig": metod för textuppgift – läs, hitta talen, räkna i steg.
 export function buildWordDemoSteps() {
     const story = (inner) => `<div class="max-w-md mx-auto bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-left text-base sm:text-lg text-slate-800 my-2">${inner}</div>`;
-    const num = (t) => `<span class="bg-yellow-200 border border-yellow-400 rounded-lg px-1.5 font-extrabold">${t}</span>`;
+    const num = (t, i) => `<span class="bg-yellow-200 border border-yellow-400 rounded-lg px-1.5 font-extrabold" ${i !== undefined ? `data-wnum="${i}"` : ''}>${t}</span>`;
     return { steps: [
         { text: `<p>Textuppgifter gömmer en räkneuppgift i en <strong>berättelse</strong>. Läs hela först – vad handlar den om?</p>`,
           html: story(`Sara köper 3 paket bullar för 20 kr styck. Hon betalar med en 100-lapp. Hur mycket får hon tillbaka?`) },
         { text: `<p><strong>Steg 1:</strong> Markera <strong>talen</strong> och <strong>frågan</strong> – vad ska vi räkna ut?</p>`,
           html: story(`Sara köper ${num('3')} paket bullar för ${num('20 kr')} styck. Hon betalar med en ${num('100')}-lapp. Hur mycket får hon <strong>tillbaka</strong>?`) },
-        { text: `<p><strong>Steg 2:</strong> Räkna i <strong>två steg</strong>: kostnaden först (3 × 20 = <strong>60 kr</strong>), sen växeln (100 − 60 = <strong>40 kr</strong>)!</p>`,
-          html: story(`${num('3')} × ${num('20 kr')} = 60 kr &nbsp;➔&nbsp; ${num('100')} − 60 = <strong>40 kr</strong> i växel 💰`) },
+        { text: `<p><strong>Steg 2:</strong> Lyft ut <strong>talen ur texten</strong> och räkna i <strong>två steg</strong>: kostnaden först (3 × 20 = <strong>60 kr</strong>), sen växeln (100 − 60 = <strong>40 kr</strong>)!</p>`,
+          html: story(`Sara köper ${num('3', 0)} paket bullar för ${num('20', 1)} kr styck. Hon betalar med en ${num('100', 2)}-lapp. Hur mycket får hon <strong>tillbaka</strong>?`) +
+              `<div class="flex flex-wrap items-center justify-center gap-2 font-display font-bold text-xl text-slate-800 my-3">
+                  <span class="conn-slot" data-wslot="0"></span> × <span class="conn-slot" data-wslot="1"></span> = 60 kr
+                  <span class="text-amber-500 mx-1">➔</span>
+                  <span class="conn-slot" data-wslot="2"></span> − 60 = <strong>40 kr</strong>
+              </div>`,
+          anim: { fly: [
+              { text: '3', from: '[data-wnum="0"]', to: '[data-wslot="0"]', cls: 'fly-num', hideTarget: false, delay: 600 },
+              { text: '20', from: '[data-wnum="1"]', to: '[data-wslot="1"]', cls: 'fly-num', hideTarget: false, delay: 1400 },
+              { text: '100', from: '[data-wnum="2"]', to: '[data-wslot="2"]', cls: 'fly-num', hideTarget: false, delay: 2200 },
+          ] } },
         { text: `<p>Svara på <strong>det som frågas</strong>! Svaret är 40 kr – inte 60 kr (det var bara mellansteget). Skriv alltid svaret med <strong>enheten</strong>: "kr".</p>`,
           warn: true,
           html: story(`✅ <strong>40 kr</strong> &nbsp;&nbsp; ❌ 60 kr &nbsp;&nbsp; ❌ "40" (utan kr)`) },

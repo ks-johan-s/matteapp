@@ -226,11 +226,30 @@ export function buildComboDemoSteps() {
                 <div class="text-base sm:text-lg font-display font-bold text-slate-900">${'🍎'.repeat(per)}</div>
                 <div class="text-[11px] font-extrabold ${p < taken ? 'text-indigo-900' : 'text-slate-500'}">Hög ${p + 1} (${per} st)</div>
             </div>`).join('') + `</div>`;
+    const deal = (den, per) => `<div class="my-2">
+        <div class="flex justify-center gap-0.5 mb-3 text-2xl">${Array.from({ length: den * per }, (_, i) => `<span data-aapple="${i}">🍎</span>`).join('')}</div>
+        <div class="flex flex-wrap justify-center gap-3">${Array.from({ length: den }, (_, p) => `
+            <div class="px-3 py-2 rounded-2xl border-2 bg-slate-50 border-slate-200">
+                <div class="flex gap-1">${Array.from({ length: per }, (_, k) => `<span class="apple-slot" data-aslot="${p}-${k}"></span>`).join('')}</div>
+                <div class="text-[11px] font-extrabold text-slate-500 text-center">Hög ${p + 1}</div>
+            </div>`).join('')}</div>
+    </div>`;
+    const dealFly = (den, per) => {
+        const fly = [];
+        let i = 0;
+        for (let round = 0; round < per; round++) {
+            for (let p = 0; p < den; p++, i++) {
+                fly.push({ text: '🍎', from: `[data-aapple="${i}"]`, to: `[data-aslot="${p}-${round}"]`, cls: 'fly-emoji', hideSource: true, hideTarget: false, delay: 500 + i * 170 });
+            }
+        }
+        return fly;
+    };
     return { steps: [
         { text: `<p>Hur mycket är <strong>⅓ av 12 äpplen</strong>? "Av" betyder: dela alla <strong>12</strong> äpplen i <strong>3 lika stora högar</strong> (nämnaren!).</p>`,
           html: `<div class="text-4xl my-3">🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎🍎</div>` },
-        { text: `<p>Dela upp: <strong>${divStackHTML(12, 3)} = 4 äpplen</strong> i varje hög.</p>`,
-          html: piles(3, 0, 4) },
+        { text: `<p>Dela upp: <strong>${divStackHTML(12, 3)} = 4 äpplen</strong> i varje hög. Varvet går runt – en till varje hög i taget!</p>`,
+          html: deal(3, 4),
+          anim: { fly: dealFly(3, 4) } },
         { text: `<p>Nu säger <strong>täljaren</strong> hur många högar vi tar: ⅓ betyder <strong>1 hög</strong> ➔ <strong>4 äpplen</strong>!</p>`,
           html: piles(3, 1, 4) },
         { text: `<p>Vid <strong>2/3</strong> tar du <strong>två</strong> högar: 2 × 4 = <strong>8 äpplen</strong>. Antalet högar du delar upp är alltid nämnaren – antalet du <em>tar</em> är täljaren!</p>`,
