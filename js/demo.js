@@ -88,8 +88,56 @@ export function startModuleDemo(key) {
 export function closeDemo() {
     if (demo && demo.timer) clearTimeout(demo.timer);
     demo = null;
+    document.querySelectorAll('.demo-fly-token').forEach(el => el.remove());
     document.getElementById('demo-overlay')?.classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
+}
+
+// Deklarativ flyganimation i demon: { fly: [{ text, from, to, delay? }] }
+// – en token åker från "from"-elementets mitt till "to"-elementets mitt,
+// medan målets riktiga innehåll är osynligt tills token landar. Så ser
+// värdet ut att faktiskt flytta (lånat tiotal, minnessiffra, omflyttat tal).
+export function runStepFlights(anim, rootEl) {
+    const flights = anim?.fly || [];
+    if (!flights.length) return;
+    flights.forEach((f, i) => {
+        const src = rootEl.querySelector(f.from);
+        const dst = rootEl.querySelector(f.to);
+        if (!src || !dst) return;
+        // Målets innehåll döljs som osynlig färg (ramar/bågar syns kvar)
+        // – det ser ut som att token verkligen landar på platsen.
+        const hadContent = dst.textContent.trim() !== '';
+        if (f.hideTarget !== false) dst.style.color = 'transparent';
+        const delay = f.delay ?? (300 + i * 220);
+        setTimeout(() => {
+            // Om användaren hunnit byta steg är elementen borta ur DOM:en.
+            if (!document.getElementById('demo-visual')?.contains(dst)) {
+                if (f.hideTarget !== false) dst.style.color = '';
+                return;
+            }
+            const r1 = src.getBoundingClientRect();
+            const r2 = dst.getBoundingClientRect();
+            const el = document.createElement('span');
+            el.className = `demo-fly-token ${f.cls || ''}`;
+            el.textContent = f.text;
+            el.style.left = `${r1.left + r1.width / 2}px`;
+            el.style.top = `${r1.top + r1.height / 2}px`;
+            document.body.appendChild(el);
+            requestAnimationFrame(() => {
+                const dx = (r2.left + r2.width / 2) - (r1.left + r1.width / 2);
+                const dy = (r2.top + r2.height / 2) - (r1.top + r1.height / 2);
+                el.style.transform = `translate(${dx}px, ${dy}px) scale(0.8)`;
+            });
+            el.addEventListener('transitionend', () => {
+                el.remove();
+                if (!hadContent) dst.textContent = f.text; // fyll tom lucka (t.ex. conn-slot)
+                dst.style.color = '';
+                dst.classList.remove('carry-pop');
+                void dst.offsetWidth;
+                dst.classList.add('carry-pop');
+            }, { once: true });
+        }, delay);
+    });
 }
 
 export function demoExit() {
@@ -169,7 +217,12 @@ function renderDemoStep() {
     document.getElementById('demo-text').innerHTML =
         `<div class="demo-fade">${kind}${step.text}</div>`;
 
-    document.getElementById('demo-visual').innerHTML = step.html || '';
+    const visEl = document.getElementById('demo-visual');
+    visEl.innerHTML = step.html || '';
+    // Steg-specifik rörelse: token flyger mellan celler (lån,
+    // minnessiffror, omflyttade siffror). Rensa ev. kvarvarande.
+    document.querySelectorAll('.demo-fly-token').forEach(el => el.remove());
+    runStepFlights(step.anim, visEl);
 
     // Gissningszonen är alltid lika hög. När steget är löst ersätts
     // chip-raden av belöningstexten i samma zon – modalen växer inte.

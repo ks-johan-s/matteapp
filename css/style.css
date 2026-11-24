@@ -681,6 +681,55 @@ body.focus-mode-active .gamification-badge {
     0% { transform: scale(0) translateY(6px); opacity: 0; }
     100% { transform: scale(1) translateY(0); opacity: 1; }
 }
+/* Token som flyger mellan celler i "Visa mig"-demon (lån, minnessiffror) */
+.demo-fly-token {
+    position: fixed;
+    z-index: 400;
+    font-family: 'Edu SA Hand', cursive;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #059669;
+    pointer-events: none;
+    transform: translate(0, 0) scale(1.1);
+    transition: transform 0.7s cubic-bezier(0.45, 0.05, 0.35, 1);
+    margin-left: -0.5em;
+    margin-top: -0.6em;
+    text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+}
+/* Samband-demon: siffrorna som byter plats mellan multiplikation och division */
+.demo-fly-token.demo-fly-conn {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+    color: #4f46e5;
+}
+.conn-flip-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+.conn-flip-arrow {
+    font-size: 1.8rem;
+    color: #818cf8;
+    line-height: 1;
+    animation: arrowNudgeDown 1s ease-in-out infinite;
+}
+@keyframes arrowNudgeDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+}
+.conn-tok { display: inline-block; padding: 0 0.15rem; }
+.conn-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.15em;
+    min-height: 1.15em;
+    padding: 0 0.15rem;
+    border: 2px dashed #a5b4fc;
+    border-radius: 0.5rem;
+    color: #4f46e5;
+    font-weight: 900;
+    transition: border-color 0.2s, border-style 0.2s;
+}
+.conn-slot.carry-pop { border-style: solid; background: #eef2ff; }
+
 /* Överstrykningen dras som ett streck vid lån */
 div.demo-struck::after {
     animation: struckDraw 0.45s ease;

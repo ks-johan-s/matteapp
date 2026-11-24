@@ -199,6 +199,21 @@ export function buildConnDemoSteps() {
           html: connArraySVG({ hlRows: CONN_ALL_ROWS, rowNums: true }) },
         { text: `<p>Eller 56 kakor i <strong>påsar à 7</strong>: räkna <strong>kolumnerna</strong> istället – 1–2–3–4–5–6–7–8! Alltså <strong>${divStackHTML(56, 7)} = 8</strong>. Samma prickar – bara ett annat sätt att dela!</p>`,
           html: connArraySVG({ hlCols: CONN_ALL_COLS, colNums: true }) },
+        { text: `<p><strong>Titta noga – samma tre tal flyttar bara plats!</strong> Produkten <strong>56</strong> hamnar först, <strong>8</strong> blir det vi delar med, och <strong>7</strong> blir svaret!</p>`,
+          html: `<div class="conn-flip-wrap mx-auto">
+                <div class="conn-stmt conn-flip-src">
+                    <span class="conn-tok" data-tok="a">${a}</span><span class="conn-op-x">×</span><span class="conn-tok" data-tok="b">${b}</span><span class="conn-eq">=</span><span class="conn-tok" data-tok="c">${c}</span>
+                </div>
+                <div class="conn-flip-arrow">⤵</div>
+                <div class="conn-stmt conn-flip-dst">
+                    ${divStackHTML('<span class="conn-slot" data-slot="c"></span>', '<span class="conn-slot" data-slot="a"></span>')}<span class="conn-eq">=</span><span class="conn-slot" data-slot="b"></span>
+                </div>
+            </div>`,
+          anim: { fly: [
+              { text: `${c}`, from: '[data-tok="c"]', to: '[data-slot="c"]', cls: 'demo-fly-conn', delay: 400 },
+              { text: `${a}`, from: '[data-tok="a"]', to: '[data-slot="a"]', cls: 'demo-fly-conn', delay: 850 },
+              { text: `${b}`, from: '[data-tok="b"]', to: '[data-slot="b"]', cls: 'demo-fly-conn', delay: 1300 },
+          ] } },
         { text: `<p><strong>${divStackHTML(56, 7)}</strong> frågar <em>"vad gånger 7 blir 56?"</em> – samma som <strong>7 × ? = 56</strong>. Men akta: <strong>${divStackHTML(56, 7)} är INTE samma sak som ${divStackHTML(7, 56)}!</strong></p>`,
           warn: true,
           html: panel() },
