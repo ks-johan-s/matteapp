@@ -65,15 +65,22 @@ export function generateAddSubQuestion() {
         const target = isSub ? a - b : a + b;
         badge = '🐸 Hoppa själv';
         answer = target;
-        state.currentAddSub = { a, b, isSub, answer, missing: null, jumps: { pos: a, target, count: 0, best: optimalJumps(b) } };
+        const use100 = b >= 100;
+        state.currentAddSub = { a, b, isSub, answer, missing: null, jumps: { pos: a, target, count: 0, best: optimalJumps(b, use100), use100 } };
         document.getElementById('addsub-mode-badge').textContent = badge;
         document.getElementById('addsub-question-text').innerHTML = `Hoppa dig fram till <strong>${a} ${isSub ? '−' : '+'} ${b}</strong> – du står på <strong>${a}</strong>, målet är <strong>${target}</strong> – på <strong>så få hopp som möjligt</strong>!`;
         if (modeToggle) modeToggle.parentElement.classList.add('hidden');
         document.getElementById('addsub-options').classList.add('hidden');
         document.getElementById('addsub-type-wrap').classList.add('hidden');
+        const hund = Math.floor(b / 100) * 100;
+        const rest100 = b - hund;
         setHintSteps('addsub', [
-            `<p>Tänk som på tallinjen: först stora <strong>tiotalshopp</strong> (+10/−10), sen små <strong>entalshopp</strong> (+1/−1) för att landa exakt!</p>`,
-            `<p>Från ${a} till ${target}: till exempel ${isSub ? '−' : '+'}${Math.floor(b / 10) * 10} sen ${isSub ? '−' : '+'}${b % 10}.</p>`
+            use100
+                ? `<p>Tänk som på tallinjen: först stora <strong>hundratalshopp</strong> (±100), sen <strong>tiotalshopp</strong> (±10) och sist små <strong>entalshopp</strong> (±1) för att landa exakt!</p>`
+                : `<p>Tänk som på tallinjen: först stora <strong>tiotalshopp</strong> (+10/−10), sen små <strong>entalshopp</strong> (+1/−1) för att landa exakt!</p>`,
+            use100
+                ? `<p>Från ${a} till ${target}: till exempel ${isSub ? '−' : '+'}${hund} sen ${isSub ? '−' : '+'}${Math.floor(rest100 / 10) * 10} och sist ${isSub ? '−' : '+'}${rest100 % 10} – eller hoppa lite förbi och tillbaka, det kan ge färre hopp!</p>`
+                : `<p>Från ${a} till ${target}: till exempel ${isSub ? '−' : '+'}${Math.floor(b / 10) * 10} sen ${isSub ? '−' : '+'}${b % 10}.</p>`
         ]);
         renderAddSubJumps();
         return;
@@ -359,19 +366,22 @@ export function checkAddSubTyped() {
 
 // Minsta antalet hopp (±10/±5/±1) för en sträcka — tillåter omväg via
 // överskjut, t.ex. 9 = +10,−1 (2 hopp). Dynamisk programmering.
-function optimalJumps(dist) {
+function optimalJumps(dist, use100 = false) {
     const d = Math.abs(dist);
     const dp = [0];
-    for (let n = 1; n <= d + 10; n++) {
+    const span = use100 ? 110 : 10;
+    for (let n = 1; n <= d + span; n++) {
         dp[n] = Math.min(
             (dp[Math.max(0, n - 1)] || 0) + 1,
             n >= 5 ? dp[n - 5] + 1 : Infinity,
-            n >= 10 ? dp[n - 10] + 1 : Infinity
+            n >= 10 ? dp[n - 10] + 1 : Infinity,
+            use100 && n >= 100 ? dp[n - 100] + 1 : Infinity
         );
     }
-    // Överskjut: hoppa förbi och tillbaka kan ge färre hopp (9 → +10,−1).
+    // Överskjut: hoppa förbi och tillbaka kan ge färre hopp (9 → +10,−1,
+    // 277 → +100×3,−10×2,−1×3).
     let best = dp[d];
-    for (let over = 1; over <= 10 && d + over < dp.length; over++) {
+    for (let over = 1; over <= span && d + over < dp.length; over++) {
         const via = dp[d + over] + dp[over];
         if (via < best) best = via;
     }
@@ -404,12 +414,14 @@ function renderAddSubJumps() {
                 </div>
             </div>
             <div class="flex flex-wrap justify-center gap-2 mt-2">
+                ${j.use100 ? '<button onclick="addSubJump(100)" class="btn-3d bg-emerald-700 hover:bg-emerald-800 text-white font-display font-bold px-4 py-2 rounded-xl">+100</button>' : ''}
                 <button onclick="addSubJump(10)" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold px-4 py-2 rounded-xl">+10</button>
                 <button onclick="addSubJump(5)" class="btn-3d bg-emerald-400 hover:bg-emerald-500 text-white font-display font-bold px-4 py-2 rounded-xl">+5</button>
                 <button onclick="addSubJump(1)" class="btn-3d bg-emerald-300 hover:bg-emerald-400 text-emerald-950 font-display font-bold px-4 py-2 rounded-xl">+1</button>
                 <button onclick="addSubJump(-1)" class="btn-3d bg-slate-300 hover:bg-slate-400 text-slate-800 font-display font-bold px-4 py-2 rounded-xl">−1</button>
                 <button onclick="addSubJump(-5)" class="btn-3d bg-slate-400 hover:bg-slate-500 text-white font-display font-bold px-4 py-2 rounded-xl">−5</button>
                 <button onclick="addSubJump(-10)" class="btn-3d bg-slate-500 hover:bg-slate-600 text-white font-display font-bold px-4 py-2 rounded-xl">−10</button>
+                ${j.use100 ? '<button onclick="addSubJump(-100)" class="btn-3d bg-slate-700 hover:bg-slate-800 text-white font-display font-bold px-4 py-2 rounded-xl">−100</button>' : ''}
             </div>
         </div>`;
 }
