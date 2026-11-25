@@ -856,6 +856,19 @@ div.demo-struck::after {
 .demo-spot-svg {
     animation: demoSpotSvg 1.5s ease-in-out infinite;
 }
+/* Klockvisare med spotlight: svepet måste kombineras med glöden –
+   annars ersätter animation-shorthanden svepet och visaren står
+   kvar rakt upp. */
+.clock-hand.demo-spot-svg {
+    animation:
+        clockHandSweep 0.85s cubic-bezier(0.3, 1.35, 0.45, 1) both,
+        demoSpotSvg 1.5s ease-in-out infinite;
+}
+.clock-hand-hour.demo-spot-svg {
+    animation:
+        clockHandSweep 0.65s cubic-bezier(0.3, 1.35, 0.45, 1) both,
+        demoSpotSvg 1.5s ease-in-out infinite;
+}
 @keyframes demoSpotSvg {
     0%, 100% { filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7)); }
     50% { filter: drop-shadow(0 0 9px rgba(245, 158, 11, 1)); }

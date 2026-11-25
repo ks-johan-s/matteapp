@@ -349,11 +349,12 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
             <rect x="${(x - w / 2).toFixed(1)}" y="${(y - size * 0.042).toFixed(1)}" width="${w}" height="${size * 0.084}" rx="${size * 0.04}" fill="#ffffff" stroke="${color}" stroke-width="2" opacity="0.95" />
             <text x="${x.toFixed(1)}" y="${(y + size * 0.02).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="${size * 0.052}" fill="${color}">${text}</text>
         </g>`;
-    // Etiketten placeras lite vinkelrätt ut från visaren så den inte
-    // täcker den: pos = 0.6·r längs visaren + 0.22·r i sidled.
+    // Etiketten placeras utanför urtavlan, rakt ut i visarens riktning –
+    // innanför tavlan kolliderar den alltid med sifferringen.
     const labelAt = (angle, text, color, w) => {
-        const px = Math.cos(angle) * r * 0.60 - Math.sin(angle) * r * 0.22;
-        const py = Math.sin(angle) * r * 0.60 + Math.cos(angle) * r * 0.22;
+        const rad = r + size * 0.13;
+        const px = Math.cos(angle) * rad;
+        const py = Math.sin(angle) * rad;
         return handLabel(cx + px, cy + py, text, color, w);
     };
     const handLabelsHtml = !interactive && opts.handLabels
@@ -362,7 +363,7 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
         : '';
 
     return `
-        <svg id="${interactive ? 'sandbox-clock-svg' : ''}" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="drop-shadow-sm ${interactive ? 'cursor-pointer' : ''}">
+        <svg id="${interactive ? 'sandbox-clock-svg' : ''}" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="drop-shadow-sm ${interactive ? 'cursor-pointer' : ''}"${opts.handLabels ? ' style="overflow:visible"' : ''}>
             <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="#7c3aed" />
             <circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff" />
             ${ticksHtml}
