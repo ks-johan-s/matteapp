@@ -650,6 +650,23 @@ body.focus-mode-active .gamification-badge {
     background: rgba(245, 158, 11, 0.14) !important;
 }
 
+/* Inringning av de två siffror som räknas med i det aktuella steget
+   (t.ex. 2 · 3 i multiplikationsdemon) – bara det aktiva paret ringas. */
+.ring-digit {
+    display: inline-block;
+    border-radius: 9px;
+    padding: 0 4px;
+    margin: 0 -4px;
+    box-shadow: 0 0 0 2.5px #ef4444, 0 0 10px rgba(239, 68, 68, 0.4);
+    animation: ringDigitIn 0.35s cubic-bezier(0.22, 1.4, 0.36, 1);
+    position: relative;
+    z-index: 1;
+}
+@keyframes ringDigitIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 /* "Visa mig"-demon: större rutnät + animationer */
 .math-grid-big .math-grid-cell {
     width: 62px;
