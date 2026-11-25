@@ -375,10 +375,10 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
             <line x1="${cx}" y1="${cy}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#0284c7" stroke-width="${size * 0.024}" stroke-linecap="round" opacity="${focus === 'hour' ? 0.25 : 1}" />
             <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="10" fill="#0284c7" fill-opacity="0.35" />
             ` : `
-            <g class="clock-hand clock-hand-hour${focus === 'hour' ? ' demo-spot-svg' : ''}" style="--hand-rot:${hourDeg.toFixed(1)}deg; animation-delay:0.05s" opacity="${focus === 'min' ? 0.22 : 1}">
+            <g class="clock-hand clock-hand-hour${focus === 'hour' ? ' demo-spot-svg' : ''}" style="--hand-rot:${hourDeg.toFixed(1)}deg; ${opts.noSweep ? `transform: rotate(${hourDeg.toFixed(1)}deg); animation: ${focus === 'hour' ? 'demoSpotSvg 1.5s ease-in-out infinite' : 'none'};` : 'animation-delay:0.05s'}" opacity="${focus === 'min' ? 0.22 : 1}">
                 <line x1="${cx}" y1="${cy}" x2="${cx}" y2="${(cy - r * 0.5).toFixed(1)}" stroke="#e11d48" stroke-width="${size * 0.036}" stroke-linecap="round" />
             </g>
-            <g class="clock-hand${focus === 'min' ? ' demo-spot-svg' : ''}" style="--hand-rot:${minDeg.toFixed(1)}deg; animation-delay:0.18s" opacity="${focus === 'hour' ? 0.22 : 1}">
+            <g class="clock-hand${focus === 'min' ? ' demo-spot-svg' : ''}" style="--hand-rot:${minDeg.toFixed(1)}deg; ${opts.noSweep ? `transform: rotate(${minDeg.toFixed(1)}deg); animation: ${focus === 'min' ? 'demoSpotSvg 1.5s ease-in-out infinite' : 'none'};` : 'animation-delay:0.18s'}" opacity="${focus === 'hour' ? 0.22 : 1}">
                 <line x1="${cx}" y1="${cy}" x2="${cx}" y2="${(cy - r * 0.74).toFixed(1)}" stroke="#0284c7" stroke-width="${size * 0.024}" stroke-linecap="round" />
             </g>
             `}

@@ -366,18 +366,21 @@ export function checkSandboxTarget() {
 export function buildClockDemoSteps() {
     const h = 4, m = 15;
     const clock = (focus, opts = {}) => `<div class="flex justify-center">${renderClockSVG(h, m, 215, false, focus, opts)}</div>`;
+    // Visarna sveper bara fram i första steget – sen står de kvar mellan
+    // stegen, annars ser det ut som att klockan startar om varje gång.
+    const still = { noSweep: true };
     return { steps: [
         { text: `<p>En klocka har <strong>två visare</strong>! Den <span class="text-rose-600 font-bold">korta</span> visar <strong>timmar</strong> och den <span class="text-sky-600 font-bold">långa</span> visar <strong>minuter</strong>.</p>`,
           html: clock(null) },
         { text: `<p>Titta på den <span class="text-rose-600 font-bold">korta timvisaren</span> <span class="demo-tag" style="background:#ffe4e6;color:#be123c">timmar</span>: den har passerat <strong>${h}</strong> – det är ${h} i timmen!</p>`,
-          html: clock('hour', { handLabels: true }) },
+          html: clock('hour', { ...still, handLabels: true }) },
         { text: `<p>Nu den <span class="text-sky-600 font-bold">långa minutvisaren</span> <span class="demo-tag" style="background:#e0f2fe;color:#075985">minuter</span>: varje siffra betyder <strong>5 minuter</strong>. Räkna märkena: 5, 10, <strong>${m}</strong> – det är <strong>en kvart</strong>!</p>`,
-          html: clock('min', { handLabels: true, minCounts: true }) },
+          html: clock('min', { ...still, handLabels: true, minCounts: true }) },
         { text: `<p>Många blandar ihop visarna! Den <span class="text-rose-600 font-bold">korta</span> är timmar och den <span class="text-sky-600 font-bold">långa</span> är minuter – inte tvärtom!</p>`,
           warn: true,
-          html: clock(null) },
+          html: clock(null, { ...still }) },
         { text: `<p><strong>Din tur!</strong> Vad visar klockan?</p>`,
-          html: clock(null),
+          html: clock(null, { ...still }),
           guess: { options: [
               { label: 'Kvart i fyra', ok: false },
               { label: 'Kvart över fyra', ok: true },
