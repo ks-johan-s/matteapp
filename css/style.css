@@ -1057,3 +1057,14 @@ div.demo-struck::after {
     .npd-split-diagram { flex: 1 1 0; }
     .npd-split-opts { flex: 0 0 11.5rem; }
 }
+
+/* Mjukare typografi: brödtext och frågetexter var ofta 600–700 vilket
+   kändes tjockt. 500 ger ett renare intryck — badges, knappar och
+   etiketter behåller sin tyngd för hierarkin. */
+.font-semibold {
+    font-weight: 500;
+}
+[id$="-question-text"],
+#word-problem-text {
+    font-weight: 500 !important;
+}
