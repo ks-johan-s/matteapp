@@ -173,25 +173,36 @@ export function generateDecimalQuestion() {
 
     if (mode === 'temp') {
         const diff = state.difficulty;
-        // cross = temperaturen passerar noll (den pedagogiska kärnan)
-        const wantCross = diff === 'easy' ? Math.random() < 0.45 : diff === 'medium' ? Math.random() < 0.7 : Math.random() < 0.8;
-        let a, b;
-        if (wantCross) {
-            const mag = diff === 'easy' ? 6 : diff === 'medium' ? 9 : 12;
-            a = randInt(1, mag);
-            b = -randInt(1, mag);
-            if (Math.random() < 0.5) { const t = a; a = b; b = t; } // ibland startar den under noll
-        } else if (diff === 'hard' && Math.random() < 0.4) {
-            a = -randInt(3, 15); b = -randInt(1, 14);
-            if (a === b) b = -(b + 3);
+        const type = Math.random() < 0.5 ? 'change' : 'findend';
+        let a, b, change, drops;
+        if (type === 'change') {
+            // förändringsfråga: båda temperaturerna givna – cross = passerar noll (kärnan)
+            const wantCross = diff === 'easy' ? Math.random() < 0.45 : diff === 'medium' ? Math.random() < 0.7 : Math.random() < 0.8;
+            if (wantCross) {
+                const mag = diff === 'easy' ? 6 : diff === 'medium' ? 9 : 12;
+                a = randInt(1, mag);
+                b = -randInt(1, mag);
+                if (Math.random() < 0.5) { const t = a; a = b; b = t; } // ibland startar den under noll
+            } else if (diff === 'hard' && Math.random() < 0.4) {
+                a = -randInt(3, 15); b = -randInt(1, 14);
+                if (a === b) b = -(b + 3);
+            } else {
+                a = randInt(2, 14);
+                b = randInt(0, 12);
+                if (Math.abs(a - b) < 2) b = Math.max(0, a - 4);
+            }
+            drops = b < a;
+            change = Math.abs(a - b);
         } else {
-            a = randInt(2, 14);
-            b = randInt(0, 12);
-            if (Math.abs(a - b) < 2) b = Math.max(0, a - 4);
+            // sluttemperatur: start ± förändring – oberoende generering med full variation:
+            // negativ start som sjunker vidare (-10 - 5 = -15), negativ start som stiger
+            // över noll (-8 + 15 = +7), positiv start åt båda hållen.
+            const negStart = diff === 'easy' ? Math.random() < 0.25 : diff === 'medium' ? Math.random() < 0.45 : Math.random() < 0.6;
+            a = negStart ? -randInt(2, diff === 'easy' ? 5 : diff === 'medium' ? 10 : 16) : randInt(2, diff === 'easy' ? 10 : 14);
+            drops = Math.random() < 0.5;
+            change = randInt(2, diff === 'easy' ? 8 : diff === 'medium' ? 14 : 18);
+            b = drops ? a - change : a + change;
         }
-        const drops = b < a; // temperaturen sjunker
-        const type = diff === 'easy' ? 'change' : Math.random() < 0.65 ? 'change' : 'findend';
-        const change = Math.abs(a - b);
         const crossesZero = (a > 0 && b < 0) || (a < 0 && b > 0);
         state.currentDecimal = { mode: 'temp', type, a, b, change, crossesZero, drops,
             target: type === 'change' ? change : b };
@@ -206,13 +217,14 @@ export function generateDecimalQuestion() {
 
         if (type === 'change') {
             qEl.innerHTML = `I ${day1} var det <strong>${a} grader</strong>. Till ${day2} ${drops ? 'sjönk' : 'steg'} temperaturen till <strong>${b} grader</strong>.<br>Hur många grader ${drops ? 'sjönk' : 'steg'} den?`;
+        } else if (drops) {
+            qEl.innerHTML = `På kvällen var det <strong>${a} grader</strong>. Under natten sjönk temperaturen <strong>${change} grader</strong>.<br>Vad visar termometern på morgonen?`;
         } else {
-            state.currentDecimal.target = drops ? a - change : a + change;
-            qEl.innerHTML = `På kvällen var det <strong>${a} grader</strong>. Under natten ${drops ? 'sjönk' : 'steg'} temperaturen <strong>${change} grader</strong>.<br>Vad visar termometern på morgonen?`;
+            qEl.innerHTML = `På morgonen var det <strong>${a} grader</strong>. Under dagen steg temperaturen <strong>${change} grader</strong>.<br>Vad visar termometern på eftermiddagen?`;
         }
         visEl.innerHTML = renderThermometerSVG(lo, hi, type === 'change'
             ? { start: a, end: b, labelStart: day1.slice(0, 3), labelEnd: day2.slice(0, 3) }
-            : { start: a, end: null, labelStart: 'kväll' });
+            : { start: a, end: null, labelStart: drops ? 'kväll' : 'morgon' });
 
         // ledtrådar: bron genom noll — samma strategi som tiotalshopp!
         if (crossesZero) {
