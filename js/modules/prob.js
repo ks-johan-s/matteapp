@@ -24,6 +24,14 @@ function fracHTML(g, m, cls = '') {
     return `<span class="inline-flex flex-col items-center leading-none ${cls}"><span class="border-b-2 border-current px-1 font-bold">${g}</span><span class="px-1 font-bold">${m}</span></span>`;
 }
 
+// Hint-renderaren läser enbart s.html – slå ihop text+visual till html.
+function setProbHints(steps) {
+    setHintSteps('prob', steps.map(st => typeof st === 'string' ? st : {
+        html: (st.text || '') + (st.html ? `<div class="mt-2.5 flex justify-center">${st.html}</div>` : ''),
+        anim: st.anim
+    }));
+}
+
 const BALL_HEX = { red: '#ef4444', blue: '#3b82f6', green: '#22c55e', yellow: '#eab308', purple: '#a78bfa' };
 const BALL_SV = { red: 'röd', blue: 'blå', green: 'grön', yellow: 'gul', purple: 'lila' };
 const BALL_PL = { red: 'röda', blue: 'blå', green: 'gröna', yellow: 'gula', purple: 'lila' };
@@ -98,9 +106,10 @@ function simplify(g, m) {
 export function checkProbChoice(i) {
     const cur = state.currentProb;
     if (!cur || cur.answered) return;
-    cur.answered = true;
+    if (!document.getElementById('prob-next-wrap').classList.contains('hidden')) return;
     const opt = cur.options[i];
     if (opt.ok) {
+        cur.answered = true;
         playSound('correct');
         addReward(1);
         showFeedback('prob-feedback', true, cur.correctFb);
@@ -117,7 +126,7 @@ function mountProb(qHTML, visHTML) {
     document.getElementById('prob-mode-badge').textContent = cur_badge;
     document.getElementById('prob-question-text').innerHTML = qHTML;
     const vis = document.getElementById('prob-visual');
-    vis.innerHTML = visHTML || '';
+    vis.innerHTML = visHTML ? `<div class="flex justify-center">${visHTML}</div>` : '';
     vis.classList.toggle('hidden', !visHTML);
     document.getElementById('prob-feedback').classList.add('hidden');
     document.getElementById('prob-next-wrap').classList.add('hidden');
@@ -192,7 +201,7 @@ function genBox(diff) {
             other: `Räkna lugnt: gynnsamma delat med möjliga.`
         }
     };
-    setHintSteps('prob', [
+    setProbHints( [
         { text: `<p>Sannolikhet är ett <strong>bråk</strong>: <span class="whitespace-nowrap">${fracHTML('gynnsamma', 'möjliga')}</span> — de du vill ha delat med alla som finns.</p>` },
         { text: `<p><strong>Möjliga utfall:</strong> räkna ALLA kulor i lådan.</p>`, html: vis },
         { text: `<p><strong>Gynnsamma utfall:</strong> räkna ${complement ? 'kulorna som <strong>inte</strong> är ' + BALL_PL[target] : 'de ' + BALL_PL[target] + ' kulorna'}. Det är <strong>${g0}</strong> av <strong>${total}</strong> — sannolikheten är ${fracHTML(g, m)}.</p>`, html: vis },
@@ -266,7 +275,7 @@ function genSpin(diff) {
             other: 'Räkna utfallen som uppfyller villkoret – hur många är de?'
         }
     };
-    setHintSteps('prob', [
+    setProbHints( [
         { text: `<p>Räkna först <strong>alla möjliga utfall</strong> – det är nämnaren. Här är det <strong>${total}</strong>.</p>`, html: vis },
         { text: `<p>Markera sen <strong>alla utfall som räknas</strong> – de gynnsamma. Titta noga: det kan vara flera!</p>`, html: useDice ? diceHTML(hit) : spinnerSVG(Array.from({ length: total }, (_, i) => i + 1), hit) },
         { text: `<p>Det är <strong>${g0}</strong> gynnsamma av <strong>${total}</strong> möjliga: ${fracHTML(g0, total)}${needSimplify ? ` – förkorta till ${fracHTML(g, m)}` : ''}!</p>` },
@@ -315,7 +324,7 @@ function genBest(diff) {
             same: `Inte riktigt – andelarna skiljer: ${fracHTML(ga, ma)} mot ${fracHTML(gb, mb)}. Vilket bråk är störst?`
         }
     };
-    setHintSteps('prob', [
+    setProbHints( [
         { text: `<p>För varje låda: räkna sannolikheten för röd som ett bråk – röda delat med totalt.</p>`, html: boxRow },
         { text: `<p>Låda A: <strong>${a}</strong> röda av <strong>${totalA}</strong> → ${fracHTML(ga, ma)}. Låda B: <strong>${b}</strong> av <strong>${totalB}</strong> → ${fracHTML(gb, mb)}.</p>` },
         { text: `<p>Nu är det en bråkjämförelse – samma knep som i bråkmodulen! Förläng gärna till gemensam nämnare. <strong>Obs:</strong> fler röda kulor betyder inte automatiskt större chans!</p>` },
@@ -353,7 +362,7 @@ function genComb(diff) {
                 add: 'Addera inte! Varje person på första platsen kan kombineras med alla ordningar av resten – multiplicera i stället.'
             }
         };
-        setHintSteps('prob', [
+        setProbHints( [
             { text: `<p>Första platsen i kön: <strong>${n}</strong> kompisar kan stå där.</p>` },
             { text: `<p>Nästa plats: en kompis är redan upptagen – bara <strong>${n - 1}</strong> kvar att välja på. Och så vidare tills kön är full!</p>` },
             { text: `<p>Multiplicera: ${mulStr} = <strong>${answer}</strong> olika köer.</p>` },
@@ -406,7 +415,7 @@ function genComb(diff) {
             other: `Tänk: varje val i steg 1 kan kombineras med alla val i steg 2 – vilket räknesätt passar?`
         }
     };
-    setHintSteps('prob', [
+    setProbHints( [
         { text: `<p>Systemet: för varje val i första steget finns <strong>alla</strong> val i nästa steg kvar. Inget val "tar slut"!</p>`, html: grid },
         { text: `<p>${na} ${sc.a.name} × ${nb} ${sc.b.name}${nc ? ` × ${nc} ${cName}` : ''}: varje cell i rutnätet är en egen kombination.</p>`, html: grid },
         { text: `<p><strong>Multiplikationsprincipen:</strong> ${mulStr} = <strong>${answer}</strong> ${sc.thing}. Fällan är att addera – det räknar inte kombinationerna!</p>` },
@@ -466,7 +475,7 @@ function genClassify(diff) {
             'möjlig': 'Möjlig betyder att det <strong>kan</strong> hända men inte alltid. Kolla en gång till!'
         }
     };
-    setHintSteps('prob', [
+    setProbHints( [
         { text: `<p><strong>Säker</strong> = händer ALLTID (P = 1). <strong>Omöjlig</strong> = kan ALDRIG hända (P = 0). <strong>Möjlig</strong> = kan hända, men inte alltid.</p>` },
         { text: `<p>Titta på situationen och fråga dig: <em>kan det hända? händer det alltid?</em></p>`, html: sc.vis },
         { text: `<p>Här: "${ev.txt}" — den händelsen är <strong>${ev.cat}</strong>.</p>`, html: sc.vis },
@@ -517,7 +526,7 @@ function genNorep(diff) {
             other: 'Räkna kulorna som är kvar i lådan – både röda och totalt.'
         }
     };
-    setHintSteps('prob', [
+    setProbHints( [
         { text: `<p>När man inte lägger tillbaka kulan <strong>förändras lådan</strong>. Sannolikheten måste räknas om från början!</p>`, html: ballsHTML(counts) },
         { text: `<p>Före: ${nRed} röda av ${total}. Du tog bort ${drawn} röd${drawn === 2 ? 'a' : ''} – kvar: <strong>${remaining}</strong> röda av <strong>${totAfter}</strong> kulor.</p>` },
         { text: `<p>Chansen är alltså ${fracHTML(remaining, totAfter)}${needSimplify ? ` = ${fracHTML(g, m)} förkortat` : ''}.</p>` },
@@ -532,7 +541,7 @@ function genSim(diff) {
     state.currentProb = { mode: 'sim', sim: { rolls: 0, hits: 0, goal }, options: [], answered: false,
         correctFb: '', wrongFb: '', trapFb: {} };
     cur_badge = '🔬 Simuleringen';
-    setHintSteps('prob', [
+    setProbHints( [
         { text: `<p><strong>Experiment:</strong> ju fler kast du gör, desto närmare hamnar den uppmätta frekvensen det teoretiska värdet.</p>` },
         { text: `<p>Teorin säger: chansen för sexa är ${fracHTML(1, 6)} ≈ 17 %. Kasta många gånger och jämför!</p>` },
     ]);
