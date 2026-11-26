@@ -30,7 +30,7 @@ export function navigateTo(viewName) {
     state.currentView = viewName;
     closeDemo();
     if (viewName === 'home' || viewName === 'school' || viewName === 'levelpicker') state.levelStepKey = '';
-    const views = ['home', 'levelpicker', 'addsub', 'mult', 'div', 'conn', 'np6', 'npd', 'seq', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
+    const views = ['home', 'levelpicker', 'addsub', 'mult', 'div', 'conn', 'np6', 'npd', 'seq', 'paths', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
     views.forEach(v => {
         const sec = document.getElementById(`view-${v}`);
         if (!sec) return;

@@ -77,6 +77,9 @@
                     <button onclick="startQuiz()" class="btn-3d bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold px-5 py-3.5 rounded-2xl text-base flex items-center justify-center gap-2">
                         <span>🎯</span><span>Testa mig: 10 frågor</span>
                     </button>
+                    <button onclick="navigateTo('paths')" class="btn-3d bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-display font-bold px-5 py-3.5 rounded-2xl text-base flex items-center justify-center gap-2">
+                        <span>🗺️</span><span>Kunskapsvägar</span>
+                    </button>
                 </div>
             </div>
 
@@ -601,6 +604,11 @@
              VY: NP ÅK 6 – BRÅK (NATIONELLA PROVET)
         ========================================================== -->
         <section id="view-np6" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-sky-50/90 border-2 border-sky-200 rounded-2xl px-3 py-2 text-xs font-bold text-sky-900">
+    <span>🔰 Bygg grunderna här:</span>
+    <button onclick="openModule('frac')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-sky-300 hover:bg-sky-100 font-extrabold text-sky-900">🍕 Bråk & Tvillingar</button><button onclick="openModule('combo')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-sky-300 hover:bg-sky-100 font-extrabold text-sky-900">🍎 Bråk av antal</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-yellow-300">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
@@ -646,6 +654,11 @@
              VY: NP ÅK 6 – DECIMALER (NATIONELLA PROVET)
         ========================================================== -->
         <section id="view-npd" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-sky-50/90 border-2 border-sky-200 rounded-2xl px-3 py-2 text-xs font-bold text-sky-900">
+    <span>🔰 Bygg grunderna här:</span>
+    <button onclick="openModule('decimal')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-sky-300 hover:bg-sky-100 font-extrabold text-sky-900">🎯 Decimaltal</button><button onclick="openModule('chart')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-sky-300 hover:bg-sky-100 font-extrabold text-sky-900">📊 Diagram</button><button onclick="openModule('volweight')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-sky-300 hover:bg-sky-100 font-extrabold text-sky-900">🧪 Vikt & Volym</button><button onclick="openModule('shop')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-sky-300 hover:bg-sky-100 font-extrabold text-sky-900">💰 Mattekiosken</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-yellow-300">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
@@ -684,6 +697,138 @@
                         <button id="npd-hint-next-btn" onclick="nextHintStep('npd')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
                     </div>
                 </div>
+            </div>
+        </section>
+
+
+        <!-- =========================================================
+             VY: KUNSKAPSVÄGAR (översikt grund → fördjupning → NP)
+        ========================================================== -->
+        <section id="view-paths" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-teal-300">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <span class="text-sm font-extrabold text-slate-600">🗺️ Kunskapsvägar</span>
+            </div>
+
+            <div class="bg-white/95 rounded-3xl p-5 sm:p-6 border-3 border-teal-300 shadow-md text-center">
+                <h1 class="font-display font-bold text-2xl sm:text-3xl text-slate-900">Så hänger matten ihop! 🗺️</h1>
+                <p class="text-slate-600 font-semibold text-sm sm:text-base mt-1.5 max-w-2xl mx-auto">Varje kedja visar ett kunskapsområde: börja med grunden överst och arbeta dig neråt. De <span class="font-extrabold text-yellow-700">gula NP-korten</span> är nationella provets fördjupning – de bygger direkt på övningarna ovanför i kedjan.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="rounded-3xl border-3 border-emerald-300 bg-white/95 p-4 flex flex-col gap-1.5">
+        <div class="flex items-center gap-2 mb-1"><span class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">🧮</span><h3 class="font-display font-bold text-lg text-slate-900">Räknesätt & strategier</h3></div>
+        
+        <button onclick="openModule('add')" class="btn-3d w-full text-left rounded-2xl border-2 border-emerald-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">➕</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Addition</span><br><span class="text-[11px] font-semibold text-slate-500">tiokompisar & huvudräkning</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('sub')" class="btn-3d w-full text-left rounded-2xl border-2 border-rose-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">➖</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Subtraktion</span><br><span class="text-[11px] font-semibold text-slate-500">tiotalshopp baklänges</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('mul')" class="btn-3d w-full text-left rounded-2xl border-2 border-sky-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">✖️</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Multiplikation</span><br><span class="text-[11px] font-semibold text-slate-500">tabellerna med fruktgrupper</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('div')" class="btn-3d w-full text-left rounded-2xl border-2 border-violet-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">➗</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Division</span><br><span class="text-[11px] font-semibold text-slate-500">dela lika & packa påsar</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('conn')" class="btn-3d w-full text-left rounded-2xl border-2 border-amber-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🔀</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Samband ×↔÷</span><br><span class="text-[11px] font-semibold text-slate-500">samma tre tal, fyra sanningar</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('algo')" class="btn-3d w-full text-left rounded-2xl border-2 border-teal-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">📝</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Uppställning</span><br><span class="text-[11px] font-semibold text-slate-500">algoritmer steg för steg</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button>
+    </div><div class="rounded-3xl border-3 border-orange-300 bg-white/95 p-4 flex flex-col gap-1.5">
+        <div class="flex items-center gap-2 mb-1"><span class="w-9 h-9 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center text-xl">🍕</span><h3 class="font-display font-bold text-lg text-slate-900">Bråk</h3></div>
+        <p class="text-[11px] font-semibold text-slate-500 mb-1">NP 2019 testade precis detta: lika stora delar, jämförelsestrategier och täthet.</p>
+        <button onclick="openModule('frac')" class="btn-3d w-full text-left rounded-2xl border-2 border-orange-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🍕</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Bråk, Tvillingar & %</span><br><span class="text-[11px] font-semibold text-slate-500">bråkform, ekvivalens, procent</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('combo')" class="btn-3d w-full text-left rounded-2xl border-2 border-red-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🍎</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Bråk av antal</span><br><span class="text-[11px] font-semibold text-slate-500">t.ex. ⅔ av 18 äpplen</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('np6')" class="btn-3d w-full text-left rounded-2xl border-2 border-yellow-400 bg-yellow-50/70 px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🎓</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">NP åk 6: Bråk</span><span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-yellow-400 text-yellow-950 ml-1">NP ÅK 6</span><br><span class="text-[11px] font-semibold text-slate-500">jämför, ordna, tallinjen, bilder</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button>
+    </div><div class="rounded-3xl border-3 border-blue-300 bg-white/95 p-4 flex flex-col gap-1.5">
+        <div class="flex items-center gap-2 mb-1"><span class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl">🎯</span><h3 class="font-display font-bold text-lg text-slate-900">Decimaler & pengar</h3></div>
+        <p class="text-[11px] font-semibold text-slate-500 mb-1">NP 2018: bollarnas vikter i kg – samma decimaler som i vågen och kassan!</p>
+        <button onclick="openModule('decimal')" class="btn-3d w-full text-left rounded-2xl border-2 border-blue-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🔢</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Decimaltal</span><br><span class="text-[11px] font-semibold text-slate-500">läs av & placera på tallinjen</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('shop')" class="btn-3d w-full text-left rounded-2xl border-2 border-lime-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">💰</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Mattekiosken</span><br><span class="text-[11px] font-semibold text-slate-500">pengar är decimaler i praktiken</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('volweight')" class="btn-3d w-full text-left rounded-2xl border-2 border-cyan-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🧪</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Vikt & Volym</span><br><span class="text-[11px] font-semibold text-slate-500">vikter i kg med decimaler</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('npd')" class="btn-3d w-full text-left rounded-2xl border-2 border-yellow-400 bg-yellow-50/70 px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🎓</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">NP åk 6: Decimaler</span><span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-yellow-400 text-yellow-950 ml-1">NP ÅK 6</span><br><span class="text-[11px] font-semibold text-slate-500">bollprovet: jämför, ordna, nollor</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button>
+    </div><div class="rounded-3xl border-3 border-indigo-300 bg-white/95 p-4 flex flex-col gap-1.5">
+        <div class="flex items-center gap-2 mb-1"><span class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl">📊</span><h3 class="font-display font-bold text-lg text-slate-900">Diagram & statistik</h3></div>
+        <p class="text-[11px] font-semibold text-slate-500 mb-1">Att läsa axlar och interpolera mellan streck tränas här – sen kommer NP:s spridningsdiagram.</p>
+        <button onclick="openModule('chart')" class="btn-3d w-full text-left rounded-2xl border-2 border-indigo-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">📊</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Diagram</span><br><span class="text-[11px] font-semibold text-slate-500">läs av stapeldiagram</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('avg')" class="btn-3d w-full text-left rounded-2xl border-2 border-pink-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">📈</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Medelvärde & Median</span><br><span class="text-[11px] font-semibold text-slate-500">jämna ut & sortera</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('npd')" class="btn-3d w-full text-left rounded-2xl border-2 border-yellow-400 bg-yellow-50/70 px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🎓</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">NP åk 6: Decimaler</span><span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-yellow-400 text-yellow-950 ml-1">NP ÅK 6</span><br><span class="text-[11px] font-semibold text-slate-500">spridningsdiagram: massa × studshöjd</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button>
+    </div><div class="rounded-3xl border-3 border-purple-300 bg-white/95 p-4 flex flex-col gap-1.5">
+        <div class="flex items-center gap-2 mb-1"><span class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl">⚖️</span><h3 class="font-display font-bold text-lg text-slate-900">Algebra & mönster</h3></div>
+        
+        <button onclick="openModule('scale')" class="btn-3d w-full text-left rounded-2xl border-2 border-purple-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">⚖️</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Balansvågen</span><br><span class="text-[11px] font-semibold text-slate-500">likhetstecknet som balans</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('seq')" class="btn-3d w-full text-left rounded-2xl border-2 border-fuchsia-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🧩</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Mönster & Talföljder</span><br><span class="text-[11px] font-semibold text-slate-500">hitta regeln</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('word')" class="btn-3d w-full text-left rounded-2xl border-2 border-slate-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">📖</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Textuppgifter</span><br><span class="text-[11px] font-semibold text-slate-500">från berättelse till ekvation</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button>
+    </div><div class="rounded-3xl border-3 border-teal-300 bg-white/95 p-4 flex flex-col gap-1.5">
+        <div class="flex items-center gap-2 mb-1"><span class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl">📏</span><h3 class="font-display font-bold text-lg text-slate-900">Mått, tid & geometri</h3></div>
+        
+        <button onclick="openModule('length')" class="btn-3d w-full text-left rounded-2xl border-2 border-teal-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">📏</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Längd & Enheter</span><br><span class="text-[11px] font-semibold text-slate-500">mm • cm • m • km</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('clock')" class="btn-3d w-full text-left rounded-2xl border-2 border-amber-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🕒</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Klockan & Tid</span><br><span class="text-[11px] font-semibold text-slate-500">visare, tidshopp, övningsklocka</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('geo')" class="btn-3d w-full text-left rounded-2xl border-2 border-green-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">📐</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Geometri</span><br><span class="text-[11px] font-semibold text-slate-500">area & omkrets</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button>
+    </div>
             </div>
         </section>
 
@@ -745,6 +890,11 @@
              VY 3: BRÅK, BRÅKTVILLINGAR & PROCENT
         ========================================================== -->
         <section id="view-frac" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-yellow-50/90 border-2 border-yellow-300 rounded-2xl px-3 py-2 text-xs font-bold text-yellow-900">
+    <span>Klart för fördjupning? NP-testar detta:</span>
+    <button onclick="openModule('np6')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-yellow-400 hover:bg-yellow-100 font-extrabold text-yellow-900">🎓 NP åk 6: Bråk ➔</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-pink-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
@@ -907,6 +1057,11 @@
              VY 5: BRÅK AV ANTAL
         ========================================================== -->
         <section id="view-combo" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-yellow-50/90 border-2 border-yellow-300 rounded-2xl px-3 py-2 text-xs font-bold text-yellow-900">
+    <span>Klart för fördjupning? NP-testar detta:</span>
+    <button onclick="openModule('np6')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-yellow-400 hover:bg-yellow-100 font-extrabold text-yellow-900">🎓 NP åk 6: Bråk ➔</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-indigo-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <span class="font-display font-bold text-indigo-900 text-base">🍎 Bråk av ett antal</span>
@@ -1276,6 +1431,11 @@
              VY 11: VIKT & VOLYM (MÅTTBÄGARE & KÖKSVÅG)
         ========================================================== -->
         <section id="view-volweight" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-yellow-50/90 border-2 border-yellow-300 rounded-2xl px-3 py-2 text-xs font-bold text-yellow-900">
+    <span>Klart för fördjupning? NP-testar detta:</span>
+    <button onclick="openModule('npd')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-yellow-400 hover:bg-yellow-100 font-extrabold text-yellow-900">🎓 NP åk 6: Decimaler ➔</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-lime-300">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
@@ -1331,6 +1491,11 @@
              VY 12: DECIMALTAL PÅ TALLINJEN
         ========================================================== -->
         <section id="view-decimal" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-yellow-50/90 border-2 border-yellow-300 rounded-2xl px-3 py-2 text-xs font-bold text-yellow-900">
+    <span>Klart för fördjupning? NP-testar detta:</span>
+    <button onclick="openModule('npd')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-yellow-400 hover:bg-yellow-100 font-extrabold text-yellow-900">🎓 NP åk 6: Decimaler ➔</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-blue-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
@@ -1396,6 +1561,11 @@
              VY 13: MATTEKIOSKEN (PENGAR & VÄXEL)
         ========================================================== -->
         <section id="view-shop" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-yellow-50/90 border-2 border-yellow-300 rounded-2xl px-3 py-2 text-xs font-bold text-yellow-900">
+    <span>Klart för fördjupning? NP-testar detta:</span>
+    <button onclick="openModule('npd')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-yellow-400 hover:bg-yellow-100 font-extrabold text-yellow-900">🎓 NP åk 6: Decimaler ➔</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-yellow-300">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
@@ -1476,6 +1646,11 @@
              VY 14: DIAGRAM & STATISTIK
         ========================================================== -->
         <section id="view-chart" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-yellow-50/90 border-2 border-yellow-300 rounded-2xl px-3 py-2 text-xs font-bold text-yellow-900">
+    <span>Klart för fördjupning? NP-testar detta:</span>
+    <button onclick="openModule('npd')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-yellow-400 hover:bg-yellow-100 font-extrabold text-yellow-900">🎓 NP åk 6: Decimaler ➔</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-purple-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
@@ -1530,6 +1705,11 @@
              VY 15: MEDELVÄRDE (GENOMSNITT), MEDIAN & TYPVÄRDE
         ========================================================== -->
         <section id="view-avg" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-yellow-50/90 border-2 border-yellow-300 rounded-2xl px-3 py-2 text-xs font-bold text-yellow-900">
+    <span>Klart för fördjupning? NP-testar detta:</span>
+    <button onclick="openModule('npd')" class="btn-3d px-2.5 py-1 rounded-xl bg-white border border-yellow-400 hover:bg-yellow-100 font-extrabold text-yellow-900">🎓 NP åk 6: Decimaler ➔</button>
+</div>
+            
             <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-rose-200">
                 <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
                 <div class="flex items-center gap-2">
