@@ -20,6 +20,7 @@ import { buildShopDemoSteps } from './modules/shop.js';
 import { buildChartDemoSteps } from './modules/chart.js';
 import { buildSeqDemoSteps } from './modules/seq.js';
 import { buildWordDemoSteps } from './modules/word.js';
+import { buildNp6DemoSteps } from './modules/np6.js';
 
 // Stegbyggare per modul. onExit körs när eleven väljer "Öva själv nu!"
 // (algo genererar om frågan så demon inte råkar visa övningens svar).
@@ -41,6 +42,7 @@ const DEMO_BUILDERS = {
     chart: { build: buildChartDemoSteps },
     seq: { build: buildSeqDemoSteps },
     word: { build: buildWordDemoSteps },
+    np6: { build: buildNp6DemoSteps },
 };
 
 // Demo-state hålls utanför `state` – det är flyktigt och ska inte

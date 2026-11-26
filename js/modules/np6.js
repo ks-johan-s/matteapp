@@ -4,7 +4,7 @@
 // (lika stora delar-begreppet + ekvivalenta bråk).
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
-import { formatFractionHTML, randInt, showFeedback, shuffleArray, styleNumbersIn } from '../utils.js';
+import { formatFractionHTML, randInt, showFeedback, shuffleArray } from '../utils.js';
 
 export function setNp6SubMode(mode) {
     playSound('click');
@@ -80,16 +80,12 @@ function stratText(strat, small, big) {
     return `${s} är minst – jämför gärna med en halv! ${s} är ${fracVal(small) < 0.5 ? 'mindre' : 'större'} än ½ och ${b} är ${fracVal(big) < 0.5 ? 'mindre' : 'större'} än ½ – eller tänk på hur långt från halva vardera ligger.`;
 }
 
-function fracCardHtml(f, extra = '') {
-    return `<div class="inline-flex items-center justify-center bg-white border-3 border-amber-300 rounded-2xl px-6 py-4 font-display font-bold text-3xl text-slate-900 ${extra}">${fracHtml(f)}</div>`;
-}
-
 export function generateNp6Question() {
     document.getElementById('np6-feedback').classList.add('hidden');
     document.getElementById('np6-next-wrap').classList.add('hidden');
 
     let mode = state.np6SubMode;
-    if (mode === 'mix') mode = ['compare', 'order', 'numberline', 'images'][randInt(0, 3)];
+    if (mode === 'mix') mode = ['compare', 'order', 'numberline', 'images', 'between', 'readimage'][randInt(0, 5)];
     const diff = state.difficulty;
     const qEl = document.getElementById('np6-question-text');
     const visEl = document.getElementById('np6-visual');
@@ -192,6 +188,58 @@ export function generateNp6Question() {
             `<p>En hel är ${f.d} ${f.d}-delar. Räkna ${f.n} sådana delar från 0!</p>`
         ]);
         renderNp6Line();
+        return;
+    }
+
+    if (mode === 'between') {
+        badgeEl.textContent = '🔍 Bråk emellan';
+        const pair = genBetweenPair(diff);
+        state.currentNp6 = { mode, pair };
+        qEl.innerHTML = `Hitta ett bråk som ligger <strong>mellan</strong> ${fracHtml(pair.lo)} och ${fracHtml(pair.hi)}!`;
+        setHintSteps('np6', pair.kind === 'sameDen' ? [
+            `<p>Nämnaren är redan samma! Täljaren ska bara ligga <strong>mellan</strong> ${pair.lo.n} och ${pair.hi.n} – eller hitta ett helt annat bråk som hamnar däremellan.</p>`,
+            `<p>Testa till exempel en halv – är den större än ${fracHtml(pair.lo)} och mindre än ${fracHtml(pair.hi)}?</p>`
+        ] : pair.kind === 'extend' ? [
+            `<p><strong>Förläng!</strong> Gör nämnarna lika: ${fracHtml(pair.hi)} är samma som ${fracHtml({ n: pair.hi.n * 2, d: pair.hi.d * 2 })}. Jämför med ${fracHtml(pair.lo)} – ser du glappet?</p>`,
+            `<p>När båda har nämnaren ${pair.hi.d * 2} behöver du bara en täljare mellan ${pair.lo.n} och ${pair.hi.n * 2}!</p>`
+        ] : [
+            `<p>De här ligger <strong>väldigt tätt</strong>! Förläng båda till samma nämnare först: multiplicera täljare och nämnare med samma tal.</p>`,
+            `<p>Ser du inget glapp? <strong>Förläng en gång till</strong> – dubbla igen! Bråken är tätt som sardinjer men det finns alltid plats: mellan två bråk finns oändligt många bråk.</p>`
+        ]);
+        visEl.classList.remove('hidden');
+        visEl.innerHTML = `
+            <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-5 font-display">
+                <div class="bg-white border-3 border-amber-300 rounded-2xl px-5 py-3 font-bold text-3xl text-slate-900">${fracHtml(pair.lo)}</div>
+                <span class="font-bold text-2xl text-slate-500">&lt;</span>
+                <div class="bg-violet-50 border-3 border-violet-400 rounded-2xl px-4 py-3 flex flex-col items-center">
+                    <input id="np6-bn" type="number" min="1" max="999" class="w-16 text-center font-bold text-2xl text-violet-900 bg-white border-2 border-violet-300 rounded-lg py-0.5" placeholder="?">
+                    <div class="w-16 h-1 bg-violet-700 rounded my-1.5"></div>
+                    <input id="np6-bd" type="number" min="1" max="999" class="w-16 text-center font-bold text-2xl text-violet-900 bg-white border-2 border-violet-300 rounded-lg py-0.5" placeholder="?">
+                </div>
+                <span class="font-bold text-2xl text-slate-500">&lt;</span>
+                <div class="bg-white border-3 border-amber-300 rounded-2xl px-5 py-3 font-bold text-3xl text-slate-900">${fracHtml(pair.hi)}</div>
+            </div>
+            <div class="mt-4">
+                <button onclick="checkNp6Between()" class="btn-3d bg-gradient-to-r from-violet-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-2.5 rounded-2xl">Kolla! ✓</button>
+            </div>`;
+        optsEl.classList.add('hidden');
+        setTimeout(() => document.getElementById('np6-bn')?.focus(), 60);
+        return;
+    }
+
+    if (mode === 'readimage') {
+        badgeEl.textContent = '🔎 Vilket bråk?';
+        const gen = genReadImage(diff);
+        state.currentNp6 = { mode, ...gen, chosen: new Set() };
+        qEl.innerHTML = `Vilka bråk visar bilden? <strong>Klicka på alla som stämmer</strong> – sen Kolla!`;
+        setHintSteps('np6', [
+            `<p>Räkna först <strong>alla delar</strong> (det blir nämnaren) och sen de <strong>färgade</strong> (täljaren).</p>`,
+            `<p>Kom ihåg: bråket kan finnas i <strong>förklädnad</strong>! Sex av tolv delar är samma sak som hälften – ${formatFractionHTML(1, 2)}, ${formatFractionHTML(2, 4)}, ${formatFractionHTML(3, 6)} och ${formatFractionHTML(6, 12)} är alla samma andel.</p>`
+        ]);
+        visEl.classList.remove('hidden');
+        visEl.innerHTML = `<div class="flex justify-center my-2"><div class="rounded-2xl border-3 border-slate-200 bg-white p-3 inline-block">${gen.svg}</div></div>`;
+        optsEl.className = 'flex flex-wrap justify-center gap-3 max-w-2xl mx-auto mt-3';
+        renderNp6Read();
         return;
     }
 
@@ -442,5 +490,221 @@ export function checkNp6Images() {
         showFeedback('np6-feedback', false, trappedUnequal
             ? '🤔 SE UPP! En bild har rätt <em>antal</em> färgade delar men delarna är <strong>inte lika stora</strong> – då är det inte ett riktigt bråk!'
             : '🤔 Inte alla stämmer – räkna delarna i varje bild och kolla att de är <strong>lika stora</strong>. Kom ihåg att bråket kan finnas i förklädnad (dubbla delar)!');
+    }
+}
+
+/* =========================================================
+   BRÅKSTRECK – rektangulära bråk för jämförelser och demon.
+   Bitarna kan fyllas i en i taget (demo-slice + stagger-delay).
+========================================================= */
+function fracBarSvg(n, d, opts = {}) {
+    const { width = 240, height = 46, stagger = false, delayBase = 0, missingHi = false, halfMarker = false, color = '#a78bfa' } = opts;
+    const w = width / d;
+    let rects = '';
+    for (let i = 0; i < d; i++) {
+        const filled = i < n;
+        const isMissing = missingHi && i >= n;
+        const fill = filled ? color : isMissing ? '#fda4af' : '#ffffff';
+        const cls = stagger ? 'demo-slice' : '';
+        const delay = stagger ? ` style="animation-delay:${delayBase + i * 140}ms"` : '';
+        rects += `<rect x="${(i * w).toFixed(1)}" y="0" width="${w.toFixed(1)}" height="${height}" fill="${fill}" stroke="#334155" stroke-width="2" class="${cls}"${delay} />`;
+    }
+    const half = halfMarker ? `<line x1="${(width / 2).toFixed(1)}" y1="-7" x2="${(width / 2).toFixed(1)}" y2="${height + 7}" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="5 4" class="demo-pop" style="animation-delay:${delayBase + d * 140 + 200}ms" />` : '';
+    return `<svg width="${width}" height="${height + 14}" viewBox="0 -8 ${width} ${height + 16}" style="overflow:visible">${rects}${half}</svg>`;
+}
+
+function barRow(frac, svg, opts = {}) {
+    return `<div class="flex items-center justify-center gap-4">
+        <span class="font-display font-bold text-2xl text-slate-800 w-14 text-right">${fracHtml(frac)}</span>
+        ${svg}
+        ${opts.tail || ''}
+    </div>`;
+}
+
+/* =========================================================
+   LÄGE: bråkens täthet – hitta ett bråk MELLAN två bråk
+========================================================= */
+function genBetweenPair(diff) {
+    if (diff === 'easy') {
+        // Samma nämnare med tydligt gap – upptäckten att det finns bråk mellan.
+        const d = [5, 6, 8, 10][randInt(0, 3)];
+        const n1 = randInt(1, Math.floor(d / 2) - 1);
+        const n2 = Math.min(d - 1, n1 + randInt(2, 4));
+        return { lo: { n: n1, d }, hi: { n: n2, d }, kind: 'sameDen' };
+    }
+    if (diff === 'medium') {
+        // NP-klassikern: 8/9 mot 14/18 – förlänger man ser man att
+        // 16/18 – 14/18 lämnar plats åt 15/18.
+        const d = randInt(7, 10);
+        const n = d - 1;
+        return { lo: { n: 2 * n - 2, d: 2 * d }, hi: { n, d }, kind: 'extend' };
+    }
+    // hard: intilliggande nära-1-bråk med olika nämnare (7/8 mot 8/9) –
+    // gapet är exakt 1/(d·(d+1)), så det krävs förlängning i två steg.
+    const d = randInt(6, 9);
+    const a = { n: d - 1, d };          // mindre
+    const b = { n: d, d: d + 1 };       // större
+    return { lo: a, hi: b, kind: 'tight' };
+}
+
+/* =========================================================
+   LÄGE: omvänd bildläsning – vilka bråk visar bilden?
+========================================================= */
+function genReadImage(diff) {
+    const dens = diff === 'easy' ? [2, 3, 4, 6] : diff === 'medium' ? [3, 4, 5, 6, 8] : [4, 5, 6, 8, 9, 10];
+    const d = dens[randInt(0, dens.length - 1)];
+    const n = randInt(1, d - 1);
+    // Halva tiden visas bilden med dubbelt så många delar – då är det
+    // ekvivalenta bråket som är "exakt" och grundbråket förklädnaden.
+    const doubled = Math.random() < 0.5 && diff !== 'easy';
+    const imgD = doubled ? d * 2 : d;
+    const imgN = doubled ? n * 2 : n;
+    const usePie = Math.random() < 0.45;
+    const svg = usePie ? pieDivSvg(imgD, imgN, true, 5) : rectDivSvg(imgD, imgN, true, 5);
+    // Alternativ: exakt + ekvivalent är rätt; distraktorer får aldrig
+    // vara ekvivalenta med n/d (kollas med korsmultiplikation).
+    const exact = { n: imgN, d: imgD };
+    const g = gcd(n, d);
+    const equiv = g > 1 ? { n: n / g, d: d / g } : { n: n * 2, d: d * 2 };
+    const correctKeys = new Set([`${exact.n}/${exact.d}`, `${equiv.n}/${equiv.d}`]);
+    const options = [{ ...exact, correct: true }];
+    if (!options.some(o => o.n === equiv.n && o.d === equiv.d)) options.push({ ...equiv, correct: true });
+    const candidates = [
+        { n: d, d: n },               // inverterat – klassiskt missförstånd
+        { n: imgN + 1, d: imgD },     // räknat fel på täljaren
+        { n: imgN, d: imgD + 1 },     // fel nämnare
+        { n: Math.max(1, imgN - 1), d: imgD },
+        { n: imgD - imgN, d: imgD },  // räknat de OFÄRGADE delarna
+    ];
+    for (const c of shuffleArray(candidates)) {
+        if (options.length >= 4) break;
+        if (c.n <= 0 || c.d <= 0 || c.n === c.d) continue;
+        if (cmpFrac(c, { n, d }) === 0) continue; // aldrig ekvivalent distraktor
+        if (options.some(o => o.n === c.n && o.d === c.d)) continue;
+        options.push({ ...c, correct: false });
+    }
+    return { svg, frac: { n, d }, options: shuffleArray(options) };
+}
+
+/* =========================================================
+   Demon – jämförelsestrategier med animerade bråkstreck
+========================================================= */
+export function buildNp6DemoSteps() {
+    const f = fracHtml;
+    const barPair = (f1, f2, opts1 = {}, opts2 = {}) => `
+        <div class="flex flex-col items-center gap-3">
+            ${barRow(f1, fracBarSvg(f1.n, f1.d, { width: 250, ...opts1 }))}
+            ${barRow(f2, fracBarSvg(f2.n, f2.d, { width: 250, delayBase: (f1.d) * 140 + 150, ...opts2 }))}
+        </div>`;
+    const equalPie = pieDivSvg(4, 3, true, 1);
+    const unequalPie = pieDivSvg(4, 3, false, 2);
+    return { steps: [
+        { text: `<p>Nu lär vi oss <strong>jämföra bråk</strong> – som i nationella provet! Men först: kom ihåg att bråk bara gäller när delarna är <strong>lika stora</strong>.</p>`,
+          html: `<div class="flex items-center justify-center gap-10">
+              <div class="demo-pop flex flex-col items-center gap-1">${equalPie}<span class="font-extrabold text-emerald-600">✓ lika delar</span></div>
+              <div class="demo-pop flex flex-col items-center gap-1" style="animation-delay:300ms">${unequalPie}<span class="font-extrabold text-red-500">✗ inte bråk!</span></div>
+          </div>` },
+        { text: `<p><strong>Knep 1 – samma täljare:</strong> båda strecken tar <strong>5 bitar</strong>. Men titta på bitarnas storlek medan de fylls i…</p>`,
+          html: barPair({ n: 5, d: 8 }, { n: 5, d: 9 }, { stagger: true }, { stagger: true }) },
+        { text: `<p>Niondedelarna är <strong>mindre bitar</strong> – så ${f({ n: 5, d: 9 })} blir mindre än ${f({ n: 5, d: 8 })}! Ju fler delar helan delas i, desto mindre är varje del.</p>`,
+          html: `${barPair({ n: 5, d: 8 }, { n: 5, d: 9 })}
+            <div class="demo-pop mt-2 font-display font-bold text-xl text-emerald-700" style="animation-delay:250ms">${f({ n: 5, d: 8 })} &gt; ${f({ n: 5, d: 9 })}</div>` },
+        { text: `<p><strong>Knep 2 – räkna vad som fattas:</strong> båda är nästan en hel. De <strong>rosa bitarna</strong> är det som saknas – vilken saknar minst?</p>`,
+          html: barPair({ n: 8, d: 9 }, { n: 9, d: 10 }, { stagger: true, missingHi: true }, { stagger: true, missingHi: true }) },
+        { text: `<p>Till ${f({ n: 9, d: 10 })} fattas bara ${f({ n: 1, d: 10 })} – det är mindre än ${f({ n: 1, d: 9 })}. Alltså är ${f({ n: 9, d: 10 })} <strong>störst</strong>!</p>`,
+          html: `${barPair({ n: 8, d: 9 }, { n: 9, d: 10 }, { missingHi: true }, { missingHi: true })}
+            <div class="demo-pop mt-2 font-display font-bold text-xl text-emerald-700" style="animation-delay:250ms">${f({ n: 9, d: 10 })} &gt; ${f({ n: 8, d: 9 })}</div>` },
+        { text: `<p><strong>Knep 3 – en halv som måttstock:</strong> de röda streckade linjerna visar <strong>halva</strong> strecket. ${f({ n: 2, d: 5 })} når inte ända fram – men ${f({ n: 5, d: 9 })} passerar!</p>`,
+          html: barPair({ n: 2, d: 5 }, { n: 5, d: 9 }, { stagger: true, halfMarker: true }, { stagger: true, halfMarker: true }) },
+        { text: `<p><strong>Knep 4 – över en hel:</strong> ${f({ n: 7, d: 5 })} har större täljare än nämnare – det är <strong>mer än ett helt streck</strong>! Då vinner det alltid mot bråk under 1.</p>`,
+          html: `<div class="flex flex-col items-center gap-3">
+              ${barRow({ n: 7, d: 5 }, `<div class="flex items-end gap-1">${fracBarSvg(5, 5, { width: 190, height: 40, stagger: true })}${fracBarSvg(2, 5, { width: 190, height: 40, stagger: true, delayBase: 800 })}</div>`)}
+              ${barRow({ n: 4, d: 5 }, fracBarSvg(4, 5, { width: 190, height: 40, stagger: true, delayBase: 1400 }))}
+          </div>` },
+        { text: `<p><strong>Din tur!</strong> Vilket är störst: ${f({ n: 7, d: 8 })} eller ${f({ n: 7, d: 9 })}? Täljaren är samma…</p>`,
+          html: barPair({ n: 7, d: 8 }, { n: 7, d: 9 }),
+          guess: { options: [
+              { label: f({ n: 7, d: 9 }), ok: false },
+              { label: f({ n: 7, d: 8 }), ok: true },
+              { label: 'Lika stora', ok: false },
+          ] },
+          doneText: `Rätt! Samma antal bitar – men åttondedelar är större bitar än niondedelar. ${f({ n: 7, d: 8 })} vinner! 🎉` },
+    ] };
+}
+
+/* ---------- Bråk emellan ---------- */
+export function checkNp6Between() {
+    const cur = state.currentNp6;
+    if (!cur || cur.mode !== 'between') return;
+    if (!document.getElementById('np6-next-wrap').classList.contains('hidden')) return;
+    const n = parseInt(document.getElementById('np6-bn')?.value, 10);
+    const d = parseInt(document.getElementById('np6-bd')?.value, 10);
+    if (!Number.isFinite(n) || !Number.isFinite(d) || n <= 0 || d <= 0) {
+        showFeedback('np6-feedback', false, '✏️ Skriv en täljare och en nämnare – båda ska vara heltal större än noll!');
+        return;
+    }
+    const guess = { n, d };
+    const lo = cur.pair.lo, hi = cur.pair.hi;
+    const overLo = cmpFrac(guess, lo) > 0;
+    const underHi = cmpFrac(guess, hi) < 0;
+    if (overLo && underHi) {
+        playSound('correct');
+        addReward(3);
+        const g = gcd(n, d);
+        const simplified = g > 1 ? ` (samma som ${fracHtml({ n: n / g, d: d / g })})` : '';
+        showFeedback('np6-feedback', true, `🎉 Ja! ${fracHtml(guess)}${simplified} ligger mellan ${fracHtml(lo)} och ${fracHtml(hi)}! Och här är det coola: det finns <strong>oändligt många</strong> rätt svar – bråken ligger tätt, tätt!`);
+        document.getElementById('np6-next-wrap').classList.remove('hidden');
+    } else {
+        resetStreak();
+        playSound('wrong');
+        const tooBig = !underHi;
+        showFeedback('np6-feedback', false, cmpFrac(guess, lo) === 0 || cmpFrac(guess, hi) === 0
+            ? `🤔 ${fracHtml(guess)} är lika med en av gränserna – bråket ska ligga <strong>strikt emellan</strong>!`
+            : tooBig
+                ? `🤔 ${fracHtml(guess)} är för stort – det ska vara <strong>mindre</strong> än ${fracHtml(hi)}. Testa att förlänga gränsbråken till samma nämnare!`
+                : `🤔 ${fracHtml(guess)} är för litet – det ska vara <strong>större</strong> än ${fracHtml(lo)}. Testa att förlänga gränsbråken till samma nämnare!`);
+    }
+}
+
+/* ---------- Vilket bråk visar bilden? ---------- */
+function renderNp6Read() {
+    const cur = state.currentNp6;
+    const optsEl = document.getElementById('np6-options');
+    optsEl.innerHTML = cur.options.map((o, i) => `
+        <button onclick="np6ReadToggle(${i})" class="btn-3d border-3 rounded-2xl px-6 py-4 font-display font-bold text-2xl ${cur.chosen.has(i) ? 'border-violet-500 bg-violet-50 text-violet-900' : 'border-amber-300 bg-white hover:bg-amber-50 text-slate-900'}">${fracHtml(o)}</button>
+    `).join('') + `
+        <div class="w-full mt-2">
+            <button onclick="checkNp6Read()" class="btn-3d bg-gradient-to-r from-violet-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-2.5 rounded-2xl">Kolla! ✓</button>
+        </div>`;
+}
+
+export function np6ReadToggle(i) {
+    const cur = state.currentNp6;
+    if (!cur || cur.mode !== 'readimage') return;
+    if (!document.getElementById('np6-next-wrap').classList.contains('hidden')) return;
+    playSound('click');
+    if (cur.chosen.has(i)) cur.chosen.delete(i); else cur.chosen.add(i);
+    renderNp6Read();
+}
+
+export function checkNp6Read() {
+    const cur = state.currentNp6;
+    if (!cur || cur.mode !== 'readimage') return;
+    if (!document.getElementById('np6-next-wrap').classList.contains('hidden')) return;
+    const correctIdx = cur.options.map((o, i) => o.correct ? i : -1).filter(i => i !== -1);
+    const chosenCorrect = [...cur.chosen].filter(i => cur.options[i].correct);
+    const chosenWrong = [...cur.chosen].filter(i => !cur.options[i].correct);
+    if (chosenCorrect.length === correctIdx.length && chosenWrong.length === 0 && cur.chosen.size > 0) {
+        playSound('correct');
+        addReward(2);
+        showFeedback('np6-feedback', true, `🎉 Alla rätt! Samma andel kan skrivas med <strong>flera bråk</strong> – de är ekvivalenta, som ${formatFractionHTML(1, 2)} och ${formatFractionHTML(2, 4)}!`);
+        document.getElementById('np6-next-wrap').classList.remove('hidden');
+    } else {
+        resetStreak();
+        playSound('wrong');
+        const inverted = chosenWrong.some(i => cur.options[i].n > cur.options[i].d);
+        showFeedback('np6-feedback', false, inverted
+            ? '🤔 Ett av bråken du valde är <strong>större än en hel</strong> – men bilden visar mindre än en hel! Nämnaren (alla delar) står under strecket.'
+            : '🤔 Inte alla stämmer – räkna delarna i bilden igen, och tänk på att bråket kan finnas i förklädnad (ekvivalent bråk)!');
     }
 }
