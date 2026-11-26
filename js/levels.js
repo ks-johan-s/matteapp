@@ -23,6 +23,7 @@ import { setGeoSubMode } from './modules/geo.js';
 import { setChartSubMode } from './modules/chart.js';
 import { setAvgSubMode } from './modules/avg.js';
 import { setConnSubMode } from './modules/conn.js';
+import { setNp6SubMode } from './modules/np6.js';
 import { setWordCategory } from './modules/word.js';
 
 export const LEVEL_MODULES = {
@@ -88,6 +89,18 @@ export const LEVEL_MODULES = {
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setConnSubMode('mix'); return 'conn'; } },
+        ],
+    },
+    np6: {
+        title: 'NP åk 6: Bråk', icon: '🎓',
+        steps: [
+            { icon: '⚖️', label: 'Jämför bråk', desc: 'Vilket är minst – eller närmast en halv?', apply: () => { setNp6SubMode('compare'); return 'np6'; } },
+            { icon: '🔀', label: 'Storleksordna', desc: 'Lägg bråken i ordning', apply: () => { setNp6SubMode('order'); return 'np6'; } },
+            { icon: '📏', label: 'På tallinjen', desc: 'Var ligger bråket?', apply: () => { setNp6SubMode('numberline'); return 'np6'; } },
+            { icon: '🖼️', label: 'Bråk i bilder', desc: 'Vilka bilder visar bråket?', apply: () => { setNp6SubMode('images'); return 'np6'; } },
+        ],
+        explore: [
+            { icon: '🎲', label: 'Blandat', apply: () => { setNp6SubMode('mix'); return 'np6'; } },
         ],
     },
     seq: {
