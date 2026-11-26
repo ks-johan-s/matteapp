@@ -25,6 +25,7 @@ import { setAvgSubMode } from './modules/avg.js';
 import { setConnSubMode } from './modules/conn.js';
 import { setNp6SubMode } from './modules/np6.js';
 import { setNpdSubMode } from './modules/npd.js';
+import { setProbSubMode } from './modules/prob.js';
 import { setWordCategory } from './modules/word.js';
 
 export const LEVEL_MODULES = {
@@ -249,6 +250,19 @@ export const LEVEL_MODULES = {
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setAvgSubMode('mix'); return 'avg'; } },
+        ],
+    },
+    prob: {
+        title: 'Sannolikhet & Kombinatorik', icon: '🎲',
+        steps: [
+            { icon: '🎲', label: 'Kulor i lådan', desc: 'Chansen som bråk', demo: true, apply: () => { setProbSubMode('box'); return 'prob'; } },
+            { icon: '🌈', label: 'Tärning & hjul', desc: 'Händelser med flera utfall', demo: true, apply: () => { setProbSubMode('spin'); return 'prob'; } },
+            { icon: '⚖️', label: 'Bästa chansen', desc: 'Fler röda ≠ större chans', demo: true, apply: () => { setProbSubMode('best'); return 'prob'; } },
+            { icon: '🌳', label: 'Kombinatorik', desc: 'Multiplicera valen', demo: true, apply: () => { setProbSubMode('comb'); return 'prob'; } },
+            { icon: '🔮', label: 'Säkert & omöjligt', desc: 'Kan det hända?', demo: true, apply: () => { setProbSubMode('classify'); return 'prob'; } },
+        ],
+        explore: [
+            { icon: '🎲', label: 'Blandat', apply: () => { setProbSubMode('mix'); return 'prob'; } },
         ],
     },
     word: {

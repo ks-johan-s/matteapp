@@ -9,6 +9,7 @@ import { generateClockQuestion, renderSandboxClock } from './modules/clock.js';
 import { generateConnQuestion } from './modules/conn.js';
 import { generateNp6Question } from './modules/np6.js';
 import { generateNpdQuestion } from './modules/npd.js';
+import { generateProbQuestion } from './modules/prob.js';
 import { generateComboQuestion } from './modules/combo.js';
 import { generateDecimalQuestion } from './modules/decimal.js';
 import { generateDivQuestion } from './modules/div.js';
@@ -30,7 +31,7 @@ export function navigateTo(viewName) {
     state.currentView = viewName;
     closeDemo();
     if (viewName === 'home' || viewName === 'school' || viewName === 'levelpicker') state.levelStepKey = '';
-    const views = ['home', 'levelpicker', 'addsub', 'mult', 'div', 'conn', 'np6', 'npd', 'seq', 'paths', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
+    const views = ['home', 'levelpicker', 'addsub', 'mult', 'div', 'conn', 'np6', 'npd', 'prob', 'seq', 'paths', 'frac', 'algo', 'combo', 'clock', 'scale', 'length', 'word', 'geo', 'volweight', 'decimal', 'shop', 'chart', 'avg', 'school'];
     views.forEach(v => {
         const sec = document.getElementById(`view-${v}`);
         if (!sec) return;
@@ -49,6 +50,7 @@ export function navigateTo(viewName) {
     if (viewName === 'conn') generateConnQuestion();
     if (viewName === 'np6') generateNp6Question();
     if (viewName === 'npd') generateNpdQuestion();
+    if (viewName === 'prob') generateProbQuestion();
     if (viewName === 'seq') generateSeqQuestion();
     if (viewName === 'frac') generateFracQuestion();
     if (viewName === 'algo') generateAlgoQuestion();
@@ -92,6 +94,7 @@ export function setDifficulty(level) {
     if (state.currentView === 'conn') generateConnQuestion();
     if (state.currentView === 'np6') generateNp6Question();
     if (state.currentView === 'npd') generateNpdQuestion();
+    if (state.currentView === 'prob') generateProbQuestion();
     if (state.currentView === 'seq') generateSeqQuestion();
     if (state.currentView === 'frac') generateFracQuestion();
     if (state.currentView === 'algo') generateAlgoQuestion();

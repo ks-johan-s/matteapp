@@ -22,6 +22,7 @@ import * as ns_clock from './modules/clock.js';
 import * as ns_conn from './modules/conn.js';
 import * as ns_np6 from './modules/np6.js';
 import * as ns_npd from './modules/npd.js';
+import * as ns_prob from './modules/prob.js';
 import * as ns_shop from './modules/shop.js';
 import * as ns_geo from './modules/geo.js';
 import * as ns_chart from './modules/chart.js';
@@ -33,7 +34,7 @@ import * as ns_mult_table from './mult-table.js';
 import * as ns_levels from './levels.js';
 import * as ns_demo from './demo.js';
 
-Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_conn, ns_np6, ns_npd, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels, ns_demo);
+Object.assign(window, ns_core, ns_utils, ns_hints, ns_visuals, ns_sheets, ns_navigation, ns_addsub, ns_mult, ns_div, ns_conn, ns_np6, ns_npd, ns_prob, ns_seq, ns_algo, ns_scale, ns_frac, ns_combo, ns_decimal, ns_length, ns_volweight, ns_clock, ns_shop, ns_geo, ns_chart, ns_avg, ns_word, ns_scratchpad, ns_mult_table, ns_levels, ns_demo);
 
 // Autofokus i svarsrutan: wrappa alla generate*Question så att fokus
 // flyttas även när frågan genereras via inline-onclick ("Nästa uppgift").
@@ -132,6 +133,8 @@ document.addEventListener('keydown', (e) => {
     } else if (v === 'chart') {
         if (!document.getElementById('chart-next-wrap').classList.contains('hidden')) generateChartQuestion();
         else if (state.inputModes.chart === 'type') checkChartTyped();
+    } else if (v === 'prob') {
+        if (!document.getElementById('prob-next-wrap').classList.contains('hidden')) generateProbQuestion();
     } else if (v === 'avg') {
         if (!document.getElementById('avg-next-wrap').classList.contains('hidden')) generateAvgQuestion();
         else if (state.inputModes.avg === 'type') checkAvgTyped();
@@ -166,6 +169,7 @@ function restoreSavedState() {
         setConnSubMode(state.connSubMode);
         setNp6SubMode(state.np6SubMode);
         setNpdSubMode(state.npdSubMode);
+        setProbSubMode(state.probSubMode);
         setSeqSubMode(state.seqSubMode);
         setAlgoOp(state.algoOp);
         setAlgoSheetMode(state.algoSheetMode);

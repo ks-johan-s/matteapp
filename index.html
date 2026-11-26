@@ -68,7 +68,7 @@
                 <div>
                     <span class="inline-block px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-extrabold uppercase tracking-wider mb-2">Välkommen till MatteÄventyret!</span>
                     <h1 class="font-display font-bold text-2xl sm:text-4xl text-slate-900 leading-tight">Vad vill du träna på idag?</h1>
-                    <p class="text-slate-600 font-semibold text-sm sm:text-base mt-1 max-w-2xl">Övningarna är ordnade i pedagogisk inlärningsordning (1–19) – använd <strong>Kladdblocket</strong> eller <strong>Visa hur man tänker</strong> när du vill!</p>
+                    <p class="text-slate-600 font-semibold text-sm sm:text-base mt-1 max-w-2xl">Övningarna är ordnade i pedagogisk inlärningsordning (1–20) – använd <strong>Kladdblocket</strong> eller <strong>Visa hur man tänker</strong> när du vill!</p>
                 </div>
                 <div class="flex flex-wrap gap-2.5">
                     <button onclick="navigateTo('school')" class="btn-3d bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-display font-bold px-5 py-3.5 rounded-2xl text-base flex items-center justify-center gap-2 flex-1 sm:flex-none sm:min-w-[15rem]">
@@ -322,40 +322,53 @@
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-rose-700">Starta övning ➔</span>
                 </button>
 
-                <!-- 19. Textuppgifter (Sammanfattande problemlösning i flera steg) -->
+                <!-- 19. Sannolikhet & Kombinatorik (chans, risk och kombinationer) -->
+                <button onclick="openModule('prob')" class="btn-3d text-left bg-white hover:bg-violet-50/70 rounded-3xl p-5 border-3 border-violet-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🎲</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-violet-100 text-violet-800">19 • Chans & risk</span>
+                        </div>
+                        <h2 class="font-display font-bold text-xl text-slate-900">19. Sannolikhet & Kombinatorik</h2>
+                        <p class="text-slate-600 text-sm font-semibold mt-1">Chans som bråk, tärning och lyckohjul, bästa lådan och multiplikationsprincipen!</p>
+                    </div>
+                    <span class="mt-4 inline-flex items-center text-xs font-extrabold text-violet-700">Starta övning ➔</span>
+                </button>
+
+                <!-- 20. Textuppgifter (Sammanfattande problemlösning i flera steg) -->
                 <button onclick="openModule('word')" class="btn-3d text-left bg-white hover:bg-amber-50/70 rounded-3xl p-5 border-3 border-amber-300 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">📖</span>
-                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">19 • Problemlösning</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">20 • Problemlösning</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">19. Textuppgifter</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">20. Textuppgifter</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Vardagsproblem i flera steg med eget rutpapper för uträkningen.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-amber-700">Starta övning ➔</span>
                 </button>
 
-                <!-- 20. NP åk 6: Bråk (Nationella provet – bråkförståelse) -->
+                <!-- 21. NP åk 6: Bråk (Nationella provet – bråkförståelse) -->
                 <button onclick="openModule('np6')" class="btn-3d text-left bg-white hover:bg-yellow-50/70 rounded-3xl p-5 border-3 border-yellow-400 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🎓</span>
                             <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-yellow-400 text-yellow-950">NP-FÖRBEREDELSE ÅK 6</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">20. NP åk 6: Bråk</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">21. NP åk 6: Bråk</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Förberedelser för nationella provet: jämför, storleksordna, tallinjen och bråk i bilder.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-yellow-700">Starta övning ➔</span>
                 </button>
 
-                <!-- 21. NP åk 6: Decimaler (Nationella provet – tal i decimalform) -->
+                <!-- 22. NP åk 6: Decimaler (Nationella provet – tal i decimalform) -->
                 <button onclick="openModule('npd')" class="btn-3d text-left bg-white hover:bg-yellow-50/70 rounded-3xl p-5 border-3 border-yellow-400 flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition">🎓</span>
                             <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-yellow-400 text-yellow-950">NP-FÖRBEREDELSE ÅK 6</span>
                         </div>
-                        <h2 class="font-display font-bold text-xl text-slate-900">21. NP åk 6: Decimaler</h2>
+                        <h2 class="font-display font-bold text-xl text-slate-900">22. NP åk 6: Decimaler</h2>
                         <p class="text-slate-600 text-sm font-semibold mt-1">Bollprovet! Jämför decimalvikter, avslutande nollor, ordning och diagram.</p>
                     </div>
                     <span class="mt-4 inline-flex items-center text-xs font-extrabold text-yellow-700">Starta övning ➔</span>
@@ -700,6 +713,50 @@
             </div>
         </section>
 
+        <section id="view-prob" class="hidden space-y-4">
+
+            
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 p-3 rounded-2xl border-2 border-violet-300">
+                <button onclick="navigateTo('home')" class="btn-3d bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl font-extrabold text-sm text-slate-700">⬅ Tillbaka</button>
+                <div class="flex items-center gap-2">
+                    <span class="level-crumb-label text-sm font-extrabold text-slate-600"></span>
+                    <button onclick="backToModulePicker()" class="px-3 py-1 rounded-xl text-xs font-extrabold bg-white border border-violet-400 text-yellow-800 hover:bg-yellow-50">↺ Byt nivå</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 sm:p-8 border-3 border-violet-400 shadow-md text-center">
+                <span id="prob-mode-badge" class="inline-block px-3.5 py-1 rounded-full bg-violet-100 text-violet-900 text-xs font-extrabold mb-2">🎲 Kulor i lådan</span>
+                <h2 id="prob-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Vad är sannolikheten?</h2>
+
+                <div id="prob-visual" class="my-5 hidden"></div>
+
+                <div id="prob-options" class="flex flex-wrap justify-center gap-4 max-w-2xl mx-auto mt-4"></div>
+
+                <div id="prob-feedback" class="hidden mt-5 p-3.5 rounded-2xl font-extrabold text-base max-w-xl mx-auto"></div>
+
+                <div id="prob-next-wrap" class="hidden mt-4">
+                    <button onclick="generateProbQuestion()" class="btn-3d bg-gradient-to-r from-violet-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-3 rounded-2xl">Nästa fråga ➔</button>
+                </div>
+
+                <div class="flex justify-end mt-5">
+                    <button onclick="toggleHintBox('prob')" class="btn-3d bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-900 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5">
+                        <span>💡</span><span>Visa hur man tänker</span>
+                    </button>
+                </div>
+
+                <div id="prob-hint-box" class="hidden mt-4 bg-sky-50/90 border-2 border-sky-300 rounded-2xl p-4 text-left">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-display font-bold text-sm text-sky-900">🦉 Ugglan Olles chansknep</span>
+                        <span id="prob-hint-step-badge" class="text-xs font-extrabold text-sky-700"></span>
+                    </div>
+                    <div id="prob-hint-content" class="space-y-2.5 text-sm text-slate-800"></div>
+                    <div class="mt-3 flex justify-end">
+                        <button id="prob-hint-next-btn" onclick="nextHintStep('prob')" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Visa nästa steg ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
 
         <!-- =========================================================
              VY: KUNSKAPSVÄGAR (översikt grund → fördjupning → NP)
@@ -790,6 +847,10 @@
     </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('avg')" class="btn-3d w-full text-left rounded-2xl border-2 border-pink-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
         <span class="text-xl">📈</span>
         <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Medelvärde & Median</span><br><span class="text-[11px] font-semibold text-slate-500">jämna ut & sortera</span></span>
+        <span class="text-slate-400 font-bold">➔</span>
+    </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('prob')" class="btn-3d w-full text-left rounded-2xl border-2 border-violet-300 bg-white px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
+        <span class="text-xl">🎲</span>
+        <span class="flex-1"><span class="font-display font-bold text-sm text-slate-900">Sannolikhet & Kombinatorik</span><br><span class="text-[11px] font-semibold text-slate-500">chans som bråk & multiplikationsprincipen</span></span>
         <span class="text-slate-400 font-bold">➔</span>
     </button><div class="text-center text-slate-300 font-bold text-lg leading-none py-0.5">↓</div><button onclick="openModule('npd')" class="btn-3d w-full text-left rounded-2xl border-2 border-yellow-400 bg-yellow-50/70 px-3 py-2.5 flex items-center gap-2.5 hover:scale-[1.02] transition">
         <span class="text-xl">🎓</span>

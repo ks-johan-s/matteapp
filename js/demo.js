@@ -22,6 +22,7 @@ import { buildSeqDemoSteps } from './modules/seq.js';
 import { buildWordDemoSteps } from './modules/word.js';
 import { buildNp6DemoSteps } from './modules/np6.js';
 import { buildNpdDemoSteps } from './modules/npd.js';
+import { buildProbDemoSteps } from './modules/prob.js';
 
 // Stegbyggare per modul. onExit körs när eleven väljer "Öva själv nu!"
 // (algo genererar om frågan så demon inte råkar visa övningens svar).
@@ -45,6 +46,7 @@ const DEMO_BUILDERS = {
     word: { build: buildWordDemoSteps },
     np6: { build: buildNp6DemoSteps },
     npd: { build: buildNpdDemoSteps },
+    prob: { build: buildProbDemoSteps },
 };
 
 // Demo-state hålls utanför `state` – det är flyktigt och ska inte

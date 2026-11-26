@@ -100,6 +100,7 @@ export const state = {
     connSubMode: 'mix',
     np6SubMode: 'compare',
     npdSubMode: 'compare',
+    probSubMode: 'box',
     currentConn: null,
     scratchpadOpen: false,
     scratchpadTab: 'grid',
