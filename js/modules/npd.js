@@ -221,9 +221,15 @@ export function generateNpdQuestion() {
         const { pair, equal } = genDecSame(diff);
         state.currentNpd = { mode, pair, equal };
         qEl.innerHTML = `Väger bollarna <strong>lika mycket</strong> – eller olika?`;
+        const g1 = Math.round(pair[0].v * 100), g2 = Math.round(pair[1].v * 100);
         setHintSteps('npd', [
-            `<p>Nollor <strong>längst ut till höger</strong> i ett decimaltal ändrar inte värdet: ${fmtDecFixed(0.25, 2)} och ${fmtDecFixed(0.25, 3)} är samma vikt – den sista nollan lägger bara till noll tusendelar!</p>`,
-            `<p>Men nollor <strong>mitt i</strong> talet spelar stor roll: ${fmtDecFixed(0.205, 3)} är inte alls samma som ${fmtDecFixed(0.25, 2)}! Fyll ut och jämför siffra för siffra.</p>`
+            `<p>Nollor <strong>längst ut till höger</strong> i ett decimaltal ändrar inte värdet – de lägger bara till noll tusendelar! Jämför rutnäten för just de här bollarna:</p>
+             <div class="demo-pop flex justify-center gap-8 my-1">
+                <div class="flex flex-col items-center gap-1">${hundredGrid(g1, { size: 100 })}<span class="font-bold text-sm">${pair[0].s} kg</span></div>
+                <div class="flex flex-col items-center gap-1">${hundredGrid(g2, { size: 100, color: '#60a5fa' })}<span class="font-bold text-sm">${pair[1].s} kg</span></div>
+             </div>
+             <p class="text-center font-bold">${g1 === g2 ? 'Lika många rutor är fyllda – samma vikt!' : 'Olika många rutor – olika vikt!'}</p>`,
+            `<p>Men se upp: nollor <strong>mitt i</strong> talet spelar stor roll! ${fmtDecFixed(0.205, 3)} är inte alls samma som ${fmtDecFixed(0.25, 2)}. Fyll ut med nollor och jämför siffra för siffra från vänster – var skiljer de sig först?</p>`
         ]);
         visEl.classList.remove('hidden');
         visEl.innerHTML = `<div class="flex flex-wrap items-center justify-center gap-8">
@@ -252,9 +258,20 @@ export function generateNpdQuestion() {
         const correct = vals.map((o, i) => i).sort((a, b) => vals[a].v - vals[b].v);
         state.currentNpd = { mode, vals, correct };
         qEl.innerHTML = `<strong>Dra bollarna</strong> i ordning – <strong>lättast till vänster</strong>, tyngst till höger!`;
+        const sortedForBars = [...vals].sort((a, b) => a.v - b.v);
+        const maxV = Math.max(...vals.map(o => o.v));
         setHintSteps('npd', [
-            `<p>Fyll ut med nollor så alla får <strong>lika många decimaler</strong> – då kan du jämföra dem som heltal!</p>`,
-            `<p>Hitta den lättaste först och dra den längst åt vänster. Sen letar du näst lättast bland de kvarvarande.</p>`
+            `<p><strong>Knepet:</strong> fyll ut med nollor så alla får <strong>lika många decimaler</strong> – då jämför du dem som heltal!</p>
+             <div class="demo-pop font-display font-bold text-base sm:text-lg space-y-1 my-2">
+                ${vals.map((o, i) => `<div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded-full" style="background:${BALL_COLORS[i]}"></span><span>${o.s} → ${fmtDecFixed(o.v, 3)} = <strong class="text-violet-700">${Math.round(o.v * 1000)}</strong> tusendelar</span></div>`).join('')}
+             </div>`,
+            `<p>Så här ser vikterna ut som staplar – lättast har den kortaste stapeln och ska ligga längst till vänster:</p>
+             <div class="demo-pop space-y-1.5 my-2" style="animation-delay:150ms">
+                ${sortedForBars.map(o => {
+                    const bi = vals.indexOf(o);
+                    return `<div class="flex items-center gap-2"><span class="text-xs font-bold w-12 text-right">${o.s}</span><div class="h-4 rounded-full" style="width:${Math.max(6, o.v / maxV * 100)}%;background:${BALL_COLORS[bi]}"></div></div>`;
+                }).join('')}
+             </div>`
         ]);
         optsEl.className = 'max-w-2xl mx-auto mt-4';
         optsEl.innerHTML = `
@@ -292,11 +309,13 @@ export function generateNpdQuestion() {
             ? `Hur mycket väger <strong>boll ${ballIdx + 1}</strong>?`
             : `Hur högt kan <strong>boll ${ballIdx + 1}</strong> studsa?`;
         setHintSteps('npd', askWeight ? [
-            `<p>Vikten läser du på <strong>x-axeln</strong> (massa)! Följ bollen rakt <strong>neråt</strong> tills du träffar axeln.</p>`,
-            `<p>Bollen står <strong>mellan</strong> två streck – då måste du dela upp stegen: halvvägs mellan två streck är hälften av skillnaden. Varje litet steg är 0,1 kg, så halvvägs är 0,05 kg extra.</p>`
+            `<p>Vikten läser du på <strong>x-axeln</strong> (massa)! Titta – den röda linjen följer bollen rakt <strong>neråt</strong> till axeln:</p>
+             <div class="demo-pop my-1">${scatterSvg(pts, { hiPoint: ballIdx, followLines: p })}</div>`,
+            `<p>Linjen landar <strong>mellan</strong> två streck – då måste du dela upp stegen. Varje litet steg är 0,1 kg, och halvvägs mellan två streck är 0,05 kg extra. Läs av: vilket streck ligger närmast under, plus halvvägs?</p>`
         ] : [
-            `<p>Studshöjden läser du på <strong>y-axeln</strong>! Följ bollen rakt <strong>åt vänster</strong> tills du träffar axeln.</p>`,
-            `<p>Varje litet steg är 10 cm. Bollen ligger halvvägs mellan två streck – det är 5 cm extra.</p>`
+            `<p>Studshöjden läser du på <strong>y-axeln</strong>! Titta – den blå linjen följer bollen rakt <strong>åt vänster</strong> till axeln:</p>
+             <div class="demo-pop my-1">${scatterSvg(pts, { hiPoint: ballIdx, followLines: p })}</div>`,
+            `<p>Linjen landar <strong>mellan</strong> två streck. Varje litet steg är 10 cm – halvvägs är 5 cm extra. Vilket streck ligger närmast under, plus halvvägs?</p>`
         ]);
         visEl.classList.remove('hidden');
         visEl.innerHTML = scatterSvg(pts, { hiPoint: ballIdx });
@@ -347,8 +366,14 @@ export function generateNpdQuestion() {
     const wt = fmtDecFixed(newWeight, 2);
     qEl.innerHTML = `Den <strong>grå bollen</strong> väger <strong>${wt} kg</strong> och studsar <strong>lika högt som boll ${refIdx + 1}</strong>. Vilken punkt är dess?`;
     setHintSteps('npd', [
-        `<p>Två ledtrådar i texten! <strong>Samma studshöjd</strong> som boll ${refIdx + 1} betyder att punkten måste ligga på samma <strong>horisontella linje</strong> – den rosa streckade linjen.</p>`,
-        `<p>Vikten avgör <strong>hur långt åt höger</strong> punkten ligger. SE UPP med decimalerna: ${wt} kg är mycket lätt – nära noll! Det är inte samma sak som ${fmtDecFixed(newWeight * 10, 1)} kg!</p>`
+        `<p>Två ledtrådar i texten! <strong>Samma studshöjd</strong> som boll ${refIdx + 1} betyder att punkten måste ligga på samma <strong>horisontella linje</strong> – se den rosa streckade linjen:</p>
+         <div class="demo-pop my-1">${scatterSvg(refPts, { horizY: newY, candidates })}</div>`,
+        `<p>Vikten avgör <strong>hur långt åt höger</strong> punkten ligger. SE UPP med decimalpunktsfällan – jämför rutnäten:</p>
+         <div class="demo-pop flex justify-center gap-8 my-1" style="animation-delay:150ms">
+            <div class="flex flex-col items-center gap-1">${hundredGrid(Math.max(1, Math.round(newWeight * 100)), { size: 90 })}<span class="font-bold text-sm">${wt} kg – nästan tom!</span></div>
+            <div class="flex flex-col items-center gap-1">${hundredGrid(Math.round(newWeight * 10 * 100), { size: 90, color: '#f472b6' })}<span class="font-bold text-sm">${fmtDecFixed(newWeight * 10, 1)} kg – tio gånger tyngre!</span></div>
+         </div>
+         <p class="text-center font-bold">${wt} kg ligger alltså nära noll på massa-axeln!</p>`
     ]);
     visEl.classList.remove('hidden');
     visEl.innerHTML = scatterSvg(refPts, { candidates, horizY: newY });
