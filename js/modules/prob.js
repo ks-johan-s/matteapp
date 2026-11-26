@@ -30,13 +30,19 @@ const BALL_PL = { red: 'röda', blue: 'blå', green: 'gröna', yellow: 'gula', p
 
 // En låda med kulor — returnerar HTML för containern
 function ballsHTML(counts, opts = {}) {
-    const { size = 'w-8 h-8', gap = 'gap-1.5', label = true } = opts;
+    const { size = 'w-8 h-8', gap = 'gap-1.5', label = true, stagger = false, hlColor = null, delayBase = 0 } = opts;
     let balls = '';
+    let idx = 0;
     const order = ['red', 'blue', 'green', 'yellow', 'purple'];
     for (const c of order) {
         const n = counts[c] || 0;
         for (let i = 0; i < n; i++) {
-            balls += `<div class="${size} rounded-full border-2 border-slate-700 shadow-sm" style="background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.6), ${BALL_HEX[c]})"></div>`;
+            const hl = hlColor === c;
+            const cls = stagger ? 'demo-slice' : hl ? 'demo-pop' : '';
+            const dl = (stagger || hl) ? `animation-delay:${delayBase + idx * 130}ms;` : '';
+            const ring = hl ? 'box-shadow:0 0 0 3px #10b981, 0 0 10px #10b981;' : '';
+            balls += `<div class="${size} rounded-full border-2 border-slate-700 shadow-sm ${cls}" style="${dl}${ring}background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.6), ${BALL_HEX[c]})"></div>`;
+            idx++;
         }
     }
     const total = order.reduce((s, c) => s + (counts[c] || 0), 0);
@@ -53,7 +59,9 @@ function diceHTML(highlight = []) {
     let out = '<div class="flex justify-center gap-2 flex-wrap">';
     for (let n = 1; n <= 6; n++) {
         const hl = highlight.includes(n);
-        out += `<div class="flex flex-col items-center gap-0.5">
+        const cls = hl ? 'demo-pop' : '';
+        const dl = hl ? ` style="animation-delay:${highlight.indexOf(n) * 350}ms"` : '';
+        out += `<div class="flex flex-col items-center gap-0.5 ${cls}"${dl}>
             <div class="w-12 h-12 rounded-xl border-2 ${hl ? 'border-emerald-500 bg-emerald-100' : 'border-slate-400 bg-white'} flex items-center justify-center text-3xl shadow-sm">${DIE_FACES[n - 1]}</div>
             <span class="text-xs font-extrabold ${hl ? 'text-emerald-700' : 'text-slate-500'}">${n}</span>
         </div>`;
@@ -466,15 +474,180 @@ function genClassify(diff) {
     mountProb(`<em>"${ev.txt}"</em><br>Är den händelsen säker, möjlig eller omöjlig?`, sc.vis);
 }
 
+
+/* ---------- Läge 6: Utan återläggning ---------- */
+function genNorep(diff) {
+    const nRed = diff === 'easy' ? randInt(3, 5) : randInt(3, 6);
+    const nOther = diff === 'easy' ? randInt(1, 3) : randInt(2, 4);
+    const total = nRed + nOther;
+    const drawn = diff === 'hard' && Math.random() < 0.4 ? 2 : 1;
+    const remaining = nRed - drawn;
+    const totAfter = total - drawn;
+    const [g, m] = simplify(remaining, totAfter);
+    const needSimplify = g !== remaining;
+    const counts = { red: nRed, blue: nOther };
+    const vis = `<div class="flex flex-col items-center gap-2">${ballsHTML(counts)}
+        <div class="text-sm font-extrabold text-slate-600 bg-slate-100 rounded-xl px-3 py-1.5">Du drar ${drawn === 2 ? 'två' : 'en'} röd${drawn === 2 ? 'a' : ''} kula${drawn === 2 ? 'r' : ''} – och behåller ${drawn === 2 ? 'dem' : 'den'}!</div></div>`;
+    const q = `Du har dragit <strong>${drawn === 2 ? 'två' : 'en'} röd${drawn === 2 ? 'a' : ''}</strong> och inte lagt tillbaka ${drawn === 2 ? 'dem' : 'den'}.<br>Vad är nu chansen att nästa kula också är röd?`;
+    const opts = [{ label: fracHTML(g, m), ok: true }];
+    const used = new Set([`${g}/${m}`]);
+    const traps = [
+        { g: nRed, m: total, trap: 'orig' },         // använder ursprungsantalen
+        { g: remaining, m: total, trap: 'halforig' }, // minskar bara täljaren
+    ];
+    for (const w of traps) {
+        const key = `${w.g}/${w.m}`;
+        if (!used.has(key) && w.g / w.m !== g / m) { used.add(key); opts.push({ label: fracHTML(w.g, w.m), ok: false, trap: w.trap }); }
+    }
+    while (opts.length < 4) {
+        const dg = randInt(1, total), dm = total;
+        const key = `${dg}/${dm}`;
+        if (used.has(key) || dg / dm === g / m) continue;
+        used.add(key);
+        opts.push({ label: fracHTML(dg, dm), ok: false, trap: 'other' });
+    }
+    cur_badge = '🖐️ Utan återläggning';
+    state.currentProb = {
+        mode: 'norep', options: shuffleArray(opts),
+        correctFb: `🎉 Rätt! Kvar i lådan: <strong>${remaining}</strong> röda av <strong>${totAfter}</strong> totalt – chansen är ${fracHTML(g, m)}. Lådan har förändrats!`,
+        wrongFb: 'Kulan du drog är borta! Både antalet röda OCH totalen har minskat.',
+        trapFb: {
+            orig: `Du räknade med ursprungslådan! Men ${drawn === 2 ? 'två kulor' : 'en kula'} är redan drag${drawn === 2 ? 'na' : 'en'} – räkna vad som är kvar.`,
+            halforig: 'Du minskade de röda men glömde totalen – det är färre kulor kvar i hela lådan!',
+            other: 'Räkna kulorna som är kvar i lådan – både röda och totalt.'
+        }
+    };
+    setHintSteps('prob', [
+        { text: `<p>När man inte lägger tillbaka kulan <strong>förändras lådan</strong>. Sannolikheten måste räknas om från början!</p>`, html: ballsHTML(counts) },
+        { text: `<p>Före: ${nRed} röda av ${total}. Du tog bort ${drawn} röd${drawn === 2 ? 'a' : ''} – kvar: <strong>${remaining}</strong> röda av <strong>${totAfter}</strong> kulor.</p>` },
+        { text: `<p>Chansen är alltså ${fracHTML(remaining, totAfter)}${needSimplify ? ` = ${fracHTML(g, m)} förkortat` : ''}.</p>` },
+    ]);
+    mountProb(q, vis);
+}
+
+/* ---------- Läge 7: Simulering – experimentet ---------- */
+function genSim(diff) {
+    const target = 6; // sexa med tärning
+    const goal = diff === 'easy' ? 60 : diff === 'medium' ? 100 : 150;
+    state.currentProb = { mode: 'sim', sim: { rolls: 0, hits: 0, goal }, options: [], answered: false,
+        correctFb: '', wrongFb: '', trapFb: {} };
+    cur_badge = '🔬 Simuleringen';
+    setHintSteps('prob', [
+        { text: `<p><strong>Experiment:</strong> ju fler kast du gör, desto närmare hamnar den uppmätta frekvensen det teoretiska värdet.</p>` },
+        { text: `<p>Teorin säger: chansen för sexa är ${fracHTML(1, 6)} ≈ 17 %. Kasta många gånger och jämför!</p>` },
+    ]);
+    document.getElementById('prob-mode-badge').textContent = cur_badge;
+    document.getElementById('prob-question-text').innerHTML = `Kasta tärningen många gånger! Vad händer med andelen sexor?<br><span class="text-lg text-slate-500">Mål: minst ${goal} kast</span>`;
+    renderSim();
+    document.getElementById('prob-feedback').classList.add('hidden');
+    document.getElementById('prob-next-wrap').classList.add('hidden');
+}
+
+function renderSim() {
+    const cur = state.currentProb;
+    const { rolls, hits, goal } = cur.sim;
+    const vis = document.getElementById('prob-visual');
+    vis.classList.remove('hidden');
+    const pct = rolls ? Math.round(100 * hits / rolls) : 0;
+    const dev = rolls ? Math.abs(100 * hits / rolls - 16.7) : 16.7;
+    vis.innerHTML = `<div class="flex flex-col items-center gap-3">
+        <div class="flex items-end gap-1 h-24">${Array.from({ length: 6 }, (_, i) => {
+            const c = cur.sim['c' + (i + 1)] || 0;
+            const mx = Math.max(1, rolls / 6);
+            const h = Math.min(90, Math.round(85 * c / (mx * 1.3)));
+            return `<div class="flex flex-col items-center gap-0.5"><div class="w-10 rounded-t-lg ${i === 5 ? 'bg-emerald-400' : 'bg-violet-300'} transition-all duration-300" style="height:${h}px"></div><span class="text-lg">${DIE_FACES[i]}</span></div>`;
+        }).join('')}</div>
+        <div class="flex items-center gap-3 flex-wrap justify-center">
+            <span class="font-extrabold text-slate-700">${rolls} kast</span>
+            <span class="font-extrabold text-emerald-700">${hits} sexor = ${pct}%</span>
+            <span class="font-extrabold text-slate-400">teorin: ${fracHTML(1, 6)} ≈ 17%</span>
+        </div>
+        <div class="w-full max-w-sm h-4 rounded-full bg-slate-200 relative overflow-visible">
+            <div class="h-full rounded-full bg-emerald-400 transition-all duration-500" style="width:${pct}%"></div>
+            <div class="absolute top-[-4px] h-6 w-1 bg-violet-600 rounded" style="left:16.7%"></div>
+        </div>
+    </div>`;
+    const opts = document.getElementById('prob-options');
+    opts.innerHTML = '';
+    [['Kasta 10 gånger', 10], ['Kasta 50 gånger', 50], ['Kasta 100 gånger', 100]].forEach(([lbl, n]) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-3d bg-white hover:bg-violet-50 border-2 border-violet-300 rounded-2xl px-5 py-3 font-display font-bold text-lg text-slate-800';
+        btn.textContent = '🎲 ' + lbl;
+        btn.onclick = () => simRoll(n);
+        opts.appendChild(btn);
+    });
+    if (rolls >= goal && !cur.answered) {
+        cur.answered = true;
+        addReward(1);
+        playSound('correct');
+        showFeedback('prob-feedback', true, `🎉 Experiment klart! Efter <strong>${rolls}</strong> kast blev andelen sexor <strong>${pct}%</strong> – teorin säger ≈17%. Ju fler kast, desto närmare teorin hamnar man. Det kallas <strong>lagen om stora tal</strong>!`);
+        document.getElementById('prob-next-wrap').classList.remove('hidden');
+    }
+}
+
+export function simRoll(n) {
+    const cur = state.currentProb;
+    if (!cur || cur.mode !== 'sim' || cur.answered) return;
+    for (let i = 0; i < n; i++) {
+        const r = randInt(1, 6);
+        cur.sim['c' + r] = (cur.sim['c' + r] || 0) + 1;
+        cur.sim.rolls++;
+        if (r === 6) cur.sim.hits++;
+    }
+    playSound('click');
+    renderSim();
+}
+
+function buildSimDemo() {
+    return { steps: [
+        { text: `<p>Hur stor är chansen att få en sexa? Teorin säger ${fracHTML(1, 6)} – ungefär 17 %. Men <em>stämmer</em> det i verkligheten?</p>`, html: diceHTML([6]) },
+        { text: `<p>Det kan man testa med ett <strong>experiment</strong>! Kasta tärningen många gånger och räkna hur ofta det blir en sexa.</p>` },
+        { text: `<p>I början svänger andelen vilt – kanske 3 sexor på 10 kast (30 %)! Men ju fler kast desto lugnare: efter hundratals kast hamnar andelen nära 17 %.</p>`,
+          html: `<div class="demo-pop font-display font-bold text-xl text-center text-slate-700">få kast: stor svängning<br>många kast: nära teorin</div>` },
+        { text: `<p>Det kallas <strong>lagen om stora tal</strong> – slumpen jämnar ut sig när experimentet växer. Testa själv i övningen!</p>` },
+        { text: `<p><strong>Din tur!</strong> Ella kastade en tärning 600 gånger och fick 98 sexor. Ungefär hur många procent är det?</p>`,
+          html: `<div class="demo-pop text-center font-display font-bold text-xl text-slate-700">98 av 600 ≈ ?</div>`,
+          guess: { options: [
+              { label: '≈ 16 %', ok: true },
+              { label: '≈ 50 %', ok: false },
+              { label: '≈ 98 %', ok: false },
+          ] },
+          doneText: 'Rätt! 98/600 ≈ 16 % – nära teorins 17 %. Lagen om stora tal i praktiken! 🎉' },
+    ] };
+}
+
+function buildNorepDemo() {
+    const counts = { red: 4, blue: 2 };
+    return { steps: [
+        { text: `<p>Lådan har 4 röda och 2 blå. Chansen att dra röd är ${fracHTML(4, 6)}.</p>`,
+          html: `<div class="flex justify-center items-center gap-5 flex-wrap">${ballsHTML(counts, { hlColor: 'red' })}<span class="demo-pop font-display font-bold text-2xl text-violet-700" style="animation-delay:900ms">${fracHTML(4, 6)}</span></div>` },
+        { text: `<p>Men nu händer något: du drar en röd – och <strong>behåller den</strong>! Titta, den försvinner ur lådan.</p>`,
+          html: `<div class="flex justify-center items-center gap-5 flex-wrap">${ballsHTML({ red: 3, blue: 2 })}<span class="demo-pop text-3xl" style="animation-delay:400ms">🖐️🔴</span></div>` },
+        { text: `<p>Lådan har <strong>förändrats</strong>! Både antalet röda och totalen minskade: nu 3 röda av 5. Chansen för ännu en röd är ${fracHTML(3, 5)} – inte ${fracHTML(4, 6)} längre!</p>`,
+          html: `<div class="demo-pop font-display font-bold text-2xl text-center"><span class="text-emerald-700">${fracHTML(3, 5)}</span><span class="text-slate-400 text-lg line-through ml-3">${fracHTML(4, 6)}</span></div>` },
+        { text: `<p><strong>Nyckelinsikten:</strong> utan återläggning måste man räkna om lådan – både täljare och nämnare kan ha ändrats!</p>` },
+        { text: `<p><strong>Din tur!</strong> Lådan har 3 gröna och 3 gula. Du drar en grön och behåller den. Vad är chansen att nästa också är grön?</p>`,
+          html: ballsHTML({ green: 3, yellow: 3 }),
+          guess: { options: [
+              { label: fracHTML(3, 6), ok: false },
+              { label: fracHTML(2, 5), ok: true },
+              { label: fracHTML(2, 6), ok: false },
+          ] },
+          doneText: 'Rätt! Kvar: 2 gröna av 5 totalt. (3/6 var ursprungslådan, och 2/6 glömde att totalen också minskat!) 🎉' },
+    ] };
+}
+
 /* ---------- huvudgenerator ---------- */
 export function generateProbQuestion() {
     let mode = state.probSubMode;
-    if (mode === 'mix') mode = ['box', 'spin', 'best', 'comb', 'classify'][randInt(0, 4)];
+    if (mode === 'mix') mode = ['box', 'spin', 'best', 'comb', 'classify', 'norep'][randInt(0, 5)];
     const diff = state.difficulty;
     if (mode === 'spin') return genSpin(diff);
     if (mode === 'best') return genBest(diff);
     if (mode === 'comb') return genComb(diff);
     if (mode === 'classify') return genClassify(diff);
+    if (mode === 'norep') return genNorep(diff);
+    if (mode === 'sim') return genSim(diff);
     return genBox(diff);
 }
 
@@ -485,21 +658,24 @@ export function buildProbDemoSteps() {
     if (mode === 'best') return buildBestDemo();
     if (mode === 'comb') return buildCombDemo();
     if (mode === 'classify') return buildClassifyDemo();
+    if (mode === 'norep') return buildNorepDemo();
+    if (mode === 'sim') return buildSimDemo();
     return buildBoxDemo();
 }
 
 function buildBoxDemo() {
     const counts = { red: 2, blue: 3 };
     return { steps: [
-        { text: `<p>I lådan finns röda och blå kulor. Du drar en kula utan att titta. Vad är chansen att den är <strong>röd</strong>?</p>`, html: ballsHTML(counts) },
-        { text: `<p>Sannolikhet är ett <strong>bråk</strong>: antalet utfall du <em>vill</em> ha (gynnsamma) delat med <em>alla</em> utfall som finns (möjliga).</p>`,
-          html: `<div class="demo-pop font-display font-bold text-3xl text-violet-700 text-center">${fracHTML('gynnsamma', 'möjliga')}</div>` },
-        { text: `<p>Räkna: det finns <strong>5</strong> kulor totalt (möjliga) och <strong>2</strong> röda (gynnsamma). Chansen är alltså ${fracHTML(2, 5)}!</p>`,
-          html: `<div class="flex justify-center items-center gap-5 flex-wrap">${ballsHTML(counts)}<div class="demo-pop font-display font-bold text-3xl text-violet-700">${fracHTML(2, 5)}</div></div>` },
+        { text: `<p>I lådan finns röda och blå kulor. Titta när de räknas upp – en i taget!</p>`,
+          html: ballsHTML(counts, { stagger: true }) },
+        { text: `<p>Sannolikhet är ett <strong>bråk</strong>: de utfall du <em>vill</em> ha delat med <em>alla</em> utfall. Nämnaren är alla 5 kulor.</p>`,
+          html: `<div class="flex justify-center items-center gap-5 flex-wrap">${ballsHTML(counts)}<div class="demo-pop font-display font-bold text-3xl text-violet-700" style="animation-delay:400ms">${fracHTML('gynnsamma', 'möjliga')}</div></div>` },
+        { text: `<p>De <strong>gynnsamma</strong> – de röda – lyser upp en i taget! Det är <strong>2</strong> röda av <strong>5</strong> totalt.</p>`,
+          html: `<div class="flex justify-center items-center gap-5 flex-wrap">${ballsHTML(counts, { hlColor: 'red' })}<div class="demo-pop font-display font-bold text-3xl text-violet-700" style="animation-delay:900ms">${fracHTML(2, 5)}</div></div>` },
         { text: `<p>Ser du att bråket aldrig kan vara större än 1? De gynnsamma kan ju aldrig vara fler än de möjliga! Bråk större än 1 i sannolikhet = något är fel.</p>`,
           html: `<div class="demo-pop text-center font-display font-bold text-xl text-slate-700">0 &le; sannolikhet &le; 1</div>` },
         { text: `<p><strong>Din tur!</strong> I en låda finns 3 gröna och 1 gul kula. Vad är chansen att dra en grön?</p>`,
-          html: ballsHTML({ green: 3, yellow: 1 }),
+          html: ballsHTML({ green: 3, yellow: 1 }, { stagger: true }),
           guess: { options: [
               { label: fracHTML(3, 4), ok: true },
               { label: fracHTML(1, 4), ok: false },
@@ -513,6 +689,8 @@ function buildSpinDemo() {
     return { steps: [
         { text: `<p>Du kastar en tärning. Vad är chansen att få <strong>en sexa</strong>? Det finns 6 möjliga utfall – och bara ett av dem är en sexa.</p>`,
           html: diceHTML([6]) },
+        { text: `<p>Meningen "minst X" eller "jämnt" är lurig – det är inte ett enda utfall som räknas!</p>`,
+          html: `<div class="demo-pop text-center font-display font-bold text-lg text-slate-600">räkna ALLA utfall som uppfyller villkoret</div>` },
         { text: `<p>Men många frågor handlar om händelser där <strong>flera</strong> utfall räknas! Vad är chansen för <strong>minst 4</strong>?</p>`, html: diceHTML() },
         { text: `<p>Markera alla utfall som uppfyller villkoret: 4, 5 och 6 är alla "minst 4" – det är <strong>3 gynnsamma</strong> av 6 möjliga!</p>`,
           html: `${diceHTML([4, 5, 6])}<div class="demo-pop font-display font-bold text-2xl text-violet-700 text-center mt-3">${fracHTML(3, 6)} = ${fracHTML(1, 2)}</div>` },
@@ -538,8 +716,16 @@ function buildBestDemo() {
     return { steps: [
         { text: `<p>Här är ett klurigt exempel! Låda A har <strong>2</strong> röda, låda B har <strong>3</strong> röda. Från vilken låda är det störst chans att dra en röd?</p>`, html: row },
         { text: `<p>Många väljer B direkt – fler röda ju! Men vänta: räkna <strong>alla</strong> kulor. A har 4 totalt, B har hela 10!</p>`, html: row },
-        { text: `<p>Det är <strong>andelen</strong> som avgör: A ger ${fracHTML(2, 4)} = ${fracHTML(1, 2)} och B ger bara ${fracHTML(3, 10)}. Hälften mot mindre än en tredjedel!</p>`,
-          html: `<div class="demo-pop flex justify-center gap-8 font-display font-bold text-2xl"><span class="text-emerald-700">A: ${fracHTML(2, 4)}</span><span class="text-slate-500">B: ${fracHTML(3, 10)}</span></div>` },
+        { text: `<p>De röda lyser upp – men titta på <strong>andelen</strong>: A ger ${fracHTML(2, 4)} = ${fracHTML(1, 2)} och B ger bara ${fracHTML(3, 10)}!</p>`,
+          html: `<div class="flex flex-wrap justify-center items-start gap-8">
+        <div class="flex flex-col items-center gap-1.5"><span class="font-display font-bold text-slate-700">Låda A</span>${ballsHTML(countsA, { hlColor: 'red' })}</div>
+        <div class="flex flex-col items-center gap-1.5"><span class="font-display font-bold text-slate-700">Låda B</span>${ballsHTML(countsB, { hlColor: 'red' })}</div>
+    </div>` },
+        { text: `<p>Som staplar syns det direkt: halva A är röd, men bara en liten bit av B. Hälften mot mindre än en tredjedel – A vinner!</p>`,
+          html: `<div class="flex justify-center gap-10 items-end">
+            <div class="flex flex-col items-center gap-1"><div class="w-24 h-8 rounded-lg bg-slate-200 overflow-hidden flex"><div class="demo-slice h-full bg-red-500" style="width:50%"></div></div><span class="font-display font-bold text-lg text-emerald-700">A: ${fracHTML(1, 2)}</span></div>
+            <div class="flex flex-col items-center gap-1"><div class="w-24 h-8 rounded-lg bg-slate-200 overflow-hidden flex"><div class="demo-slice h-full bg-red-500" style="width:30%;animation-delay:400ms"></div></div><span class="font-display font-bold text-lg text-slate-500">B: ${fracHTML(3, 10)}</span></div>
+          </div>` },
         { text: `<p><strong>Nyckelinsikten:</strong> fler röda kulor betyder inte större chans – det är förhållandet mellan röda och alla kulor som räknas. Bråkjämförelse, precis som i bråkmodulen!</p>` },
         { text: `<p><strong>Din tur!</strong> Låda A: 1 röd av 3. Låda B: 2 röda av 4. Vilken ger störst chans på röd?</p>`,
           html: `<div class="flex justify-center gap-8 font-display font-bold text-xl"><span class="demo-pop">A: ${fracHTML(1, 3)}</span><span class="demo-pop">B: ${fracHTML(2, 4)}</span></div>`,
@@ -555,7 +741,7 @@ function buildBestDemo() {
 function buildCombDemo() {
     const grid = `<div class="inline-block bg-violet-50 border-2 border-violet-200 rounded-2xl p-3"><div class="grid gap-1.5" style="grid-template-columns:auto repeat(3,auto)">
         <div></div>${['👖', '🩳', '🩱'].map(e => `<div class="text-2xl text-center w-10">${e}</div>`).join('')}
-        ${['👕', '👚'].map(ea => `<div class="text-2xl w-8 flex items-center justify-center">${ea}</div>` + ['👖', '🩳', '🩱'].map(eb => `<div class="w-10 h-10 rounded-lg bg-white border border-violet-300 flex items-center justify-center text-sm shadow-sm demo-slice">${ea}${eb}</div>`).join('')).join('')}
+        ${['👕', '👚'].map((ea, ri) => `<div class="text-2xl w-8 flex items-center justify-center">${ea}</div>` + ['👖', '🩳', '🩱'].map((eb, ci) => `<div class="w-10 h-10 rounded-lg bg-white border border-violet-300 flex items-center justify-center text-sm shadow-sm demo-slice" style="animation-delay:${(ri * 3 + ci) * 220}ms">${ea}${eb}</div>`).join('')).join('')}
     </div></div>`;
     return { steps: [
         { text: `<p>Alva har <strong>2 tröjor</strong> och <strong>3 par byxor</strong>. Hur många olika outfits kan hon sätta ihop?</p>`,
@@ -579,7 +765,7 @@ function buildCombDemo() {
 function buildClassifyDemo() {
     return { steps: [
         { text: `<p>Sannolikheten för en händelse ligger alltid mellan <strong>0 och 1</strong>. Två ytterligheter har egna namn!</p>`,
-          html: `<div class="demo-pop font-display font-bold text-2xl text-center"><span class="text-red-700">Omöjlig: 0</span><span class="text-slate-400 mx-3">← möjlig →</span><span class="text-emerald-700">Säker: 1</span></div>` },
+          html: `<div class="max-w-md mx-auto"><div class="h-3 rounded-full bg-gradient-to-r from-red-300 via-amber-200 to-emerald-400 relative demo-pop"><div class="absolute -top-1.5 left-0 w-6 h-6 rounded-full bg-red-500 border-2 border-white shadow demo-pop" style="animation-delay:300ms"></div><div class="absolute -top-1.5 right-0 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white shadow demo-pop" style="animation-delay:600ms"></div><div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow demo-pop" style="animation-delay:900ms"></div></div><div class="flex justify-between mt-2 font-display font-bold text-sm"><span class="text-red-700">0 = omöjlig</span><span class="text-amber-700">möjlig</span><span class="text-emerald-700">1 = säker</span></div></div>` },
         { text: `<p>En <strong>omöjlig</strong> händelse kan aldrig hända: en tärning som visar 7, eller en grön kula ur en låda utan gröna kulor.</p>`, html: diceHTML() },
         { text: `<p>En <strong>säker</strong> händelse händer ALLTID: tärningen visar alltid ett tal mindre än 7 – prickarna kan inte bli något annat!</p>`, html: diceHTML() },
         { text: `<p>Allt däremellan är <strong>möjligt</strong>: att få just en fyra kan hända – men inte varje gång. Då är sannolikheten ett bråk mellan 0 och 1.</p>` },

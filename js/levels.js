@@ -260,6 +260,8 @@ export const LEVEL_MODULES = {
             { icon: '⚖️', label: 'Bästa chansen', desc: 'Fler röda ≠ större chans', demo: true, apply: () => { setProbSubMode('best'); return 'prob'; } },
             { icon: '🌳', label: 'Kombinatorik', desc: 'Multiplicera valen', demo: true, apply: () => { setProbSubMode('comb'); return 'prob'; } },
             { icon: '🔮', label: 'Säkert & omöjligt', desc: 'Kan det hända?', demo: true, apply: () => { setProbSubMode('classify'); return 'prob'; } },
+            { icon: '🖐️', label: 'Utan återläggning', desc: 'Lådan förändras!', demo: true, apply: () => { setProbSubMode('norep'); return 'prob'; } },
+            { icon: '🔬', label: 'Simuleringen', desc: 'Testa lagen om stora tal', demo: true, apply: () => { setProbSubMode('sim'); return 'prob'; } },
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setProbSubMode('mix'); return 'prob'; } },
