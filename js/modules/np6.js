@@ -115,8 +115,8 @@ export function generateNp6Question() {
             state.currentNp6 = { mode, kind: 'nearest', pair: [f1, f2], correctIdx };
             qEl.innerHTML = `Vilket bråk ligger <strong>närmast en halv</strong>?`;
             setHintSteps('np6', [
-                `<p>Tänk på hur långt varje bråk är från <strong>en halv</strong>. En halv av ${f1.d} är ${f1.d / 2} – ${fracHtml(f1)} är ${fracVal(f1) < 0.5 ? 'lite mindre' : 'lite större'} än så.</p>`,
-                `<p>Jämför avstånden: det bråk som har <strong>minst avstånd</strong> till ½ vinner!</p>`
+                `<p>Tänk på hur långt varje bråk är från <strong>en halv</strong>. De streckade linjerna visar halva strecket:</p>${benchBarsHtml(f1, f2)}`,
+                `<p>Jämför avstånden till de röda linjerna: det bråk som har <strong>minst avstånd</strong> till ½ vinner!</p>${benchBarsHtml(f1, f2)}`
             ]);
         } else {
             const { pair, strat } = genComparePair(diff);
@@ -127,12 +127,39 @@ export function generateNp6Question() {
             state.currentNp6 = { mode, kind: askSmallest ? 'smallest' : 'largest', pair, correctIdx, strat };
             qEl.innerHTML = `Klicka på det bråk som är <strong>${askSmallest ? 'minst' : 'störst'}</strong>!`;
             const s = pair[smallIdx], b = pair[1 - smallIdx];
+            // Visuella ledtrådar – pajer och bråkstreck visar strategin
+            // i stället för att bara beskriva den.
+            const overIdx = fracVal(s) > 1 ? 0 : 1; // vilket bråk som är över 1 (de är ordnade small/big men overOne har alltid big över 1)
+            const overF = fracVal(b) > 1 ? b : s;
+            const underF = fracVal(b) > 1 ? s : b;
+            const overVisual = `<div class="flex items-center justify-center gap-2 my-1 flex-wrap">
+                <div class="flex items-center gap-1">${pieDivSvg(overF.d, overF.d, true, 1)}${pieDivSvg(overF.d, overF.n - overF.d, true, 1)}
+                <span class="font-display font-bold text-lg text-slate-800 ml-1">= ${fracHtml(overF)}</span></div>
+                <span class="font-bold text-slate-500">mot</span>
+                <div class="flex items-center gap-1">${pieDivSvg(underF.d, underF.n, true, 1)}
+                <span class="font-display font-bold text-lg text-slate-800 ml-1">= ${fracHtml(underF)}</span></div>
+            </div>`;
             const hints = {
-                sameDen: [`<p>Nämnaren är <strong>samma</strong> i båda bråken – då räcker det att jämföra täljarna: färre delar = mindre bråk!</p>`],
-                sameNum: [`<p>Täljaren är <strong>samma</strong>! Tänk: om en kaka delas i ${s.d} bitar eller ${b.d} bitar – i vilken blir bitarna <strong>mindre</strong>?</p>`, `<p>Ju fler delar, desto mindre varje del. Alltså är ${fracHtml(s)} mindre än ${fracHtml(b)}!</p>`],
-                nearOne: [`<p>Båda bråken är <strong>nära en hel</strong>! Räkna i stället vad som <strong>fattas</strong> till 1: den som har minst kvar är störst.</p>`],
-                overOne: [`<p>Kolla täljare mot nämnare: är täljaren <strong>större</strong> än nämnaren är bråket mer än en hel – annars mindre. Bara ett av bråken kan vara över 1!</p>`],
-                bench: [`<p>Använd <strong>en halv</strong> som måttstock! Är bråket mer eller mindre än ½? En halv av nämnaren är halva bråket.</p>`],
+                sameDen: [
+                    `<p>Nämnaren är <strong>samma</strong> – bitarna är lika stora! Då räcker det att räkna bitarna:</p>${piePairHtml(s, b)}`,
+                    `<p>Räkna de lila bitarna: ${s.n} bitar är färre än ${b.n} bitar – alltså är ${fracHtml(s)} minst!</p>`
+                ],
+                sameNum: [
+                    `<p>Täljaren är <strong>samma</strong> – båda tar ${s.n} bitar! Men titta på bitarnas <strong>storlek</strong>:</p>${piePairHtml(s, b)}`,
+                    `<p>Ju fler delar kakan delas i, desto mindre är varje bit. Bitarna i ${fracHtml(s)} är mindre – alltså är ${fracHtml(s)} mindre än ${fracHtml(b)}!</p>${piePairHtml(s, b)}`
+                ],
+                nearOne: [
+                    `<p>Båda är nästan en hel! De <strong>rosa bitarna</strong> visar vad som <strong>fattas</strong>:</p>${piePairHtml(s, b, true)}`,
+                    `<p>Den som har <strong>minst</strong> kvar att fylla är störst! ${fracHtml({ n: 1, d: b.d })} saknas till ${fracHtml(b)}, men ${fracHtml({ n: 1, d: s.d })} till ${fracHtml(s)} – och den rosa biten är större där.</p>`
+                ],
+                overOne: [
+                    `<p>Är täljaren större än nämnaren är bråket <strong>mer än en hel</strong> – se hur det ena bråket fyller en hel paj <em>och lite till</em>:</p>${overVisual}`,
+                    `<p>Bråk över en hel vinner alltid mot bråk under en hel! ${fracHtml(underF)} når inte ens upp till en full paj.</p>`
+                ],
+                bench: [
+                    `<p>Använd <strong>en halv</strong> som måttstock! De streckade linjerna visar halva strecket:</p>${benchBarsHtml(s, b)}`,
+                    `<p>Titta var den lila fyllnaden slutar mot den röda linjen – vilket bråk hamnar längst till vänster?</p>${benchBarsHtml(s, b)}`
+                ],
             };
             setHintSteps('np6', hints[strat] || hints.bench);
         }
@@ -403,7 +430,7 @@ function rectDivSvg(parts, colored, equal, seedShift = 0) {
 }
 
 // Cirkel indelad i tårtbitar; equal=false ger ojämna vinklar.
-function pieDivSvg(parts, colored, equal, seedShift = 0) {
+function pieDivSvg(parts, colored, equal, seedShift = 0, missingHi = false) {
     const R = 46, cx = 52, cy = 52;
     let angles;
     if (equal) {
@@ -419,7 +446,8 @@ function pieDivSvg(parts, colored, equal, seedShift = 0) {
         const large = angles[i] > 180 ? 1 : 0;
         const x1 = cx + R * Math.cos(a0 * Math.PI / 180), y1 = cy + R * Math.sin(a0 * Math.PI / 180);
         const x2 = cx + R * Math.cos(a1 * Math.PI / 180), y2 = cy + R * Math.sin(a1 * Math.PI / 180);
-        paths += `<path d="M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${R} ${R} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${i < colored ? '#a78bfa' : '#ffffff'}" stroke="#334155" stroke-width="2.2" />`;
+        const fill = i < colored ? '#a78bfa' : (missingHi ? '#fda4af' : '#ffffff');
+        paths += `<path d="M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${R} ${R} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${fill}" stroke="#334155" stroke-width="2.2" />`;
         a0 = a1;
     }
     return `<svg width="104" height="104" viewBox="0 0 104 104">${paths}</svg>`;
@@ -519,6 +547,27 @@ function barRow(frac, svg, opts = {}) {
         ${svg}
         ${opts.tail || ''}
     </div>`;
+}
+
+
+/* ---------- Visuella ledtrådsbyggare ---------- */
+// Två pajer sida vid sida med bråketikett under – kompakt nog för
+// ledtrådskorten. missingHi lyser de saknade bitarna rosa.
+function piePairHtml(f1, f2, missingHi = false) {
+    const pie = f => `<div class="flex flex-col items-center gap-1">
+        ${pieDivSvg(f.d, f.n, true, 1, missingHi)}
+        <span class="font-display font-bold text-lg text-slate-800">${fracHtml(f)}</span>
+    </div>`;
+    return `<div class="flex items-start justify-center gap-6 my-1">${pie(f1)}${pie(f2)}</div>`;
+}
+
+// Bråkstreck med halvmarkör – måttstocksresonemanget synligt.
+function benchBarsHtml(f1, f2) {
+    const row = f => `<div class="flex items-center justify-center gap-3">
+        <span class="font-display font-bold text-lg text-slate-800 w-11 text-right">${fracHtml(f)}</span>
+        ${fracBarSvg(f.n, f.d, { width: 170, height: 32, halfMarker: true })}
+    </div>`;
+    return `<div class="flex flex-col gap-2 my-1 items-center">${row(f1)}${row(f2)}</div>`;
 }
 
 /* =========================================================
