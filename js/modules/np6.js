@@ -739,6 +739,16 @@ function genReadImage(diff) {
    Demon – jämförelsestrategier med animerade bråkstreck
 ========================================================= */
 export function buildNp6DemoSteps() {
+    const mode = state.np6SubMode;
+    if (mode === 'order') return buildOrderDemoSteps();
+    if (mode === 'numberline') return buildLineDemoSteps();
+    if (mode === 'images') return buildImagesDemoSteps();
+    if (mode === 'readimage') return buildReadDemoSteps();
+    if (mode === 'between') return buildBetweenDemoSteps();
+    return buildCompareDemoSteps();
+}
+
+function buildCompareDemoSteps() {
     const f = fracHtml;
     const barPair = (f1, f2, opts1 = {}, opts2 = {}) => `
         <div class="flex flex-col items-center gap-3">
@@ -856,4 +866,175 @@ export function checkNp6Read() {
             ? '🤔 Ett av bråken du valde är <strong>större än en hel</strong> – men bilden visar mindre än en hel! Nämnaren (alla delar) står under strecket.'
             : '🤔 Inte alla stämmer – räkna delarna i bilden igen, och tänk på att bråket kan finnas i förklädnad (ekvivalent bråk)!');
     }
+}
+
+/* =========================================================
+   Demon per läge – order, tallinje, bilder, bildläsning, täthet
+========================================================= */
+
+// Kort-rad för order-demon: fracs i given ordning, med markeringar.
+function orderCardsHtml(fracs, opts = {}) {
+    const { spot = -1, doneCount = 0, flyLast = false } = opts;
+    return `<div class="flex flex-nowrap justify-center gap-2.5 sm:gap-3 py-2">
+        ${fracs.map((f, i) => `
+            <div class="border-3 rounded-2xl px-4 sm:px-5 py-3.5 font-display font-bold text-2xl sm:text-3xl
+                ${i < doneCount ? 'border-emerald-500 bg-emerald-50 text-emerald-900' : i === spot ? 'border-amber-400 bg-amber-50 demo-spot text-slate-900' : 'border-amber-300 bg-white text-slate-900'}
+                ${flyLast && i === doneCount - 1 ? 'demo-fly-down' : ''}">${fracHtml(f)}</div>
+        `).join('')}
+    </div>`;
+}
+
+function buildOrderDemoSteps() {
+    const jumble = [{ n: 2, d: 3 }, { n: 1, d: 2 }, { n: 1, d: 4 }, { n: 3, d: 8 }];
+    const sorted = [{ n: 1, d: 4 }, { n: 3, d: 8 }, { n: 1, d: 2 }, { n: 2, d: 3 }];
+    const step1 = [jumble[2], jumble[0], jumble[1], jumble[3]]; // 1/4 flyttad först
+    const step2 = [jumble[2], jumble[3], jumble[0], jumble[1]]; // sen 3/8
+    return { steps: [
+        { text: `<p>Nu ska vi <strong>storleksordna bråk</strong>! Fyra kort ligger huller om buller – minst ska ligga till vänster.</p>`,
+          html: orderCardsHtml(jumble) },
+        { text: `<p>Börja med att hitta det <strong>minsta</strong>. ${fracHtml({ n: 1, d: 4 })} är bara en bit av fyra – det är lite!</p>`,
+          html: orderCardsHtml(jumble, { spot: 2 }) },
+        { text: `<p>${fracHtml({ n: 1, d: 4 })} åker längst till vänster. Tre kort kvar!</p>`,
+          html: orderCardsHtml(step1, { doneCount: 1, flyLast: true }) },
+        { text: `<p>Nästa svåra val: ${fracHtml({ n: 3, d: 8 })} eller ${fracHtml({ n: 1, d: 2 })}? Tänk: en halv av åtta är fyra – alltså är ${fracHtml({ n: 4, d: 8 })} samma som en halv. Men vi har bara <strong>tre</strong> åttondedelar – det är mindre!</p>`,
+          html: orderCardsHtml(step1, { doneCount: 1, spot: 3 }) +
+                `<div class="demo-pop mt-2 text-sm font-extrabold text-slate-600" style="animation-delay:300ms">${fracHtml({ n: 3, d: 8 })} &lt; ${fracHtml({ n: 4, d: 8 })} = ${fracHtml({ n: 1, d: 2 })}</div>` },
+        { text: `<p>${fracHtml({ n: 3, d: 8 })} tar andra platsen – och sen är det lätt: ${fracHtml({ n: 1, d: 2 })} är mindre än ${fracHtml({ n: 2, d: 3 })}.</p>`,
+          html: orderCardsHtml(step2, { doneCount: 2, flyLast: true }) },
+        { text: `<p>Klart! Hela ordningen: ${sorted.map(f => fracHtml(f)).join(' &lt; ')}. Knepen: <strong>hitta minsta först</strong> och använd <strong>en halv som måttstock</strong>!</p>`,
+          html: orderCardsHtml(sorted, { doneCount: 4 }) },
+        { text: `<p><strong>Din tur!</strong> Vilket av de här tre bråken ska ligga längst till vänster?</p>`,
+          html: orderCardsHtml([{ n: 2, d: 5 }, { n: 3, d: 4 }, { n: 3, d: 10 }]),
+          guess: { options: [
+              { label: fracHtml({ n: 2, d: 5 }), ok: false },
+              { label: fracHtml({ n: 3, d: 4 }), ok: false },
+              { label: fracHtml({ n: 3, d: 10 }), ok: true },
+          ] },
+          doneText: `Rätt! ${fracHtml({ n: 3, d: 10 })} är minst – mindre än en tredjedel. Det åker längst åt vänster! 🎉` },
+    ] };
+}
+
+// Tallinje-SVG för demon: tick vid givna lägen, valfri markör.
+function demoLineSvg({ span = 1, fracTicks = null, intLabels = true, marker = null, markerLabel = '', hopDelay = 0 }) {
+    const W = 520, H = 100, pad = 36;
+    const x0 = pad, x1 = W - pad;
+    const px = v => x0 + (v / span) * (x1 - x0);
+    let parts = `<line x1="${x0}" y1="40" x2="${x1}" y2="40" stroke="#0f172a" stroke-width="4" stroke-linecap="round" />
+        <polygon points="${x1},40 ${x1 - 12},33 ${x1 - 12},47" fill="#0f172a" />`;
+    for (let t = 0; t <= span; t++) {
+        const lbl = intLabels ? `<text x="${px(t)}" y="72" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="#1e293b">${t}</text>` : '';
+        parts += `<line x1="${px(t)}" y1="32" x2="${px(t)}" y2="48" stroke="#334155" stroke-width="2.5" />${lbl}`;
+    }
+    if (fracTicks) {
+        fracTicks.forEach((v, i) => {
+            parts += `<line x1="${px(v)}" y1="34" x2="${px(v)}" y2="46" stroke="#8b5cf6" stroke-width="2.5" class="demo-pop" style="animation-delay:${hopDelay + i * 300}ms" />`;
+        });
+    }
+    if (marker !== null) {
+        parts += `<g class="demo-marker-hop" style="animation-delay:${hopDelay}ms">
+            <line x1="${px(marker)}" y1="12" x2="${px(marker)}" y2="42" stroke="#e11d48" stroke-width="3.5" stroke-linecap="round" />
+            <circle cx="${px(marker)}" cy="12" r="6.5" fill="#e11d48" />
+            ${markerLabel ? `<text x="${px(marker)}" y="94" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#e11d48">${markerLabel}</text>` : ''}
+        </g>`;
+    }
+    return `<svg width="100%" viewBox="0 0 ${W} ${H}" class="max-w-xl mx-auto" style="overflow:visible">${parts}</svg>`;
+}
+
+function buildLineDemoSteps() {
+    return { steps: [
+        { text: `<p>Vi ska placera ${fracHtml({ n: 3, d: 4 })} på tallinjen! Linjen går från 0 till 1 – alltså är hela sträckan <strong>en hel</strong>.</p>`,
+          html: demoLineSvg({ span: 1 }) },
+        { text: `<p>Nämnaren säger hur många delar helan ska delas i. Titta – <strong>fjärdedelar</strong> dyker upp som streck på linjen:</p>`,
+          html: demoLineSvg({ span: 1, fracTicks: [0.25, 0.5, 0.75] }) },
+        { text: `<p>Täljaren säger hur många sådana delar vi ska gå: en fjärdedel… två… <strong>tre</strong>! Där landar markören.</p>`,
+          html: demoLineSvg({ span: 1, fracTicks: [0.25, 0.5, 0.75], marker: 0.75, markerLabel: '3/4', hopDelay: 900 }) },
+        { text: `<p><strong>På provet kan linjen vara längre!</strong> Här går den till 2 – men strecket i mitten har ingen siffra. Det är <strong>1</strong>:an, precis mitt emellan! Och ${fracHtml({ n: 7, d: 5 })}? Det är en hel plus två femtedelar till.</p>`,
+          html: demoLineSvg({ span: 2, intLabels: true, marker: 1.4, markerLabel: '7/5', hopDelay: 1200 }) },
+        { text: `<p><strong>Din tur!</strong> Markören sitter på linjen – vilket bråk visar den? Räkna strecken!</p>`,
+          html: demoLineSvg({ span: 1, fracTicks: [0.2, 0.4, 0.6, 0.8], marker: 0.6, markerLabel: '?', hopDelay: 300 }),
+          guess: { options: [
+              { label: fracHtml({ n: 2, d: 5 }), ok: false },
+              { label: fracHtml({ n: 3, d: 5 }), ok: true },
+              { label: fracHtml({ n: 3, d: 4 }), ok: false },
+          ] },
+          doneText: `Rätt! Sträckan är delad i femtedelar och markören står vid det tredje strecket: ${fracHtml({ n: 3, d: 5 })}! 🎉` },
+    ] };
+}
+
+function buildImagesDemoSteps() {
+    const lbl = (t, color) => `<div class="demo-pop font-extrabold text-sm mt-1" style="color:${color}">${t}</div>`;
+    const card = (svg, label, extra = '') => `<div class="flex flex-col items-center ${extra}">${svg}${label}</div>`;
+    return { steps: [
+        { text: `<p>Uppgiften: vilka bilder visar ${fracHtml({ n: 1, d: 3 })}? Här är en bild som <em>ser rätt ut</em> – en av tre delar är lila. Eller?</p>`,
+          html: card(pieDivSvg(3, 1, false, 2), lbl('🤔 ser ut som en tredjedel…', '#b45309')) },
+        { text: `<p><strong>SE UPP!</strong> Titta på bitarnas storlek – de är <strong>inte lika stora</strong>! Då är det inga riktiga tredjedelar, även om antalet stämmer. Det är provets vanligaste fälla.</p>`,
+          html: card(pieDivSvg(3, 1, false, 2), lbl('✗ olika stora = inget bråk!', '#dc2626')) },
+        { text: `<p>Den här däremot: tre <strong>lika stora</strong> bitar och en är färgad. Det är äkta ${fracHtml({ n: 1, d: 3 })}!</p>`,
+          html: card(pieDivSvg(3, 1, true, 1), lbl('✓ lika delar – ett riktigt bråk!', '#059669')) },
+        { text: `<p>En till hemlighet: bråket kan finnas i <strong>förklädnad</strong>! Sex lika delar varav två färgade – det är ${fracHtml({ n: 2, d: 6 })}, men det är <strong>lika mycket</strong> som ${fracHtml({ n: 1, d: 3 })}. Dubbelt så många delar, dubbelt så många färgade!</p>`,
+          html: `<div class="flex items-center justify-center gap-5">${card(pieDivSvg(6, 2, true, 1), lbl('✓ samma andel i förklädnad!', '#059669'))}<div class="demo-pop font-display font-bold text-2xl text-slate-700" style="animation-delay:350ms">${fracHtml({ n: 2, d: 6 })} = ${fracHtml({ n: 1, d: 3 })}</div></div>` },
+        { text: `<p><strong>Din tur!</strong> Vilken av de här tre bilderna visar verkligen ${fracHtml({ n: 1, d: 4 })}?</p>`,
+          html: `<div class="flex items-start justify-center gap-6">
+              <div class="opacity-80">${pieDivSvg(4, 1, false, 3)}</div>
+              <div class="opacity-80">${pieDivSvg(4, 1, true, 1)}</div>
+              <div class="opacity-80">${pieDivSvg(4, 2, true, 1)}</div>
+          </div><div class="text-xs font-bold text-slate-500 mt-1">A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C</div>`,
+          guess: { options: [
+              { label: 'A – en av fyra delar', ok: false },
+              { label: 'B – en av fyra lika delar', ok: true },
+              { label: 'C – två av fyra delar', ok: false },
+          ] },
+          doneText: `Rätt! B visar ${fracHtml({ n: 1, d: 4 })} – i A är delarna olika stora, och C visar ${fracHtml({ n: 2, d: 4 })}! 🎉` },
+    ] };
+}
+
+function buildReadDemoSteps() {
+    return { steps: [
+        { text: `<p>Här ska vi göra tvärtom: bilden är given och vi ska <strong>hitta bråket</strong>! Börja alltid med att räkna <strong>alla delar</strong> – det blir nämnaren.</p>`,
+          html: `<div class="flex flex-col items-center gap-2">${rectDivSvg(6, 2, true, 1)}<div class="demo-tag" style="background:#fef3c7;color:#92400e">6 delar totalt → nämnare</div></div>` },
+        { text: `<p>Sen räknar vi de <strong>färgade</strong> delarna – det blir täljaren. Två lila bitar!</p>`,
+          html: `<div class="flex flex-col items-center gap-2">${rectDivSvg(6, 2, true, 1)}<div class="demo-tag" style="background:#ffe4e6;color:#be123c">2 färgade → täljare</div></div>` },
+        { text: `<p>Alltså visar bilden ${fracHtml({ n: 2, d: 6 })}! Men stopp – den andelen kan skrivas på fler sätt…</p>`,
+          html: `<div class="flex flex-col items-center gap-2">${rectDivSvg(6, 2, true, 1)}<div class="demo-pop font-display font-bold text-3xl text-slate-900">${fracHtml({ n: 2, d: 6 })}</div></div>` },
+        { text: `<p>Para ihop bitarna <strong>två och två</strong> i huvudet: då blir det tre par, och ett par är färgat. Samma andel – men nu heter det ${fracHtml({ n: 1, d: 3 })}! Båda svaren är rätt: de är <strong>ekvivalenta bråk</strong>.</p>`,
+          html: `<div class="flex items-center justify-center gap-4"><div class="flex flex-col items-center gap-2">${rectDivSvg(6, 2, true, 1)}</div><div class="demo-pop font-display font-bold text-2xl text-slate-700" style="animation-delay:300ms">${fracHtml({ n: 2, d: 6 })} = ${fracHtml({ n: 1, d: 3 })}</div></div>` },
+        { text: `<p><strong>Din tur!</strong> Vilket bråk visar bilden? Räkna alla delar först, sen de färgade.</p>`,
+          html: `<div class="flex justify-center">${pieDivSvg(4, 1, true, 1)}</div>`,
+          guess: { options: [
+              { label: fracHtml({ n: 4, d: 1 }), ok: false },
+              { label: fracHtml({ n: 1, d: 4 }), ok: true },
+              { label: fracHtml({ n: 3, d: 4 }), ok: false },
+          ] },
+          doneText: `Rätt! En av fyra lika delar är färgad: ${fracHtml({ n: 1, d: 4 })}! (${fracHtml({ n: 4, d: 1 })} är den klassiska baklänges-fällan.) 🎉` },
+    ] };
+}
+
+function buildBetweenDemoSteps() {
+    const bar = (n, d, opts) => fracBarSvg(n, d, { width: 240, height: 38, ...opts });
+    const rowOf = (frac, svg) => `<div class="flex items-center justify-center gap-3"><span class="font-display font-bold text-xl text-slate-800 w-14 text-right">${fracHtml(frac)}</span>${svg}</div>`;
+    return { steps: [
+        { text: `<p>Finns det något bråk mellan ${fracHtml({ n: 14, d: 18 })} och ${fracHtml({ n: 8, d: 9 })}? De ligger så tätt – det ser nästan omöjligt ut!</p>`,
+          html: `<div class="flex flex-col gap-2 items-center">${rowOf({ n: 8, d: 9 }, bar(8, 9, { color: '#a78bfa' }))}${rowOf({ n: 14, d: 18 }, bar(14, 18, { color: '#8b5cf6' }))}</div>` },
+        { text: `<p><strong>Knepet: förläng!</strong> Dubbla täljare och nämnare i ${fracHtml({ n: 8, d: 9 })} – varje bit delas i två, och värdet ändras inte alls:</p>`,
+          html: `<div class="flex flex-col items-center gap-2">
+              <div class="demo-pop font-display font-bold text-2xl text-slate-700">${fracHtml({ n: 8, d: 9 })} = ${fracHtml({ n: 16, d: 18 })}</div>
+              ${rowOf({ n: 16, d: 18 }, bar(16, 18, { stagger: true, color: '#a78bfa' }))}
+          </div>` },
+        { text: `<p>Nu har båda nämnaren <strong>18</strong>! Jämför täljarna: 14 och 16. Ser du glappet? <strong>15</strong> finns däremellan!</p>`,
+          html: `<div class="flex flex-col gap-2 items-center">
+              ${rowOf({ n: 16, d: 18 }, bar(16, 18, { color: '#a78bfa' }))}
+              <div class="demo-pop" style="animation-delay:250ms">${rowOf({ n: 15, d: 18 }, bar(15, 18, { color: '#f472b6' }))}</div>
+              ${rowOf({ n: 14, d: 18 }, bar(14, 18, { color: '#8b5cf6' }))}
+          </div>` },
+        { text: `<p>Och det stannar inte där! Förläng igen – dubbla till 36-delar – och det finns plats för ännu fler. Mellan två bråk finns <strong>alltid</strong> nya bråk: de ligger oändligt tätt!</p>`,
+          html: `<div class="demo-pop font-display font-bold text-xl text-slate-700 text-center">${fracHtml({ n: 14, d: 18 })} &lt; ${fracHtml({ n: 15, d: 18 })} &lt; ${fracHtml({ n: 8, d: 9 })}<div class="text-sm font-semibold text-slate-500 mt-2">… och mellan varje par finns det ännu fler! ∞</div></div>` },
+        { text: `<p><strong>Din tur!</strong> Vilket bråk ligger mellan ${fracHtml({ n: 14, d: 18 })} och ${fracHtml({ n: 16, d: 18 })}?</p>`,
+          html: `<div class="flex flex-col gap-2 items-center">${rowOf({ n: 16, d: 18 }, bar(16, 18, { color: '#a78bfa' }))}${rowOf({ n: 14, d: 18 }, bar(14, 18, { color: '#8b5cf6' }))}</div>`,
+          guess: { options: [
+              { label: fracHtml({ n: 13, d: 18 }), ok: false },
+              { label: fracHtml({ n: 15, d: 18 }), ok: true },
+              { label: fracHtml({ n: 17, d: 18 }), ok: false },
+          ] },
+          doneText: `Rätt! ${fracHtml({ n: 15, d: 18 })} ligger mitt emellan – samma nämnare, täljare mellan 14 och 16! 🎉` },
+    ] };
 }

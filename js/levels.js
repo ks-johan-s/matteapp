@@ -95,11 +95,11 @@ export const LEVEL_MODULES = {
         title: 'NP åk 6: Bråk', icon: '🎓',
         steps: [
             { icon: '⚖️', label: 'Jämför bråk', desc: 'Vilket är minst – eller närmast en halv?', demo: true, apply: () => { setNp6SubMode('compare'); return 'np6'; } },
-            { icon: '🔀', label: 'Storleksordna', desc: 'Lägg bråken i ordning', apply: () => { setNp6SubMode('order'); return 'np6'; } },
-            { icon: '📏', label: 'På tallinjen', desc: 'Var ligger bråket?', apply: () => { setNp6SubMode('numberline'); return 'np6'; } },
-            { icon: '🖼️', label: 'Bråk i bilder', desc: 'Vilka bilder visar bråket?', apply: () => { setNp6SubMode('images'); return 'np6'; } },
-            { icon: '🔎', label: 'Vilket bråk?', desc: 'Läs av bilden – även i förklädnad', apply: () => { setNp6SubMode('readimage'); return 'np6'; } },
-            { icon: '🔍', label: 'Bråk emellan', desc: 'Hitta ett bråk mellan två bråk', apply: () => { setNp6SubMode('between'); return 'np6'; } },
+            { icon: '🔀', label: 'Storleksordna', desc: 'Lägg bråken i ordning', demo: true, apply: () => { setNp6SubMode('order'); return 'np6'; } },
+            { icon: '📏', label: 'På tallinjen', desc: 'Var ligger bråket?', demo: true, apply: () => { setNp6SubMode('numberline'); return 'np6'; } },
+            { icon: '🖼️', label: 'Bråk i bilder', desc: 'Vilka bilder visar bråket?', demo: true, apply: () => { setNp6SubMode('images'); return 'np6'; } },
+            { icon: '🔎', label: 'Vilket bråk?', desc: 'Läs av bilden – även i förklädnad', demo: true, apply: () => { setNp6SubMode('readimage'); return 'np6'; } },
+            { icon: '🔍', label: 'Bråk emellan', desc: 'Hitta ett bråk mellan två bråk', demo: true, apply: () => { setNp6SubMode('between'); return 'np6'; } },
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setNp6SubMode('mix'); return 'np6'; } },
