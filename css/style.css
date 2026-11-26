@@ -1064,6 +1064,12 @@ div.demo-struck::after {
 .font-semibold {
     font-weight: 500;
 }
+.font-bold {
+    font-weight: 500;
+}
+.font-extrabold {
+    font-weight: 700;
+}
 [id$="-question-text"],
 #word-problem-text {
     font-weight: 500 !important;
