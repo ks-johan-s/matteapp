@@ -15,7 +15,7 @@ export function setNpdSubMode(mode) {
 
 // Svensk decimalcomma: 0.25 → "0,25"
 function fmtDec(x) {
-    return String(x).replace('.', ',');
+    return String(Math.round(x * 1000) / 1000).replace('.', ',');
 }
 // Decimal exakt som sträng med fast antal värdesiffror, t.ex. (0.25, 3) → "0,250"
 function fmtDecFixed(x, decimals) {
@@ -318,14 +318,15 @@ export function generateNpdQuestion() {
             `<p>Linjen landar <strong>mellan</strong> två streck. Varje litet steg är 10 cm – halvvägs är 5 cm extra. Vilket streck ligger närmast under, plus halvvägs?</p>`
         ]);
         visEl.classList.remove('hidden');
-        visEl.innerHTML = scatterSvg(pts, { hiPoint: ballIdx });
-        optsEl.className = 'grid grid-cols-2 gap-3 max-w-md mx-auto mt-4';
+        visEl.innerHTML = `<div class="npd-split"><div class="npd-split-diagram">${scatterSvg(pts, { hiPoint: ballIdx })}</div><div id="npd-side-opts" class="npd-split-opts"></div></div>`;
+        optsEl.classList.add('hidden');
+        optsEl.innerHTML = '';
         const correct = askWeight ? p.x : p.y;
         const unit = askWeight ? ' kg' : ' cm';
         const opts = new Set([correct]);
         // distraktorer: rutnätslinje under/över + förväxlad axel + decimalskift
         const cands = askWeight
-            ? [correct - 0.05, correct + 0.05, correct + 0.1, correct - 0.1, p.y / 100]
+            ? [correct - 0.05, correct + 0.05, correct + 0.1, correct - 0.1, p.y / 100].map(c => Math.round(c * 100) / 100)
             : [correct - 5, correct + 5, correct + 10, correct - 10, Math.round(p.x * 100)];
         const optList = [];
         for (const c of shuffleArray(cands)) {
@@ -336,8 +337,8 @@ export function generateNpdQuestion() {
         optList.push(correct);
         state.currentNpd.options = shuffleArray(optList);
         state.currentNpd.correctV = correct;
-        optsEl.innerHTML = state.currentNpd.options.map(v => `
-            <button onclick="checkNpdRead(${String(v).replace('.', ',') === String(v) ? v : v})" data-v="${v}" class="btn-3d bg-white hover:bg-amber-50 border-3 border-amber-300 rounded-2xl px-4 py-3.5 font-display font-bold text-2xl text-slate-900">${fmtDec(askWeight ? v : v)}${unit}</button>
+        document.getElementById('npd-side-opts').innerHTML = state.currentNpd.options.map(v => `
+            <button onclick="checkNpdRead(${v})" data-v="${v}" class="btn-3d bg-white hover:bg-amber-50 border-3 border-amber-300 rounded-2xl px-4 py-3.5 font-display font-bold text-2xl text-slate-900 w-full">${fmtDec(v)}${unit}</button>
         `).join('');
         return;
     }
@@ -376,10 +377,11 @@ export function generateNpdQuestion() {
          <p class="text-center font-bold">${wt} kg ligger alltså nära noll på massa-axeln!</p>`
     ]);
     visEl.classList.remove('hidden');
-    visEl.innerHTML = scatterSvg(refPts, { candidates, horizY: newY });
-    optsEl.className = 'flex flex-wrap justify-center gap-3 max-w-xl mx-auto mt-4';
-    optsEl.innerHTML = candidates.map((c, i) => `
-        <button onclick="checkNpdPlace(${i})" class="btn-3d bg-white hover:bg-rose-50 border-3 border-rose-300 rounded-2xl px-7 py-3.5 font-display font-bold text-2xl text-rose-700">Punkt ${'ABCD'[i]}</button>
+    visEl.innerHTML = `<div class="npd-split"><div class="npd-split-diagram">${scatterSvg(refPts, { candidates, horizY: newY })}</div><div id="npd-side-opts" class="npd-split-opts"></div></div>`;
+    optsEl.classList.add('hidden');
+    optsEl.innerHTML = '';
+    document.getElementById('npd-side-opts').innerHTML = candidates.map((c, i) => `
+        <button onclick="checkNpdPlace(${i})" class="btn-3d bg-white hover:bg-rose-50 border-3 border-rose-300 rounded-2xl px-6 py-3.5 font-display font-bold text-xl text-rose-700 w-full">Punkt ${'ABCD'[i]}</button>
     `).join('');
 }
 

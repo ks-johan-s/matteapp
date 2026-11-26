@@ -62,6 +62,14 @@ export function showFeedback(elId, isSuccess, htmlMsg) {
             : 'bg-rose-50 border-rose-300 text-rose-950');
     el.innerHTML = htmlMsg;
     styleNumbersIn(el);
+    // Feedbacken hamnar ofta under den synliga ytan i lägen med höga
+    // visualer – scrolla mjukt fram den. scroll-margin-bottom gör att
+    // även "Nästa fråga"-knappen (som visas direkt efter) hinner med.
+    // block:'nearest' = ingen scroll alls om den redan syns helt.
+    el.style.scrollMarginBottom = '130px';
+    requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
     const card = document.getElementById(`view-${elId.replace(/-feedback$/, '')}`)?.querySelector('.rounded-3xl');
     if (card) {
         const cls = isSuccess ? 'card-correct' : 'card-wrong';

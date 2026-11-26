@@ -1045,3 +1045,15 @@ div.demo-struck::after {
     border-color: #f43f5e !important;
     animation: cellShake .4s ease;
 }
+
+
+/* NP-decimaler: diagram + svarsalternativ sida vid sida på breda skärmar.
+   På små skärmar staplas de – då täcker feedback-scrollningen. */
+.npd-split { display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+.npd-split-diagram { width: 100%; max-width: 30rem; }
+.npd-split-opts { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; max-width: 15rem; }
+@media (min-width: 640px) {
+    .npd-split { flex-direction: row; align-items: center; justify-content: center; }
+    .npd-split-diagram { flex: 1 1 0; }
+    .npd-split-opts { flex: 0 0 11.5rem; }
+}
