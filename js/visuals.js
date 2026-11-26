@@ -486,3 +486,89 @@ export function renderMeanLevelingSVG(nums, labels, meanVal) {
         </svg>
     `;
 }
+
+
+// Generisk pekarbaserad drag-sortering: barnen i raden dras till nya
+// positioner, övriga glider undan med FLIP-animation. touch-action:none
+// krävs för att draget inte ska fastna i sid-scrollen på surfplattor.
+// locked() = true låser interaktionen (t.ex. efter rätt svar),
+// clearMarking = css-selector vars klasser tas bort vid nytt drag.
+export function enableDragSort(row, opts = {}) {
+    if (!row) return;
+    row.querySelectorAll('.np6-drag-card').forEach(card => {
+        card.addEventListener('pointerdown', ev => {
+            if (opts.locked && opts.locked()) return;
+            ev.preventDefault();
+            if (opts.clearMarking) row.querySelectorAll(opts.clearMarking).forEach(c => c.classList.remove('np6-slot-ok', 'np6-slot-bad'));
+            const move = e => dragMove(e);
+            const up = e => {
+                document.removeEventListener('pointermove', move);
+                document.removeEventListener('pointerup', up);
+                document.removeEventListener('pointercancel', up);
+                dragEnd();
+            };
+            document.addEventListener('pointermove', move);
+            document.addEventListener('pointerup', up);
+            document.addEventListener('pointercancel', up);
+            beginDrag(ev);
+        });
+    });
+
+    let drag = null;
+
+    function beginDrag(ev) {
+        const card = ev.currentTarget;
+        const rect = card.getBoundingClientRect();
+        drag = { card, grabX: ev.clientX - rect.left, grabY: ev.clientY - rect.top };
+        card.classList.add('np6-dragging');
+        positionCard(ev);
+    }
+
+    function positionCard(ev) {
+        const rowRect = row.getBoundingClientRect();
+        const x = ev.clientX - rowRect.left - drag.grabX;
+        const y = ev.clientY - rowRect.top - drag.grabY;
+        drag.card.style.transform = `translate(${x - drag.card.offsetLeft}px, ${y - drag.card.offsetTop}px)`;
+    }
+
+    function dragMove(ev) {
+        if (!drag) return;
+        positionCard(ev);
+        const cards = [...row.querySelectorAll('.np6-drag-card')];
+        const rowRect = row.getBoundingClientRect();
+        const pointerX = ev.clientX - rowRect.left;
+        const others = cards.filter(c => c !== drag.card);
+        let target = 0;
+        for (const c of others) {
+            if (pointerX > c.offsetLeft + c.offsetWidth / 2) target++;
+        }
+        const curIdx = cards.indexOf(drag.card);
+        if (target !== curIdx) {
+            const before = new Map(others.map(c => [c, c.getBoundingClientRect()]));
+            row.insertBefore(drag.card, others[target] || null);
+            others.forEach(c => {
+                const b = before.get(c), a = c.getBoundingClientRect();
+                const dx = b.left - a.left;
+                if (dx) {
+                    c.style.transition = 'none';
+                    c.style.transform = `translateX(${dx}px)`;
+                    void c.offsetWidth;
+                    c.style.transition = 'transform .22s cubic-bezier(0.3, 1.3, 0.5, 1)';
+                    c.style.transform = '';
+                }
+            });
+            positionCard(ev);
+        }
+    }
+
+    function dragEnd() {
+        if (!drag) return;
+        const card = drag.card;
+        drag = null;
+        card.classList.remove('np6-dragging');
+        card.classList.add('np6-snapping');
+        void card.offsetWidth;
+        card.style.transform = '';
+        setTimeout(() => card.classList.remove('np6-snapping'), 260);
+    }
+}

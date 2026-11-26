@@ -24,6 +24,7 @@ import { setChartSubMode } from './modules/chart.js';
 import { setAvgSubMode } from './modules/avg.js';
 import { setConnSubMode } from './modules/conn.js';
 import { setNp6SubMode } from './modules/np6.js';
+import { setNpdSubMode } from './modules/npd.js';
 import { setWordCategory } from './modules/word.js';
 
 export const LEVEL_MODULES = {
@@ -103,6 +104,19 @@ export const LEVEL_MODULES = {
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setNp6SubMode('mix'); return 'np6'; } },
+        ],
+    },
+    npd: {
+        title: 'NP åk 6: Decimaler', icon: '🎓',
+        steps: [
+            { icon: '⚖️', label: 'Jämför vikter', desc: 'Vilken boll är lättast?', demo: true, apply: () => { setNpdSubMode('compare'); return 'npd'; } },
+            { icon: '🟰', label: 'Samma vikt?', desc: '0,25 eller 0,250 – lika eller olika?', demo: true, apply: () => { setNpdSubMode('same'); return 'npd'; } },
+            { icon: '🔀', label: 'Storleksordna', desc: 'Dra bollarna i viktordning', demo: true, apply: () => { setNpdSubMode('order'); return 'npd'; } },
+            { icon: '📊', label: 'Avläs diagram', desc: 'Massa och studshöjd', demo: true, apply: () => { setNpdSubMode('read'); return 'npd'; } },
+            { icon: '📍', label: 'Placera i diagram', desc: 'Två ledtrådar samtidigt', demo: true, apply: () => { setNpdSubMode('place'); return 'npd'; } },
+        ],
+        explore: [
+            { icon: '🎲', label: 'Blandat', apply: () => { setNpdSubMode('mix'); return 'npd'; } },
         ],
     },
     seq: {

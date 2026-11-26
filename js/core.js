@@ -99,6 +99,7 @@ export const state = {
     currentAvg: null,
     connSubMode: 'mix',
     np6SubMode: 'compare',
+    npdSubMode: 'compare',
     currentConn: null,
     scratchpadOpen: false,
     scratchpadTab: 'grid',

@@ -5,6 +5,7 @@
 import { addReward, playSound, resetStreak, state } from '../core.js';
 import { setHintSteps } from '../hints.js';
 import { formatFractionHTML, randInt, showFeedback, shuffleArray } from '../utils.js';
+import { enableDragSort } from '../visuals.js';
 
 export function setNp6SubMode(mode) {
     playSound('click');
@@ -326,95 +327,7 @@ function renderNp6Order() {
         <div class="mt-3">
             <button onclick="checkNp6Order()" class="btn-3d bg-gradient-to-r from-violet-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-2.5 rounded-2xl">Kolla! ✓</button>
         </div>`;
-    setupNp6OrderDrag();
-}
-
-// Pekarbaserad drag-ordning: kortet följer pekaren, övriga kort glider
-// undan med FLIP-animation. touch-action:none krävs för att draget inte
-// ska fastna i sid-scrollen på surfplattor.
-function setupNp6OrderDrag() {
-    const row = document.getElementById('np6-sort-row');
-    if (!row) return;
-    row.querySelectorAll('.np6-drag-card').forEach(card => {
-        card.addEventListener('pointerdown', ev => {
-            if (!document.getElementById('np6-next-wrap').classList.contains('hidden')) return;
-            ev.preventDefault();
-            row.querySelectorAll('.np6-drag-card').forEach(c => c.classList.remove('np6-slot-ok', 'np6-slot-bad'));
-            const move = e => dragMove(e);
-            const up = e => {
-                document.removeEventListener('pointermove', move);
-                document.removeEventListener('pointerup', up);
-                document.removeEventListener('pointercancel', up);
-                dragEnd(e);
-            };
-            document.addEventListener('pointermove', move);
-            document.addEventListener('pointerup', up);
-            document.addEventListener('pointercancel', up);
-            beginDrag(ev);
-        });
-    });
-
-    let drag = null;
-
-    function beginDrag(ev) {
-        const card = ev.currentTarget;
-        const rect = card.getBoundingClientRect();
-        drag = { card, grabX: ev.clientX - rect.left, grabY: ev.clientY - rect.top };
-        card.classList.add('np6-dragging');
-        positionCard(ev);
-    }
-
-    function positionCard(ev) {
-        const rowRect = row.getBoundingClientRect();
-        const x = ev.clientX - rowRect.left - drag.grabX;
-        const y = ev.clientY - rowRect.top - drag.grabY;
-        drag.card.style.transform = `translate(${x - drag.card.offsetLeft}px, ${y - drag.card.offsetTop}px)`;
-    }
-
-    function dragMove(ev) {
-        if (!drag) return;
-        positionCard(ev);
-        // Slotträkning på layout-positioner (offsetLeft) – inte visuella
-        // rektar – så pågående FLIP-animationer inte stör beräkningen.
-        const cards = [...row.querySelectorAll('.np6-drag-card')];
-        const rowRect = row.getBoundingClientRect();
-        const pointerX = ev.clientX - rowRect.left;
-        const others = cards.filter(c => c !== drag.card);
-        let target = 0;
-        for (const c of others) {
-            if (pointerX > c.offsetLeft + c.offsetWidth / 2) target++;
-        }
-        const curIdx = cards.indexOf(drag.card);
-        if (target !== curIdx) {
-            const before = new Map(others.map(c => [c, c.getBoundingClientRect()]));
-            row.insertBefore(drag.card, others[target] || null);
-            // FLIP: flytta visuellt tillbaka och animera till noll
-            others.forEach(c => {
-                const b = before.get(c), a = c.getBoundingClientRect();
-                const dx = b.left - a.left;
-                if (dx) {
-                    c.style.transition = 'none';
-                    c.style.transform = `translateX(${dx}px)`;
-                    void c.offsetWidth;
-                    c.style.transition = 'transform .22s cubic-bezier(0.3, 1.3, 0.5, 1)';
-                    c.style.transform = '';
-                }
-            });
-            positionCard(ev);
-        }
-    }
-
-    function dragEnd() {
-        if (!drag) return;
-        const card = drag.card;
-        drag = null;
-        // Snärt tillbaka in i slotten: från nuvarande visuella läge till 0.
-        card.classList.remove('np6-dragging');
-        card.classList.add('np6-snapping');
-        void card.offsetWidth;
-        card.style.transform = '';
-        setTimeout(() => card.classList.remove('np6-snapping'), 260);
-    }
+    enableDragSort(document.getElementById('np6-sort-row'), { locked: () => !document.getElementById('np6-next-wrap').classList.contains('hidden'), clearMarking: '.np6-slot-ok,.np6-slot-bad' });
 }
 
 export function checkNp6Order() {
