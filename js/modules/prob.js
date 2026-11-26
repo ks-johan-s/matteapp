@@ -60,17 +60,31 @@ function ballsHTML(counts, opts = {}) {
     </div>`;
 }
 
-// Tärningar med unicode-prickar ⚀⚁⚂⚃⚄⚅
-const DIE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+// Äkta SVG-tärningar med prickar — tydligare än unicode och ingen dubbelram.
+// pip-positioner i ett 3×3-rutnät per tärningssida
+const PIPS = {
+    1: [[1, 1]],
+    2: [[0, 0], [2, 2]],
+    3: [[0, 0], [1, 1], [2, 2]],
+    4: [[0, 0], [2, 0], [0, 2], [2, 2]],
+    5: [[0, 0], [2, 0], [1, 1], [0, 2], [2, 2]],
+    6: [[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [2, 2]],
+};
+function dieSvg(n, px = 44) {
+    const pad = px * 0.22, step = (px - pad * 2) / 2, r = px * 0.11;
+    const dots = PIPS[n].map(([c, rw]) =>
+        `<circle cx="${(pad + c * step).toFixed(1)}" cy="${(pad + rw * step).toFixed(1)}" r="${r.toFixed(1)}" fill="#1e293b"/>`).join('');
+    return `<svg width="${px}" height="${px}" viewBox="0 0 ${px} ${px}">${dots}</svg>`;
+}
 function diceHTML(highlight = []) {
     // highlight: lista av tal 1–6 som är gynnsamma (markeras gröna)
-    let out = '<div class="flex justify-center gap-2 flex-wrap">';
+    let out = '<div class="flex justify-center gap-2.5 flex-wrap">';
     for (let n = 1; n <= 6; n++) {
         const hl = highlight.includes(n);
         const cls = hl ? 'demo-pop' : '';
         const dl = hl ? ` style="animation-delay:${highlight.indexOf(n) * 350}ms"` : '';
         out += `<div class="flex flex-col items-center gap-0.5 ${cls}"${dl}>
-            <div class="w-12 h-12 rounded-xl border-2 ${hl ? 'border-emerald-500 bg-emerald-100' : 'border-slate-400 bg-white'} flex items-center justify-center text-3xl shadow-sm">${DIE_FACES[n - 1]}</div>
+            <div class="w-14 h-14 rounded-xl border-2 ${hl ? 'border-emerald-500 bg-emerald-100' : 'border-slate-300 bg-white'} flex items-center justify-center shadow-sm">${dieSvg(n, 44)}</div>
             <span class="text-xs font-extrabold ${hl ? 'text-emerald-700' : 'text-slate-500'}">${n}</span>
         </div>`;
     }
@@ -564,7 +578,7 @@ function renderSim() {
             const c = cur.sim['c' + (i + 1)] || 0;
             const mx = Math.max(1, rolls / 6);
             const h = Math.min(90, Math.round(85 * c / (mx * 1.3)));
-            return `<div class="flex flex-col items-center gap-0.5"><div class="w-10 rounded-t-lg ${i === 5 ? 'bg-emerald-400' : 'bg-violet-300'} transition-all duration-300" style="height:${h}px"></div><span class="text-lg">${DIE_FACES[i]}</span></div>`;
+            return `<div class="flex flex-col items-center gap-0.5"><div class="w-10 rounded-t-lg ${i === 5 ? 'bg-emerald-400' : 'bg-violet-300'} transition-all duration-300" style="height:${h}px"></div><span class="w-6 h-6 rounded bg-white border border-slate-300 inline-flex items-center justify-center">${dieSvg(i + 1, 18)}</span></div>`;
         }).join('')}</div>
         <div class="flex items-center gap-3 flex-wrap justify-center">
             <span class="font-extrabold text-slate-700">${rolls} kast</span>
