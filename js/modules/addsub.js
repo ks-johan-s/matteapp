@@ -235,6 +235,12 @@ export function generateAddSubQuestion() {
     if (missing) {
         const otherPart = missing.wholeKnown ? missing.part1 : Math.min(missing.part1, missing.part2);
         const other2 = missing.wholeKnown ? '?' : Math.max(missing.part1, missing.part2);
+        // Proportionella block: delarnas bredd speglar deras verkliga storlek
+        // i förhållande till helheten – en 3:a av 94 är en liten bit, inte
+        // halva stapeln. Den okända delen ritas i sin faktiska storlek
+        // (värdet är okänt, inte storleken – precis som i stapelmodellen).
+        const size1 = missing.wholeKnown ? missing.part1 : Math.min(missing.part1, missing.part2);
+        const size2 = missing.wholeKnown ? (missing.whole - missing.part1) : Math.max(missing.part1, missing.part2);
         document.getElementById('addsub-visual').innerHTML = `
             <div class="w-full max-w-md mx-auto">
                 <div class="text-[11px] font-extrabold text-emerald-900 mb-1">Del–helhets-tänket: ${missing.wholeKnown ? 'hela + två delar' : 'okänd hel = del + del'}</div>
@@ -242,8 +248,8 @@ export function generateAddSubQuestion() {
                     ${missing.wholeKnown ? `Hela: ${missing.whole}` : 'Hela: ?'}
                 </div>
                 <div class="flex gap-1.5 mt-1.5">
-                    <div class="flex-1 rounded-2xl bg-emerald-100 border-2 border-emerald-300 text-emerald-950 font-display font-bold text-lg py-2 text-center">${otherPart}</div>
-                    <div class="flex-1 rounded-2xl ${missing.wholeKnown ? 'bg-white border-2 border-dashed border-emerald-500 text-emerald-700' : 'bg-emerald-100 border-2 border-emerald-300 text-emerald-950'} font-display font-bold text-lg py-2 text-center">${missing.wholeKnown ? '?' : other2}</div>
+                    <div class="rounded-2xl bg-emerald-100 border-2 border-emerald-300 text-emerald-950 font-display font-bold text-lg py-2 text-center" style="flex-grow:${size1};min-width:2.4rem;flex-basis:0">${otherPart}</div>
+                    <div class="rounded-2xl ${missing.wholeKnown ? 'bg-white border-2 border-dashed border-emerald-500 text-emerald-700' : 'bg-emerald-100 border-2 border-emerald-300 text-emerald-950'} font-display font-bold text-lg py-2 text-center" style="flex-grow:${size2};min-width:2.4rem;flex-basis:0">${missing.wholeKnown ? '?' : other2}</div>
                 </div>
             </div>`;
 
