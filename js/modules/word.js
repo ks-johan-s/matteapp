@@ -533,13 +533,105 @@ function genOmkretsWord() {
     };
 }
 
+
+/* ---- Chans & kluringar: kombinatorik, sannolikhet, temperatur ---- */
+function genKombinationer() {
+    const name = wName();
+    const d = state.difficulty;
+    const na = d === 'easy' ? wPick([2, 3]) : wPick([2, 3, 4]);
+    const nb = d === 'easy' ? wPick([2, 3]) : wPick([3, 4]);
+    const useC = d !== 'easy' && Math.random() < 0.5;
+    const nc = useC ? 2 : 0;
+    const ans = na * nb * (nc || 1);
+    const itemA = wPick([['tröjor', 'en tröja'], ['mackor', 'en macka']]);
+    const itemB = itemA[0] === 'tröjor' ? ['par byxor', 'ett par byxor'] : ['drycker', 'en dryck'];
+    const mulStr = nc ? `${na} × ${nb} × ${nc}` : `${na} × ${nb}`;
+    return {
+        badge: '🌳 Kombinatorik',
+        text: `${name} ska välja ${itemA[1]} och ${itemB[1]}${nc ? ' och en efterrätt' : ''}. Det finns ${na} ${itemA[0]} och ${nb} ${itemB[0]}${nc ? ' och 2 efterrätter' : ''} att välja mellan. Hur många olika kombinationer kan ${name} sätta ihop?`,
+        ans, unit: 'kombinationer',
+        hints: [
+            `<p>Varje val i första steget kan kombineras med <strong>alla</strong> valen i nästa steg. Kan du rita ett rutnät i rutpapperet?</p>`,
+            `<p><strong>Multiplicera!</strong> ${mulStr} = <strong>${ans}</strong>. (Fällan är att addera – det räknar inte kombinationerna!)</p>`
+        ]
+    };
+}
+
+function genKo() {
+    const n = state.difficulty === 'easy' ? 3 : wPick([3, 4]);
+    let ans = 1;
+    for (let i = n; i >= 1; i--) ans *= i;
+    const mulStr = Array.from({ length: n }, (_, i) => n - i).join(' × ');
+    return {
+        badge: '👯 Kompiskö',
+        text: `${n} kompisar ska ställa sig i kö till skolans bibiliotek. På hur många olika sätt kan de ordna sig i kön?`,
+        ans, unit: 'sätt',
+        hints: [
+            `<p>Första platsen: <strong>${n}</strong> kompisar kan stå där. När den är tagen återstår <strong>${n - 1}</strong> för nästa plats …</p>`,
+            `<p>Multiplicera: ${mulStr} = <strong>${ans}</strong> olika köer!</p>`
+        ]
+    };
+}
+
+function genForvantat() {
+    const name = wName();
+    const d = state.difficulty;
+    // sannolikhet baklänges: "x/n är vinstkulor" eller förväntat antal sexor
+    if (Math.random() < 0.5) {
+        const perSix = d === 'easy' ? 6 : wPick([6, 12]);
+        const mult = d === 'easy' ? wPick([10, 20]) : wPick([20, 25, 50]);
+        const rolls = perSix * mult;
+        return {
+            badge: '🎲 Förväntat antal',
+            text: `${name} kastar en vanlig tärning ${rolls} gånger. Ungefär hur många sexor kan hen vänta sig att få totalt?`,
+            ans: mult * (perSix / 6), unit: 'sexor',
+            hints: [
+                `<p>Chansen för sexa är 1/6 – ungefär var sjätte kast blir en sexa i snitt.</p>`,
+                `<p>Delat i grupper om 6 kast: <strong>${rolls} ÷ 6 = ${rolls / 6}</strong> grupper → ungefär <strong>${rolls / 6}</strong> sexor!</p>`
+            ]
+        };
+    }
+    const total = wPick([12, 20, 24]);
+    const frac = wPick([[1, 4], [1, 3], [1, 2]]);
+    const ans = total * frac[0] / frac[1];
+    return {
+        badge: '🎯 Sannolikhet baklänges',
+        text: `I en lyckopåse finns det ${total} kulor. Sannolikheten att dra en vinstkula är ${frac[0]}/${frac[1]}. Hur många vinstkulor finns det i påsen?`,
+        ans, unit: 'vinstkulor',
+        hints: [
+            `<p>${frac[0]}/${frac[1]} av kulorna är vinstkulor – samma räknesätt som "bråk av antal"!</p>`,
+            `<p><strong>${total} ÷ ${frac[1]} = ${total / frac[1]}</strong>${frac[0] > 1 ? `, och × ${frac[0]} = <strong>${ans}</strong>` : ''} → <strong>${ans}</strong> vinstkulor!</p>`
+        ]
+    };
+}
+
+function genTemperatur() {
+    const d = state.difficulty;
+    const neg = d !== 'easy' && Math.random() < 0.55;
+    const start = neg ? -wPick([2, 3, 4, 5, 8, 10]) : wPick([3, 5, 7, 8, 12]);
+    const drop = Math.random() < 0.55;
+    const change = d === 'easy' ? wPick([3, 4, 5, 6]) : wPick([4, 5, 7, 9, 11, 15]);
+    const ans = drop ? start - change : start + change;
+    const way = drop ? 'sjönk' : 'steg';
+    return {
+        badge: '🌡️ Temperaturkluring',
+        text: `På morgonen visade termometern ${start} grader. Under dagen ${way} temperaturen ${change} grader. Vad visar termometern på eftermiddagen?`,
+        ans, unit: 'grader',
+        hints: [
+            `<p>Tänk på tallinjen/termometern: börja på <strong>${start}</strong> och hoppa ${change} steg ${drop ? 'nedåt' : 'uppåt'}.</p>`,
+            ans < 0 || start < 0 ? `<p>Passerar du noll? Hoppa först till 0, sedan resten. Svaret blir <strong>${ans}</strong> grader!</p>` : `<p>Svaret: ${start} ${drop ? '−' : '+'} ${change} = <strong>${ans}</strong> grader!</p>`
+        ]
+    };
+}
+
 const WORD_GENERATORS = {
     units: [genVolym, genLangd, genStracka, genTid, genJamfor],
     frac: [genBrakAv, genProcent],
     money: [genVaxel, genMissingStart, genKlassresa],
     div: [genPasar, genDelaLika, genKartonger],
     patterns: [genTalfoljdSpar, genTalfoljdKul, genMedelWord],
-    geo: [genAreaWord, genOmkretsWord]
+    geo: [genAreaWord, genOmkretsWord],
+    prob: [genKombinationer, genKo, genForvantat, genTemperatur]
 };
 
 export function setWordCategory(cat) {

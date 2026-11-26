@@ -274,6 +274,7 @@ export const LEVEL_MODULES = {
             { icon: '➗', label: 'Dela & Fördela', desc: 'Division i vardagen', apply: () => { setWordCategory('div'); return 'word'; } },
             { icon: '🍕', label: 'Bråk & Procent', desc: 'Delar av helheter', apply: () => { setWordCategory('frac'); return 'word'; } },
             { icon: '📐', label: 'Area & Mått', desc: 'Geometri i vardagen', apply: () => { setWordCategory('geo'); return 'word'; } },
+            { icon: '🎲', label: 'Chans & kluringar', desc: 'Kombinatorik, tärning och temperatur', apply: () => { setWordCategory('prob'); return 'word'; } },
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setWordCategory('all'); return 'word'; } },
