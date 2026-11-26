@@ -173,17 +173,18 @@ export function generateNp6Question() {
 
     if (mode === 'order') {
         badgeEl.textContent = '🔀 Storleksordna';
-        // Fyra bråk med tydligt olika värden – som NP:s bråkkort A–D.
+        // Bråkkort med tydligt olika värden – som NP:s bråkkort A–D.
+        const count = diff === 'easy' ? 3 : diff === 'medium' ? 4 : 5;
         const dens = diff === 'easy' ? [2, 3, 4, 6] : diff === 'medium' ? [3, 4, 5, 6, 8, 9] : [4, 5, 6, 7, 8, 9, 10, 12];
         const fracs = [];
-        for (let tries = 0; tries < 200 && fracs.length < 4; tries++) {
+        for (let tries = 0; tries < 200 && fracs.length < count; tries++) {
             const d = dens[randInt(0, dens.length - 1)];
             const f = { n: randInt(1, d - 1), d };
             if (fracs.every(o => cmpFrac(f, o) !== 0 && Math.abs(fracVal(f) - fracVal(o)) > 0.06)) fracs.push(f);
         }
-        const order = fracs.map((f, i) => i).sort((x, y) => cmpFrac(fracs[x], fracs[y]));
-        state.currentNp6 = { mode, fracs, order, picked: [] };
-        qEl.innerHTML = `Lägg bråken i <strong>storleksordning</strong> – klicka på det <strong>minsta först</strong>!`;
+        const correct = fracs.map((f, i) => i).sort((x, y) => cmpFrac(fracs[x], fracs[y]));
+        state.currentNp6 = { mode, fracs, correct };
+        qEl.innerHTML = `<strong>Dra bråken</strong> till storleksordning – <strong>minst till vänster</strong>, störst till höger!`;
         setHintSteps('np6', [
             `<p>Jämför två och två först – eller använd <strong>en halv</strong> som måttstock: vilka är under, vilka är över?</p>`,
             `<p>Samma täljare? Då är bråket med <strong>störst nämnare</strong> minst. Nära en hel? Räkna vad som fattas!</p>`
@@ -315,37 +316,136 @@ export function checkNp6Compare(pos) {
 function renderNp6Order() {
     const cur = state.currentNp6;
     const optsEl = document.getElementById('np6-options');
-    optsEl.innerHTML = cur.fracs.map((f, i) => {
-        const pickIdx = cur.picked.indexOf(i);
-        const picked = pickIdx !== -1;
-        return `<button onclick="np6OrderClick(${i})" ${picked ? 'disabled' : ''} class="btn-3d relative bg-white hover:bg-amber-50 border-3 ${picked ? 'border-emerald-500 bg-emerald-50' : 'border-amber-300'} rounded-2xl px-7 py-5 font-display font-bold text-3xl text-slate-900 ${picked ? 'opacity-90' : ''}">
-            ${picked ? `<span class="absolute -top-2.5 -left-2.5 w-7 h-7 rounded-full bg-emerald-500 text-white text-sm font-extrabold flex items-center justify-center">${pickIdx + 1}</span>` : ''}
-            ${fracHtml(f)}
-        </button>`;
-    }).join('');
+    optsEl.className = 'max-w-2xl mx-auto mt-4';
+    optsEl.innerHTML = `
+        <div id="np6-sort-row" class="relative flex flex-nowrap justify-center gap-2 sm:gap-3 py-2 select-none">
+            ${cur.fracs.map((f, i) => `
+                <div class="np6-drag-card border-3 border-amber-300 bg-white rounded-2xl px-4 sm:px-6 py-4 font-display font-bold text-2xl sm:text-3xl text-slate-900" data-frac="${i}">${fracHtml(f)}</div>
+            `).join('')}
+        </div>
+        <div class="mt-3">
+            <button onclick="checkNp6Order()" class="btn-3d bg-gradient-to-r from-violet-500 to-purple-600 text-white font-display font-bold text-lg px-7 py-2.5 rounded-2xl">Kolla! ✓</button>
+        </div>`;
+    setupNp6OrderDrag();
 }
 
-export function np6OrderClick(i) {
+// Pekarbaserad drag-ordning: kortet följer pekaren, övriga kort glider
+// undan med FLIP-animation. touch-action:none krävs för att draget inte
+// ska fastna i sid-scrollen på surfplattor.
+function setupNp6OrderDrag() {
+    const row = document.getElementById('np6-sort-row');
+    if (!row) return;
+    row.querySelectorAll('.np6-drag-card').forEach(card => {
+        card.addEventListener('pointerdown', ev => {
+            if (!document.getElementById('np6-next-wrap').classList.contains('hidden')) return;
+            ev.preventDefault();
+            row.querySelectorAll('.np6-drag-card').forEach(c => c.classList.remove('np6-slot-ok', 'np6-slot-bad'));
+            const move = e => dragMove(e);
+            const up = e => {
+                document.removeEventListener('pointermove', move);
+                document.removeEventListener('pointerup', up);
+                document.removeEventListener('pointercancel', up);
+                dragEnd(e);
+            };
+            document.addEventListener('pointermove', move);
+            document.addEventListener('pointerup', up);
+            document.addEventListener('pointercancel', up);
+            beginDrag(ev);
+        });
+    });
+
+    let drag = null;
+
+    function beginDrag(ev) {
+        const card = ev.currentTarget;
+        const rect = card.getBoundingClientRect();
+        drag = { card, grabX: ev.clientX - rect.left, grabY: ev.clientY - rect.top };
+        card.classList.add('np6-dragging');
+        positionCard(ev);
+    }
+
+    function positionCard(ev) {
+        const rowRect = row.getBoundingClientRect();
+        const x = ev.clientX - rowRect.left - drag.grabX;
+        const y = ev.clientY - rowRect.top - drag.grabY;
+        drag.card.style.transform = `translate(${x - drag.card.offsetLeft}px, ${y - drag.card.offsetTop}px)`;
+    }
+
+    function dragMove(ev) {
+        if (!drag) return;
+        positionCard(ev);
+        // Slotträkning på layout-positioner (offsetLeft) – inte visuella
+        // rektar – så pågående FLIP-animationer inte stör beräkningen.
+        const cards = [...row.querySelectorAll('.np6-drag-card')];
+        const rowRect = row.getBoundingClientRect();
+        const pointerX = ev.clientX - rowRect.left;
+        const others = cards.filter(c => c !== drag.card);
+        let target = 0;
+        for (const c of others) {
+            if (pointerX > c.offsetLeft + c.offsetWidth / 2) target++;
+        }
+        const curIdx = cards.indexOf(drag.card);
+        if (target !== curIdx) {
+            const before = new Map(others.map(c => [c, c.getBoundingClientRect()]));
+            row.insertBefore(drag.card, others[target] || null);
+            // FLIP: flytta visuellt tillbaka och animera till noll
+            others.forEach(c => {
+                const b = before.get(c), a = c.getBoundingClientRect();
+                const dx = b.left - a.left;
+                if (dx) {
+                    c.style.transition = 'none';
+                    c.style.transform = `translateX(${dx}px)`;
+                    void c.offsetWidth;
+                    c.style.transition = 'transform .22s cubic-bezier(0.3, 1.3, 0.5, 1)';
+                    c.style.transform = '';
+                }
+            });
+            positionCard(ev);
+        }
+    }
+
+    function dragEnd() {
+        if (!drag) return;
+        const card = drag.card;
+        drag = null;
+        // Snärt tillbaka in i slotten: från nuvarande visuella läge till 0.
+        card.classList.remove('np6-dragging');
+        card.classList.add('np6-snapping');
+        void card.offsetWidth;
+        card.style.transform = '';
+        setTimeout(() => card.classList.remove('np6-snapping'), 260);
+    }
+}
+
+export function checkNp6Order() {
     const cur = state.currentNp6;
     if (!cur || cur.mode !== 'order') return;
     if (!document.getElementById('np6-next-wrap').classList.contains('hidden')) return;
-    const expect = cur.order[cur.picked.length];
-    if (i === expect) {
-        playSound('click');
-        cur.picked.push(i);
-        renderNp6Order();
-        if (cur.picked.length === cur.fracs.length) {
-            addReward(2);
-            showFeedback('np6-feedback', true, `🎉 Hela ordningen rätt! ${cur.order.map(x => fracHtml(cur.fracs[x])).join(' &lt; ')}`);
-            document.getElementById('np6-next-wrap').classList.remove('hidden');
-        }
+    const row = document.getElementById('np6-sort-row');
+    if (!row) return;
+    const arrangement = [...row.querySelectorAll('.np6-drag-card')].map(c => parseInt(c.dataset.frac, 10));
+    const isCorrect = arrangement.every((fi, slot) => fi === cur.correct[slot]);
+    const cards = [...row.querySelectorAll('.np6-drag-card')];
+    if (isCorrect) {
+        playSound('correct');
+        addReward(2);
+        cards.forEach(c => c.classList.add('np6-slot-ok'));
+        showFeedback('np6-feedback', true, `🎉 Hela ordningen rätt! ${cur.correct.map(x => fracHtml(cur.fracs[x])).join(' &lt; ')}`);
+        document.getElementById('np6-next-wrap').classList.remove('hidden');
     } else {
         resetStreak();
         playSound('wrong');
-        const actual = cur.fracs[i], wanted = cur.fracs[expect];
-        showFeedback('np6-feedback', false, cur.picked.length === 0
-            ? `🤔 ${fracHtml(actual)} är inte minst – jämför med de andra innan du klickar!`
-            : `🤔 Nästan – men ${fracHtml(actual)} är större än något som är kvar. Vilket bråk är minst av de som är kvar?`);
+        // Markera vilka positioner som sitter rätt – resten får flyttas.
+        let rightCount = 0;
+        cards.forEach((c, slot) => {
+            const ok = parseInt(c.dataset.frac, 10) === cur.correct[slot];
+            c.classList.toggle('np6-slot-ok', ok);
+            c.classList.toggle('np6-slot-bad', !ok);
+            if (ok) rightCount++;
+        });
+        showFeedback('np6-feedback', false, rightCount > 0
+            ? `🤔 ${rightCount} av ${cards.length} sitter rätt (gröna) – de röda behöver byta plats. Dra och prova igen!`
+            : '🤔 Ingen sitter rätt ännu – jämför två och två: vilket bråk är egentligen minst? Kika på 💡-knepen!');
     }
 }
 

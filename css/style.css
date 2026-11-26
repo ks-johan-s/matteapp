@@ -1018,3 +1018,30 @@ div.demo-struck::after {
     border-radius: 0.45rem;
     padding: 0 0.3rem;
 }
+
+/* NP åk 6: dragbara bråkkort i storleksordna-läget */
+.np6-drag-card {
+    cursor: grab;
+    touch-action: none;
+    position: relative;
+    box-shadow: 0 2px 0 rgba(180, 130, 40, 0.25);
+    user-select: none;
+    -webkit-user-select: none;
+}
+.np6-dragging {
+    cursor: grabbing;
+    z-index: 30;
+    box-shadow: 0 14px 28px rgba(100, 60, 180, 0.35), 0 0 0 3px rgba(139, 92, 246, 0.5);
+    scale: 1.07;
+}
+.np6-snapping {
+    transition: transform .24s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.np6-slot-ok {
+    border-color: #10b981 !important;
+    background: #ecfdf5 !important;
+}
+.np6-slot-bad {
+    border-color: #f43f5e !important;
+    animation: cellShake .4s ease;
+}
