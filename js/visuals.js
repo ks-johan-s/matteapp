@@ -336,12 +336,13 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
     let minCountsHtml = '';
     if (opts.allMinCounts) {
         // samtliga minutmarkeringar 5–60 (00 vid tolv) i minutvisarens blå
+        // utanför den lila ringen (r+6), med vit kontur så de alltid syns
         for (let t = 5; t <= 60; t += 5) {
             const ang = (t / 60) * Math.PI * 2 - Math.PI / 2;
-            const lx = cx + (r * 1.04) * Math.cos(ang);
-            const ly = cy + (r * 1.04) * Math.sin(ang) + size * 0.018;
+            const lx = cx + (r * 1.15) * Math.cos(ang);
+            const ly = cy + (r * 1.15) * Math.sin(ang) + size * 0.02;
             const lbl = t === 60 ? '00' : t;
-            minCountsHtml += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="${size * 0.062}" fill="#0284c7">${lbl}</text>`;
+            minCountsHtml += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="${size * 0.068}" fill="#0284c7" stroke="#ffffff" stroke-width="3.5" paint-order="stroke">${lbl}</text>`;
         }
     } else if (opts.minCounts) {
         for (let t = 5; t <= minutes; t += 5) {
