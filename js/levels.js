@@ -235,6 +235,8 @@ export const LEVEL_MODULES = {
         steps: [
             { icon: '📊', label: 'Läs av stapel', desc: 'Vad visar diagrammet?', demo: true, apply: () => { setChartSubMode('read'); return 'chart'; } },
             { icon: '⚖️', label: 'Jämför & Totalt', desc: 'Skillnader och summor', apply: () => { setChartSubMode('diff'); return 'chart'; } },
+            { icon: '🥧', label: 'Cirkeldiagram', desc: 'Andelar av en helhet', demo: true, apply: () => { setChartSubMode('pie'); return 'chart'; } },
+            { icon: '📈', label: 'Linjediagram', desc: 'Temperatur över en vecka', demo: true, apply: () => { setChartSubMode('line'); return 'chart'; } },
         ],
         explore: [
             { icon: '🎲', label: 'Blandat', apply: () => { setChartSubMode('mix'); return 'chart'; } },

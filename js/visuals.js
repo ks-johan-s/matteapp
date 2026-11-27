@@ -398,6 +398,98 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
     `;
 }
 
+
+// Cirkeldiagram: sektorer proportionella mot values, legend till höger.
+// opts.fracLabels: visa bråketiketter i sektorerna (t.ex. "1/2")
+export function renderPieChartSVG(items, opts = {}) {
+    const size = opts.size || 200;
+    const cx = 105, cy = 105, r = 88;
+    const total = items.reduce((s, it) => s + it.val, 0);
+    const colors = ['#f43f5e', '#0284c7', '#f59e0b', '#10b981', '#a78bfa'];
+    const stagger = opts.stagger;
+    let slices = '';
+    let a0 = -Math.PI / 2;
+    items.forEach((it, i) => {
+        const frac = it.val / total;
+        const a1 = a0 + frac * Math.PI * 2;
+        // tårtbitarna växer ut från centrum en i taget om stagger
+        const x1 = cx + r * Math.cos(a0), y1 = cy + r * Math.sin(a0);
+        const x2 = cx + r * Math.cos(a1), y2 = cy + r * Math.sin(a1);
+        const large = frac > 0.5 ? 1 : 0;
+        const cls = stagger ? 'demo-slice' : '';
+        const dl = stagger ? ` style="animation-delay:${i * 300}ms"` : '';
+        const dim = opts.dimExcept !== undefined && opts.dimExcept !== i ? ' opacity="0.3"' : '';
+        slices += `<path d="M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${colors[i % colors.length]}" stroke="#fff" stroke-width="2.5" class="${cls}"${dl}${dim}/>`;
+        if (opts.fracLabels && frac >= 0.1) {
+            const am = (a0 + a1) / 2;
+            const tx = cx + r * 0.6 * Math.cos(am), ty = cy + r * 0.6 * Math.sin(am);
+            slices += `<text x="${tx.toFixed(1)}" y="${(ty + 5).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="#ffffff" stroke="rgba(0,0,0,0.25)" stroke-width="2.5" paint-order="stroke">${it.fracLabel}</text>`;
+        }
+        a0 = a1;
+    });
+    const legend = items.map((it, i) =>
+        `<div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-sm inline-block" style="background:${colors[i % colors.length]}"></span><span class="text-xs font-bold text-slate-700">${it.icon} ${it.label}</span></div>`
+    ).join('');
+    return `<div class="flex items-center justify-center gap-4 flex-wrap">
+        <svg width="${size}" height="${size}" viewBox="0 0 210 210" style="overflow:visible"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#f1f5f9"/>${slices}<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#334155" stroke-width="2"/></svg>
+        <div class="flex flex-col gap-1.5">${legend}</div>
+    </div>`;
+}
+
+// Linjediagram: punkter över tid (x-etiketter under), y-skala till vänster.
+// points: [{label, val, icon?}] — opts: {highlightIdx, highlightPair:[a,b], negOk}
+export function renderLineChartSVG(title, points, opts = {}) {
+    const W = 380, H = 210;
+    const chartLeft = 46, chartRight = W - 14, chartTop = 32, chartBot = H - 42;
+    const chartH = chartBot - chartTop, chartW = chartRight - chartLeft;
+    const vals = points.map(p => p.val);
+    let yMin = Math.min(0, ...vals), yMax = Math.max(...vals);
+    if (yMax === yMin) yMax = yMin + 1;
+    const step = (yMax - yMin) > 20 ? 10 : (yMax - yMin) > 8 ? 5 : 2;
+    yMin = Math.floor(yMin / step) * step;
+    yMax = Math.ceil(yMax / step) * step;
+    const py = v => chartBot - ((v - yMin) / (yMax - yMin)) * chartH;
+    const px = i => chartLeft + (i / (points.length - 1)) * chartW;
+
+    let grid = '';
+    for (let v = yMin; v <= yMax; v += step) {
+        const y = py(v);
+        grid += `<line x1="${chartLeft}" y1="${y.toFixed(1)}" x2="${chartRight}" y2="${y.toFixed(1)}" stroke="${v === 0 ? '#94a3b8' : '#e2e8f0'}" stroke-width="${v === 0 ? 2 : 1.3}" ${v === 0 ? 'stroke-dasharray="6 4"' : ''}/>`;
+        grid += `<text x="${chartLeft - 7}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-family="Fredoka" font-weight="700" font-size="11" fill="#475569">${String(v).replace('-', '−')}</text>`;
+    }
+    // linjen — kan ritas ut segmentvis med stagger i demon
+    let linePath = '';
+    for (let i = 0; i < points.length; i++) {
+        linePath += `${i === 0 ? 'M' : 'L'} ${px(i).toFixed(1)} ${py(points[i].val).toFixed(1)} `;
+    }
+    const pts = points.map((p, i) => {
+        const hl = opts.highlightIdx === i || (opts.highlightPair && opts.highlightPair.includes(i));
+        const cls = opts.stagger ? 'demo-pop' : '';
+        const dl = opts.stagger ? ` style="animation-delay:${i * 150 + 400}ms"` : '';
+        return `<g class="${cls}"${dl}>
+            <circle cx="${px(i).toFixed(1)}" cy="${py(p.val).toFixed(1)}" r="${hl ? 7 : 4.5}" fill="${hl ? '#e11d48' : '#0284c7'}" stroke="#fff" stroke-width="2"/>
+            ${hl ? `<text x="${px(i).toFixed(1)}" y="${(py(p.val) - 12).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="#e11d48" stroke="#fff" stroke-width="3" paint-order="stroke">${String(p.val).replace('-', '−')}°</text>` : ''}
+        </g>`;
+    }).join('');
+    const xlabels = points.map((p, i) =>
+        `<text x="${px(i).toFixed(1)}" y="${(chartBot + 17).toFixed(1)}" text-anchor="middle" font-family="Nunito" font-weight="800" font-size="11.5" fill="#334155">${p.label}</text>`
+    ).join('');
+    // streckade hjälplinjer från en highlightpunkt till axlarna
+    let guides = '';
+    if (opts.guideIdx !== undefined) {
+        const i = opts.guideIdx, p = points[i];
+        guides = `<line x1="${px(i).toFixed(1)}" y1="${py(p.val).toFixed(1)}" x2="${px(i).toFixed(1)}" y2="${chartBot}" stroke="#e11d48" stroke-width="2" stroke-dasharray="5 4" class="demo-pop"/>
+                  <line x1="${px(i).toFixed(1)}" y1="${py(p.val).toFixed(1)}" x2="${chartLeft}" y2="${py(p.val).toFixed(1)}" stroke="#0284c7" stroke-width="2" stroke-dasharray="5 4" class="demo-pop" style="animation-delay:300ms"/>`;
+    }
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="overflow:visible">
+        <text x="${(W / 2).toFixed(0)}" y="16" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="#334155">${title}</text>
+        ${grid}
+        ${guides}
+        <path d="${linePath}" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="${opts.stagger ? 'demo-pop' : ''}"/>
+        ${pts}${xlabels}
+    </svg>`;
+}
+
 export function renderBarChartSVG(title, items, highlightIndices = [], showCompareBracket = false) {
     const maxVal = Math.max(...items.map(i => i.val));
     const step = maxVal > 20 ? 10 : (maxVal > 10 ? 5 : 2);
