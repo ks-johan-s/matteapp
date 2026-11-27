@@ -101,6 +101,7 @@ export const state = {
     np6SubMode: 'compare',
     npdSubMode: 'compare',
     probSubMode: 'box',
+    clockShowMinutes: false,
     currentConn: null,
     scratchpadOpen: false,
     scratchpadTab: 'grid',

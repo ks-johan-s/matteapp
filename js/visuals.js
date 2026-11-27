@@ -334,7 +334,16 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
     // "Räkna fem i taget"-märken utanför siffrorna (5, 10, 15 … upp till
     // aktuell minut) – visas i demon där minutvisaren förklaras.
     let minCountsHtml = '';
-    if (opts.minCounts) {
+    if (opts.allMinCounts) {
+        // samtliga minutmarkeringar 5–60 (00 vid tolv) i minutvisarens blå
+        for (let t = 5; t <= 60; t += 5) {
+            const ang = (t / 60) * Math.PI * 2 - Math.PI / 2;
+            const lx = cx + (r * 1.04) * Math.cos(ang);
+            const ly = cy + (r * 1.04) * Math.sin(ang) + size * 0.018;
+            const lbl = t === 60 ? '00' : t;
+            minCountsHtml += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="${size * 0.062}" fill="#0284c7">${lbl}</text>`;
+        }
+    } else if (opts.minCounts) {
         for (let t = 5; t <= minutes; t += 5) {
             const ang = (t / 60) * Math.PI * 2 - Math.PI / 2;
             const lx = cx + (r * 1.02) * Math.cos(ang);
@@ -363,7 +372,7 @@ export function renderClockSVG(hours, minutes, size = 190, interactive = false, 
         : '';
 
     return `
-        <svg id="${interactive ? 'sandbox-clock-svg' : ''}" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="drop-shadow-sm ${interactive ? 'cursor-pointer' : ''}"${opts.handLabels ? ' style="overflow:visible"' : ''}>
+        <svg id="${interactive ? 'sandbox-clock-svg' : ''}" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="drop-shadow-sm ${interactive ? 'cursor-pointer' : ''}"${(opts.handLabels || opts.allMinCounts) ? ' style="overflow:visible"' : ''}>
             <circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="#7c3aed" />
             <circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff" />
             ${ticksHtml}

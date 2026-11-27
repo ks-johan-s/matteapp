@@ -8,6 +8,23 @@ export function formatDigitalTime(h, m) {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
+export function toggleClockMinutes() {
+    playSound('click');
+    state.clockShowMinutes = !state.clockShowMinutes;
+    // rendera om den synliga frågeklockan med aktuella tider
+    const cur = state.currentClock;
+    const svgEl = document.getElementById('clock-svg-container');
+    if (svgEl && cur) {
+        svgEl.innerHTML = renderClockSVG(cur.dispH !== undefined ? cur.dispH : cur.h, cur.dispM !== undefined ? cur.dispM : cur.m, 190, false, null, { allMinCounts: state.clockShowMinutes });
+    }
+    updClockMinBtn();
+}
+
+function updClockMinBtn() {
+    const btn = document.getElementById('clock-minutes-toggle');
+    if (btn) btn.innerHTML = state.clockShowMinutes ? '🔵 Dölj minuter' : '🔵 Visa minuter (5, 10, 15…)';
+}
+
 export function setClockSubMode(mode) {
     playSound('click');
     state.clockSubMode = mode;
@@ -56,7 +73,7 @@ export function generateClockQuestion() {
         document.getElementById('clock-question-text').textContent = isAfternoon
             ? 'Hur mycket är klockan på eftermiddagen / kvällen?'
             : 'Hur mycket är klockan (förmiddag)?';
-        document.getElementById('clock-svg-container').innerHTML = renderClockSVG(h, m, 195);
+        document.getElementById('clock-svg-container').innerHTML = renderClockSVG(h, m, 195, false, null, { allMinCounts: state.clockShowMinutes });
 
         setHintSteps('clock', [
             `<p>Titta på den <strong class="text-rose-600">korta röda timvisaren</strong>: den pekar på <strong>${h}</strong>${isAfternoon ? ` (på eftermiddagen plussar vi på 12: <strong>${h} + 12 = ${dispH}</strong>)` : ''}.</p>
@@ -92,7 +109,7 @@ export function generateClockQuestion() {
         state.currentClock = { mode: 'jump', h, m: startMins, jumpMins, ansStr };
         document.getElementById('clock-mode-badge').textContent = '⏩ Tidshopp';
         document.getElementById('clock-question-text').textContent = `Klockan är ${formatDigitalTime(h, startMins)}. Hur mycket är hon om ${jumpMins} minuter?`;
-        document.getElementById('clock-svg-container').innerHTML = renderClockSVG(h, startMins, 185);
+        document.getElementById('clock-svg-container').innerHTML = renderClockSVG(h, startMins, 185, false, null, { allMinCounts: state.clockShowMinutes });
 
         const extraH = Math.floor(jumpMins / 60);
         const extraM = jumpMins % 60;
@@ -198,7 +215,7 @@ function generateClockVisualQuestion(mode) {
     const wt = ['c2w', 'w2c', 'w2d'][randInt(0, 2)];
     if (wt === 'c2w') {
         qEl.textContent = 'Vad heter tiden?';
-        svgEl.innerHTML = renderClockSVG(h, m, 185);
+        svgEl.innerHTML = renderClockSVG(h, m, 185, false, null, { allMinCounts: state.clockShowMinutes });
         const seen = new Set([word]);
         const wChoices = [word];
         for (const p of shuffleArray(clockPerturbations(h, m))) {

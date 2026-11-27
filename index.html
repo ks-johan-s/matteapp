@@ -1191,6 +1191,9 @@
                 <h2 id="clock-question-text" class="font-display font-bold text-2xl sm:text-3xl text-slate-900 my-2">Hur mycket är klockan?</h2>
 
                 <div id="clock-svg-container" class="my-4 flex justify-center"></div>
+                <div class="flex justify-center -mt-1 mb-2">
+                    <button id="clock-minutes-toggle" onclick="toggleClockMinutes()" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-sky-50 border border-sky-300 text-sky-800 hover:bg-sky-100 transition">🔵 Visa minuter (5, 10, 15…)</button>
+                </div>
                 <p class="text-xs font-extrabold text-slate-500 mb-3">🔴 Kort visare = Timme &nbsp;•&nbsp; 🔵 Lång visare = Minuter</p>
 
                 <div id="clock-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-3"></div>
